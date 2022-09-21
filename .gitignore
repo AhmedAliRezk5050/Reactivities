@@ -9,6 +9,8 @@ appsettings.json
 **.db-shm
 **.db-wal
 
+node_modules
+
 # User-specific files
 *.rsuser
 *.suo
@@ -446,3 +448,27 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+
+
+client-app/.gitignore
+client-app/**.md
+client-app/.pnp
+client-app/.pnp.js
+
+# testing
+client-app/coverage
+
+# production
+client-app/build
+
+# misc
+client-app/.DS_Store
+client-app/.env.local
+client-app/.env.development.local
+client-app/.env.test.local
+client-app/.env.production.local
+
+client-app/npm-debug.log*
+client-app/yarn-debug.log*
+client-app/yarn-error.log*
