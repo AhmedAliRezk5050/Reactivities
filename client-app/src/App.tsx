@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { FC, useEffect, useState } from 'react';
+import axios from 'axios';
 
-function App() {
-  return (
-    <div className='App'>
-      <header className='App-header'>
-        <img src={logo} className='App-logo' alt='logo' />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface Props {}
+
+interface Activity {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  category: string;
+  city: string;
+  venue: string;
 }
+
+const App: FC<Props> = () => {
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/api/activities')
+      .then(({ data }) => setActivities(data));
+  }, []);
+
+  const renderActivities = activities.map((a) => (
+    <div key={a.id}>
+      <p>{a.title}</p>
+    </div>
+  ));
+
+  return <div>{renderActivities}</div>;
+};
 
 export default App;

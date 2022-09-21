@@ -6,6 +6,18 @@ var configuration = builder.Configuration;
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors(o =>
+            {
+              o.AddPolicy("CorsPolicy",
+                  policyBuilder =>
+                      policyBuilder
+                          // .AllowAnyOrigin()
+                          .WithOrigins("http://localhost:3000")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+            });
+
+
 builder.Services.AddDbContext<DataContext>(options =>
                 {
                   options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
@@ -26,6 +38,9 @@ if (app.Environment.IsDevelopment())
 
 // we are not using https now
 // app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
+
 
 app.UseAuthorization();
 
