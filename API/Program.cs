@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,19 +31,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-Migrate(app);
+await Migrate(app);
 
 app.Run();
 
 // -- -- 
-void Migrate(WebApplication app)
+async Task Migrate(WebApplication app)
 {
   try
   {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DataContext>();
-    context.Database.Migrate();
+    await context.Database.MigrateAsync();
+    await Seed.SeedData(context);
   }
   catch (Exception e)
   {
