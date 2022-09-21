@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
+import { Header, List } from 'semantic-ui-react';
 
 interface Props {}
 
@@ -22,13 +23,19 @@ const App: FC<Props> = () => {
       .then(({ data }) => setActivities(data));
   }, []);
 
-  const renderActivities = activities.map((a) => (
-    <div key={a.id}>
-      <p>{a.title}</p>
+  const renderActivities = () => (
+    <List>
+      {activities.map((activity) => (
+        <List.Item key={activity.id}>{activity.title}</List.Item>
+      ))}
+    </List>
+  );
+  return (
+    <div>
+      <Header as='h2' icon='users' content='Activities' />
+      {renderActivities()}
     </div>
-  ));
-
-  return <div>{renderActivities}</div>;
+  );
 };
 
 export default App;
