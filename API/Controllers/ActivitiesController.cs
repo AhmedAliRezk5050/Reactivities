@@ -32,4 +32,16 @@ public class ActivitiesController : BaseApiController
         var createdActivity = await _mediator.Send(new Create.Command { Activity = activity });
         return Created($"/api/activities/{createdActivity.Id}", createdActivity);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> EditActivity(Guid id, Activity activity)
+    {
+        activity.Id = id;
+        
+        var updatedActivity = await _mediator.Send(new Edit.Command { Activity = activity });
+
+        if (updatedActivity is null) return NotFound();
+        
+        return NoContent();
+    }
 }
