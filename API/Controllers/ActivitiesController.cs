@@ -25,4 +25,11 @@ public class ActivitiesController : BaseApiController
     {
         return await _mediator.Send(new Details.Query { Id = id });
     }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateActivity(Activity activity)
+    {
+        var createdActivity = await _mediator.Send(new Create.Command { Activity = activity });
+        return Created($"/api/activities/{createdActivity.Id}", createdActivity);
+    }
 }
