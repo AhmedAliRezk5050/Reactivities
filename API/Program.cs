@@ -1,4 +1,5 @@
 using Application.Activities;
+using Application.Core;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -19,6 +20,7 @@ builder.Services.AddCors(o =>
                 .AllowAnyHeader());
 });
 
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 builder.Services.AddMediatR(typeof(List.Handler).Assembly);
 
