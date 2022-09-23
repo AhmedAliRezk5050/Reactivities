@@ -44,4 +44,14 @@ public class ActivitiesController : BaseApiController
         
         return NoContent();
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteActivity(Guid id)
+    {
+        var deletedActivity = await _mediator.Send(new Delete.Command() { Id = id });
+
+        if (deletedActivity is null) return NotFound();
+
+        return NoContent();
+    }
 }
