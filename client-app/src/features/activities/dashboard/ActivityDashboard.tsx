@@ -1,24 +1,17 @@
-import {Grid, List} from "semantic-ui-react";
+import {Grid} from "semantic-ui-react";
 import Activity from "../../../app/models/activity";
 import {FC} from "react";
+import ActivityList from "./ActivityList";
 
 interface Props {
     activities: Activity[];
 }
 
 const ActivityDashboard: FC<Props> = ({activities}) => {
-    const renderActivities = () => (
-        <List>
-            {activities.map((activity) => (
-                <List.Item key={activity.id}>{activity.title}</List.Item>
-            ))}
-        </List>
-    );
-
     return (
         <Grid>
             <Grid.Column width='10'>
-                {renderActivities()}
+                <ActivityList activities={activities} />
             </Grid.Column>
         </Grid>
     );
