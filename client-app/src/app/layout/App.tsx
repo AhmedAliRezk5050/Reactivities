@@ -3,7 +3,7 @@ import axios from 'axios';
 import Activity from "../models/activity";
 import NavBar from "./NavBar/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import {Container} from "semantic-ui-react";
+import {Container, Dimmer, Loader} from "semantic-ui-react";
 
 const App = () => {
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -20,7 +20,10 @@ const App = () => {
             <NavBar/>
             <div className="header-separator"></div>
             <Container>
-                <ActivityDashboard activities={activities}/>
+                <Dimmer active={activities.length === 0}>
+                    <Loader />
+                </Dimmer>
+                {activities.length > 0 && <ActivityDashboard activities={activities}/>}
             </Container>
         </>
     );
