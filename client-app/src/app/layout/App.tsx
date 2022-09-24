@@ -12,7 +12,7 @@ const App: FC<Props> = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/activities')
+      .get<Activity[]>('http://localhost:5000/api/activities')
       .then(({ data }) => setActivities(data));
   }, []);
 
