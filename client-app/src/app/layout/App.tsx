@@ -1,14 +1,11 @@
-import {FC, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import axios from 'axios';
-import {List} from 'semantic-ui-react';
 import Activity from "../models/activity";
 import NavBar from "./NavBar/NavBar";
+import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
+import {Container} from "semantic-ui-react";
 
-interface Props {
-}
-
-
-const App: FC<Props> = () => {
+const App = () => {
     const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
@@ -17,18 +14,14 @@ const App: FC<Props> = () => {
             .then(({data}) => setActivities(data));
     }, []);
 
-    const renderActivities = () => (
-        <List>
-            {activities.map((activity) => (
-                <List.Item key={activity.id}>{activity.title}</List.Item>
-            ))}
-        </List>
-    );
+
     return (
         <>
-            <NavBar />
+            <NavBar/>
             <div className="header-separator"></div>
-            {renderActivities()}
+            <Container>
+                <ActivityDashboard activities={activities}/>
+            </Container>
         </>
     );
 };
