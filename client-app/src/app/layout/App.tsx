@@ -1,18 +1,11 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Header, List } from 'semantic-ui-react';
+import Activity from "../models/activity";
 
 interface Props {}
 
-interface Activity {
-  id: string;
-  title: string;
-  date: string;
-  description: string;
-  category: string;
-  city: string;
-  venue: string;
-}
+
 
 const App: FC<Props> = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
