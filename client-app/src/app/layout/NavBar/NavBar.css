@@ -1,0 +1,6 @@
+.ui.menu.fixed.NavBar {
+    font-size: 1.6rem;
+}
+.ui.menu .item>img:not(.ui).logo{
+    margin-right: 1rem;
+}
