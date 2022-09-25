@@ -4,10 +4,11 @@ import Activity from "../../../app/models/activity";
 
 interface Props {
     activity: Activity | null,
-    onCancel: (id?: string) => void
+    onCancel: (id?: string) => void,
+    onUpsertActivity: (activity: Activity) => void
 }
 
-const ActivityForm: FC<Props> = ({onCancel, activity}) => {
+const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity}) => {
     console.log(activity)
     const [formData, setFormData] = useState<Activity>(activity ?? {
         id: '',
@@ -24,7 +25,7 @@ const ActivityForm: FC<Props> = ({onCancel, activity}) => {
     }
 
     const handleSubmit = () => {
-        console.log(formData)
+        onUpsertActivity(formData);
     }
 
     return (

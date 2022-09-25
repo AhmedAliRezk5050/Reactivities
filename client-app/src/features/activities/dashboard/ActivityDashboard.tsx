@@ -13,7 +13,8 @@ interface Props {
     onStartEdit: () => void;
     onCancel: (editing: boolean) => void;
     editMode: boolean,
-    createMode: boolean
+    createMode: boolean,
+    onUpsertActivity: (activity: Activity) => void
 }
 
 const ActivityDashboard: FC<Props> = ({
@@ -24,7 +25,8 @@ const ActivityDashboard: FC<Props> = ({
                                           onStartEdit,
                                           editMode,
                                           onCancel,
-                                          createMode
+                                          createMode,
+                                          onUpsertActivity
                                       }) => {
 
     return (
@@ -36,8 +38,11 @@ const ActivityDashboard: FC<Props> = ({
                 {selectedActivity && !editMode && !createMode &&
                     <ActivityDetails activity={selectedActivity} onHideActivity={onHideActivity}
                                      onStartEdit={onStartEdit}/>}
-                {!createMode && editMode && <ActivityForm onCancel={() => onCancel(true)} activity={selectedActivity}/>}
-                {!editMode && createMode && <ActivityForm onCancel={() => onCancel(false)} activity={null}/>}
+                {!createMode && editMode && <ActivityForm
+                    onCancel={() => onCancel(true)} activity={selectedActivity} onUpsertActivity={onUpsertActivity}/>}
+
+                {!editMode && createMode && <ActivityForm
+                    onCancel={() => onCancel(false)} activity={null} onUpsertActivity={onUpsertActivity}/>}
             </Grid.Column>
         </Grid>
     );
