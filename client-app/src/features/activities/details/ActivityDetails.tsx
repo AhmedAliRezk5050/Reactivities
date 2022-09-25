@@ -4,10 +4,11 @@ import {Button, Card, Image} from "semantic-ui-react";
 
 interface Props {
     activity: Activity,
-    onCancelEdit: () => void
+    onHideActivity: () => void
+    onStartEdit: () => void
 }
 
-const ActivityDetails: FC<Props> = ({activity, onCancelEdit}) => {
+const ActivityDetails: FC<Props> = ({activity, onHideActivity, onStartEdit}) => {
     return (
         <Card fluid>
             <Image src={`/assets/categoryImages/${activity.category}.jpg`}/>
@@ -22,8 +23,8 @@ const ActivityDetails: FC<Props> = ({activity, onCancelEdit}) => {
             </Card.Content>
             <Card.Content extra>
                 <Button.Group widths='2'>
-                    <Button basic color='yellow' content='Edit' />
-                    <Button basic color='red' content='Cancel' onClick={() => onCancelEdit()}/>
+                    <Button basic color='yellow' content='Edit' onClick={onStartEdit}/>
+                    <Button basic color='red' content='Cancel' onClick={onHideActivity}/>
                 </Button.Group>
             </Card.Content>
         </Card>

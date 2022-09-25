@@ -1,7 +1,13 @@
 import {Button, Container, Menu} from "semantic-ui-react";
 import  './NavBar.css';
+import {FC} from "react";
 
-const NavBar = () => {
+
+interface Props {
+    onStartCreate: () => void
+}
+
+const NavBar:FC<Props> = ({onStartCreate}) => {
     return (
         <Menu inverted fixed="top" className="NavBar">
             <Container>
@@ -11,7 +17,7 @@ const NavBar = () => {
                 </Menu.Item>
                 <Menu.Item name="Activities"/>
                 <Menu.Item>
-                    <Button positive content="Create Activity"/>
+                    <Button positive content="Create Activity" onClick={() => onStartCreate()}/>
                 </Menu.Item>
             </Container>
         </Menu>
