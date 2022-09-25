@@ -1,5 +1,5 @@
 import {Button, Form, Segment} from "semantic-ui-react";
-import {FC} from "react";
+import {ChangeEvent, FC, useState} from "react";
 import Activity from "../../../app/models/activity";
 
 interface Props {
@@ -8,18 +8,58 @@ interface Props {
 }
 
 const ActivityForm: FC<Props> = ({onCancel, activity}) => {
-    console.log(
-        activity
-    )
+    console.log(activity)
+    const [formData, setFormData] = useState<Activity>(activity ?? {
+        id: '',
+        title: '',
+        date: '',
+        description: '',
+        category: '',
+        venue: '',
+        city: ''
+    });
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const {name, value} = e.target;
+        setFormData({...formData, [name]: value})
+    }
+
+    const handleSubmit = () => {
+        console.log(formData)
+    }
+
     return (
         <Segment clearing>
-            <Form>
-                <Form.Input placeholder='Title' content={activity?.title}/>
-                <Form.TextArea placeholder='Description'/>
-                <Form.Input placeholder='Category'/>
-                <Form.Input placeholder='Date'/>
-                <Form.Input placeholder='City'/>
-                <Form.Input placeholder='Venue'/>
+            <Form onSubmit={handleSubmit}>
+                <Form.Input
+                    placeholder='Title'
+                    name='title'
+                    onChange={handleChange}
+                    value={formData.title}/>
+                <Form.TextArea
+                    placeholder='Description'
+                    name='description'
+                    onChange={handleChange}
+                    value={formData.description}/>
+                <Form.Input
+                    placeholder='Category'
+                    name='category'
+                    onChange={handleChange}
+                    value={formData.category}/>
+                <Form.Input
+                    placeholder='Date'
+                    name='date'
+                    onChange={handleChange}
+                    value={formData.date}/>
+                <Form.Input
+                    placeholder='City'
+                    name='city'
+                    onChange={handleChange}
+                    value={formData.city}/>
+                <Form.Input
+                    placeholder='Venue'
+                    name='venue'
+                    onChange={handleChange}
+                    value={formData.venue}/>
                 <Button floated='left' positive type='submit' content='Submit'/>
                 <Button floated='right' negative type='button' content='Cancel' onClick={() => onCancel(activity?.id)}/>
             </Form>

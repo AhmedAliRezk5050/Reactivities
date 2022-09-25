@@ -43,6 +43,8 @@ const App = () => {
     }
 
     const onShowForm = (id?: string) => {
+        if(editMode || createMode) return;
+        
         if(id) {
             setEditMode(true);
             setCreateMode(false);
