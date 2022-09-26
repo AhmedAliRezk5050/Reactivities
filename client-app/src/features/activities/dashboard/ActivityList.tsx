@@ -11,10 +11,10 @@ interface Props {
 }
 
 const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivity, formLoading}) => {
-    const [foo, setFoo] = useState('')
+    const [deleBtnId, setDeleBtnId] = useState('')
     const handleDelete = (e: MouseEvent<HTMLButtonElement>, id: string) => {
 
-        setFoo(id);
+        setDeleBtnId(id);
         onDeleteActivity(id)
     }
 
@@ -33,7 +33,7 @@ const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivi
                             <Item.Extra>
 
                                 <Button floated='right'
-                                        loading={formLoading && foo === activity.id}
+                                        loading={formLoading && deleBtnId === activity.id}
                                         content='delete'
                                         negative
                                         onClick={(e) => handleDelete(e, activity.id)}/>
