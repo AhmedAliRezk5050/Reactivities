@@ -6,6 +6,7 @@ import NavBar from "./NavBar/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import {Container, Dimmer, Loader, Message} from "semantic-ui-react";
 import ActivityForm from "../../features/activities/form/ActivityForm";
+import {activityApi} from "../api/agent";
 
 const App = () => {
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -14,12 +15,10 @@ const App = () => {
     const [editMode, setEditMode] = useState(false);
     const [fetched, setFetched] = useState(false);
     useEffect(() => {
-        axios
-            .get<Activity[]>('http://localhost:5000/api/activities')
-            .then(({data}) => {
-                setActivities(data);
-                setFetched(true);
-            });
+        activityApi.List().then(({data}) => {
+            setActivities(data);
+            setFetched(true);
+        })
     }, []);
 
 
