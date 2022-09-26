@@ -7,6 +7,7 @@ import {Button, Container, Message} from "semantic-ui-react";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import {activityApi} from "../api/agent";
 import AppSpinner from "./AppSpinner";
+import {useStore} from "../stores/store";
 
 type Actions = 'FETCH_START' | 'FETCH_SUCCESS' | 'FETCH_ERROR' | 'RESET';
 
@@ -85,6 +86,9 @@ const activityReducer = (state = activityInitialState, action: Action): Activity
 }
 
 const App = () => {
+    const {activityStore} = useStore();
+
+
     //----------------
     const [activitiesState, activitiesDispatch] = useReducer(activitiesReducer, activitiesInitialState);
     const [activityState, activityDispatch] = useReducer(activityReducer, activityInitialState);
@@ -196,7 +200,11 @@ const App = () => {
     return (
         <>
             <NavBar onStartCreate={onShowForm}/>
+
             <div className="header-separator"></div>
+            
+            <h1>{activityStore.title}</h1>
+
             <Container>
                 <AppSpinner active={activitiesState.loading}/>
 
