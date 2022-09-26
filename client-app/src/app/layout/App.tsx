@@ -16,7 +16,10 @@ const App = () => {
     const [fetched, setFetched] = useState(false);
     useEffect(() => {
         activityApi.List().then(({data}) => {
-            setActivities(data);
+            setActivities(data.map(a => {
+                a.date = a.date.split('T')[0];
+                return a;
+            }));
             setFetched(true);
         })
     }, []);

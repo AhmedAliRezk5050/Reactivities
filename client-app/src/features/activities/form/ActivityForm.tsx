@@ -48,6 +48,7 @@ const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity}) => {
                     value={formData.category}/>
                 <Form.Input
                     placeholder='Date'
+                    type='data'
                     name='date'
                     onChange={handleChange}
                     value={formData.date}/>
