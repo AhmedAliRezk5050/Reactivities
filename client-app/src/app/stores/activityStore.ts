@@ -1,4 +1,4 @@
-import {action, makeAutoObservable, makeObservable, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export default class ActivityStore {
     title = 'Hello from Mobx'
