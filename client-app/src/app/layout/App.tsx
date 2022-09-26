@@ -3,26 +3,39 @@ import {v4 as uuidv4} from 'uuid';
 import Activity from "../models/activity";
 import NavBar from "./NavBar/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import {Container, Dimmer, Loader, Message} from "semantic-ui-react";
+import {Container, Message} from "semantic-ui-react";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import {activityApi} from "../api/agent";
+import AppSpinner from "./AppSpinner";
 
 const App = () => {
     const [activities, setActivities] = useState<Activity[]>([]);
     const [createMode, setCreateMode] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [editMode, setEditMode] = useState(false);
-    const [fetched, setFetched] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         activityApi.List().then(({data}) => {
+            setLoading(true);
+            setError(null);
             setActivities(data.map(a => {
                 a.date = a.date.split('T')[0];
                 return a;
             }));
-            setFetched(true);
+            setLoading(false);
+            setError(null);
+        }).catch(() => {
+            setLoading(false);
+            setError("Failed to fetch activities")
         })
     }, []);
 
+    useEffect(() => {
+        if(activities.length > 0) {
+            setError(null);
+        }
+    }, [activities])
 
     const onHideActivity = () => {
         setSelectedActivity(null);
@@ -77,18 +90,26 @@ const App = () => {
         if (selectedActivity?.id === id) setSelectedActivity(null);
 
     }
+
+
     return (
         <>
             <NavBar onStartCreate={onShowForm}/>
             <div className="header-separator"></div>
             <Container>
-                <Dimmer active={activities.length === 0 && !fetched}>
-                    <Loader/>
-                </Dimmer>
-                {fetched && activities.length === 0 && <Message warning>
+                <AppSpinner active={!error && loading}/>
+
+                {!error && !loading && activities.length === 0 && <Message warning>
                     <Message.Header>No activities found</Message.Header>
                     <p>Add new activity.</p>
                 </Message>}
+
+                {error && !loading && <Message warning>
+                    <Message.Header>Error Fetching activities</Message.Header>
+                    <p>Try again later.</p>
+                </Message>}
+
+
                 {activities.length > 0 &&
                     <ActivityDashboard
                         activities={activities}
