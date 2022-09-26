@@ -5,10 +5,11 @@ import Activity from "../../../app/models/activity";
 interface Props {
     activity: Activity | null,
     onCancel: (id?: string) => void,
-    onUpsertActivity: (activity: Activity) => void
+    onUpsertActivity: (activity: Activity) => void,
+    formLoading?: boolean
 }
 
-const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity}) => {
+const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity, formLoading}) => {
     console.log(activity)
     const [formData, setFormData] = useState<Activity>(activity ?? {
         id: '',
@@ -48,8 +49,9 @@ const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity}) => {
                     value={formData.category}/>
                 <Form.Input
                     placeholder='Date'
-                    type='data'
+                    type='date'
                     name='date'
+
                     onChange={handleChange}
                     value={formData.date}/>
                 <Form.Input
@@ -62,7 +64,7 @@ const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity}) => {
                     name='venue'
                     onChange={handleChange}
                     value={formData.venue}/>
-                <Button floated='left' positive type='submit' content='Submit'/>
+                <Button floated='left' positive type='submit' content='Submit' loading={formLoading}/>
                 <Button floated='right' negative type='button' content='Cancel' onClick={() => onCancel(activity?.id)}/>
             </Form>
         </Segment>

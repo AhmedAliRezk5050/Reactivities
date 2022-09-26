@@ -2,5 +2,13 @@
   margin-top: 5rem;
 }
 
+.message {
+  position: relative;
+}
 
+.message .button.msg-close {
+  position: absolute;
+  top: 1rem;
+  right: 0;
+}
 

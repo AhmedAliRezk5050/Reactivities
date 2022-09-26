@@ -1,63 +1,160 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useReducer, useState} from 'react';
 import {v4 as uuidv4} from 'uuid';
 import Activity from "../models/activity";
 import NavBar from "./NavBar/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import {Container, Message} from "semantic-ui-react";
+import {Button, Container, Message} from "semantic-ui-react";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import {activityApi} from "../api/agent";
 import AppSpinner from "./AppSpinner";
 
+type Actions = 'FETCH_START' | 'FETCH_SUCCESS' | 'FETCH_ERROR' | 'RESET';
+
+interface Action {
+    type: Actions,
+    payload?: any
+}
+
+interface ActivitiesState {
+    loading: boolean;
+    error: string | null,
+    activities: Activity[],
+}
+
+interface ActivityState {
+    loading: boolean;
+    error: string | null,
+    deleteLoadingId: string | null
+}
+
+const activitiesInitialState: ActivitiesState = {loading: true, error: null, activities: []};
+
+const activitiesReducer = (state = activitiesInitialState, action: Action): ActivitiesState => {
+    switch (action.type) {
+        case "FETCH_START":
+            return {
+                loading: true,
+                error: null,
+                activities: []
+            };
+        case "FETCH_SUCCESS":
+            return {
+                loading: false,
+                error: null,
+                activities: action.payload
+            };
+        case "FETCH_ERROR":
+            return {
+                loading: false,
+                error: action.payload,
+                activities: []
+            };
+
+        default:
+            return state
+    }
+}
+
+const activityInitialState: ActivityState = {loading: false, error: null, deleteLoadingId: null};
+
+const activityReducer = (state = activityInitialState, action: Action): ActivityState => {
+    switch (action.type) {
+        case "FETCH_START":
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                deleteLoadingId: action.payload.deleteLoadingId
+            };
+        case "FETCH_SUCCESS":
+            return {
+                ...state,
+                loading: false,
+                error: null
+            };
+        case "FETCH_ERROR":
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+        case "RESET":
+            return {
+                loading: false,
+                error: null,
+                deleteLoadingId: null
+            };
+
+        default:
+            return state
+    }
+}
+
 const App = () => {
-    const [activities, setActivities] = useState<Activity[]>([]);
+    //----------------
+    const [activitiesState, activitiesDispatch] = useReducer(activitiesReducer, activitiesInitialState);
+    const [activityState, activityDispatch] = useReducer(activityReducer, activityInitialState);
+    //----------------
+
+
     const [createMode, setCreateMode] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [editMode, setEditMode] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
-        activityApi.List().then(({data}) => {
-            setLoading(true);
-            setError(null);
-            setActivities(data.map(a => {
-                a.date = a.date.split('T')[0];
-                return a;
-            }));
-            setLoading(false);
-            setError(null);
+        activitiesDispatch({type: 'FETCH_START'});
+        activityApi.getAll().then(({data}) => {
+            activitiesDispatch({
+                type: 'FETCH_SUCCESS', payload: data.map(a => {
+                    a.date = a.date.split('T')[0];
+                    return a;
+                })
+            });
         }).catch(() => {
-            setLoading(false);
-            setError("Failed to fetch activities")
+            activitiesDispatch({type: 'FETCH_ERROR', payload: 'Failed to fetch activities'})
         })
     }, []);
 
-    useEffect(() => {
-        if(activities.length > 0) {
-            setError(null);
-        }
-    }, [activities])
 
     const onHideActivity = () => {
         setSelectedActivity(null);
     };
 
     const onUpsertActivity = (upsertedActivity: Activity) => {
+        debugger;
         if (upsertedActivity.id === '') {
             upsertedActivity.id = uuidv4();
-            setActivities([...activities, upsertedActivity])
-            setCreateMode(false);
-        } else {
-            setActivities(activities.map(activity =>
-                activity.id === upsertedActivity.id ? upsertedActivity : activity))
+            activityDispatch({type: 'FETCH_START'})
+            activityApi.create(upsertedActivity).then(() => {
+                activityDispatch({type: 'FETCH_SUCCESS'})
+                activitiesDispatch({type: 'FETCH_SUCCESS', payload: [...activitiesState.activities, upsertedActivity]})
+                setCreateMode(false);
+            }).catch(() => {
+                activityDispatch({type: 'FETCH_ERROR', payload: 'Creating new activity failed'})
+                upsertedActivity.id = '';
+            });
 
-            setSelectedActivity(upsertedActivity);
-            setEditMode(false);
+        } else {
+            activityDispatch({type: 'FETCH_START'});
+            activityApi.update(upsertedActivity.id, upsertedActivity)
+                .then(() => {
+                    activitiesDispatch({
+                        type: 'FETCH_SUCCESS', payload: activitiesState.activities.map(activity =>
+                            activity.id === upsertedActivity.id ? upsertedActivity : activity)
+                    });
+                    setSelectedActivity(upsertedActivity);
+                    setEditMode(false);
+                    activityDispatch({type: 'FETCH_SUCCESS'});
+                })
+                .catch(() => {
+                    activityDispatch({type: 'FETCH_ERROR', payload: 'Failed to edit activity'});
+                })
 
         }
     }
 
     const onActivitySelected = (id: string) => {
-        const activity = activities.find(a => a.id === id);
+        const activity = activitiesState.activities.find(a => a.id === id);
         if (activity) {
             if (editMode) return;
             if (createMode) return;
@@ -86,7 +183,18 @@ const App = () => {
     }
 
     const onDeleteActivity = (id: string) => {
-        setActivities(activities.filter(a => a.id !== id));
+        activityDispatch({type: 'FETCH_START', payload: {deleteLoadingId: id}});
+        activityApi.delete(id)
+            .then(() => {
+                activityDispatch({type: 'FETCH_SUCCESS'});
+                activitiesDispatch({
+                    type: 'FETCH_SUCCESS', payload: activitiesState.activities.filter(a => a.id !== id)
+                });
+            })
+            .catch(() => {
+                activityDispatch({type: 'FETCH_ERROR', payload: 'Failed to delete activity'});
+            });
+
         if (selectedActivity?.id === id) setSelectedActivity(null);
 
     }
@@ -97,22 +205,31 @@ const App = () => {
             <NavBar onStartCreate={onShowForm}/>
             <div className="header-separator"></div>
             <Container>
-                <AppSpinner active={!error && loading}/>
+                <AppSpinner active={activitiesState.loading}/>
 
-                {!error && !loading && activities.length === 0 && <Message warning>
-                    <Message.Header>No activities found</Message.Header>
-                    <p>Add new activity.</p>
-                </Message>}
+                {activityState.error &&
+                    <Message warning>
+                        <Message.Header>Failed operation</Message.Header>
+                        <p>{activityState.error}</p>
+                        <Button icon='close' className='msg-close' onClick={() => activityDispatch({type: 'RESET'})}/>
+                    </Message>}
 
-                {error && !loading && <Message warning>
+
+                {!activitiesState.error && !activitiesState.loading && activitiesState.activities.length === 0 &&
+                    <Message warning>
+                        <Message.Header>No activities found</Message.Header>
+                        <p>Add new activity.</p>
+                    </Message>}
+
+                {activitiesState.error && <Message warning>
                     <Message.Header>Error Fetching activities</Message.Header>
                     <p>Try again later.</p>
                 </Message>}
 
 
-                {activities.length > 0 &&
+                {activitiesState.activities.length > 0 &&
                     <ActivityDashboard
-                        activities={activities}
+                        activities={activitiesState.activities}
                         selectedActivity={selectedActivity}
                         onActivitySelected={onActivitySelected}
                         onHideActivity={onHideActivity}
@@ -122,9 +239,11 @@ const App = () => {
                         createMode={createMode}
                         onUpsertActivity={onUpsertActivity}
                         onDeleteActivity={onDeleteActivity}
+                        formLoading={activityState.loading}
+                        deleteLoadingId = {activityState.deleteLoadingId}
                     />}
 
-                {activities.length === 0 && !editMode && createMode && <ActivityForm
+                {activitiesState.activities.length === 0 && !editMode && createMode && <ActivityForm
                     onCancel={() => onCancelForm(false)} activity={null} onUpsertActivity={onUpsertActivity}/>}
             </Container>
         </>

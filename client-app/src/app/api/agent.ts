@@ -5,31 +5,57 @@ axios.defaults.baseURL = 'http://localhost:5000/api';
 
 
 abstract class Api<T> {
-    public List(url: string) {
+
+    protected abstract baseUrl: string;
+
+    protected makeActivityUrl(id: string) {
+        return `${this.baseUrl}/${id}`
+    }
+
+    protected list(url: string) {
+        return axios.get<T[]>(url)
+    }
+
+    protected details(url: string) {
         return axios.get<T>(url)
     }
 
-    public Add(url: string, body: {}) {
+    protected add(url: string, body: T) {
         return axios.post(url, body)
     }
 
-    public Edit(url: string, body: {}) {
-        return axios.post(url, body)
+    edit(url: string, body: T) {
+        return axios.put(url, body)
     }
 
-    public Remove(url: string) {
+    protected remove(url: string) {
         return axios.delete(url)
     }
 }
 
 
-class ActivityApi extends Api<Activity[]> {
+class ActivityApi extends Api<Activity> {
 
-    private readonly url = '/activities'
+    protected baseUrl = '/activities'
 
+    getAll() {
+        return super.list(this.baseUrl);
+    }
 
-    List() {
-        return super.List(this.url);
+    get(id: string) {
+        return super.details(this.makeActivityUrl(id));
+    }
+
+    create(activity: Activity) {
+        return super.add(this.baseUrl, activity);
+    }
+
+    update(id: string, activity: Activity) {
+        return super.edit(this.makeActivityUrl(id), activity);
+    }
+
+    delete(id: string) {
+        return super.remove(this.makeActivityUrl(id));
     }
 }
 

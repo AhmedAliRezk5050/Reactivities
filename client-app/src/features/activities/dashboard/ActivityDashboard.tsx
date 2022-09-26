@@ -12,10 +12,12 @@ interface Props {
     onHideActivity: () => void;
     onStartEdit: () => void;
     onCancel: (editing: boolean) => void;
-    editMode: boolean,
-    createMode: boolean,
-    onUpsertActivity: (activity: Activity) => void
-    onDeleteActivity: (id: string) => void
+    editMode: boolean;
+    createMode: boolean;
+    onUpsertActivity: (activity: Activity) => void;
+    onDeleteActivity: (id: string) => void;
+    formLoading: boolean;
+    deleteLoadingId: string | null
 }
 
 const ActivityDashboard: FC<Props> = ({
@@ -28,23 +30,35 @@ const ActivityDashboard: FC<Props> = ({
                                           onCancel,
                                           createMode,
                                           onUpsertActivity,
-                                          onDeleteActivity
+                                          onDeleteActivity,
+                                          formLoading,
+                                          deleteLoadingId
                                       }) => {
 
     return (
         <Grid>
             <Grid.Column width='10'>
-                <ActivityList activities={activities} onActivitySelected={onActivitySelected} onDeleteActivity={onDeleteActivity}/>
+                <ActivityList activities={activities} onActivitySelected={onActivitySelected}
+                              onDeleteActivity={onDeleteActivity} formLoading={formLoading} deleteLoadingId={deleteLoadingId}/>
             </Grid.Column>
             <Grid.Column width='6'>
                 {selectedActivity && !editMode && !createMode &&
                     <ActivityDetails activity={selectedActivity} onHideActivity={onHideActivity}
                                      onStartEdit={onStartEdit}/>}
                 {!createMode && editMode && <ActivityForm
-                    onCancel={() => onCancel(true)} activity={selectedActivity} onUpsertActivity={onUpsertActivity}/>}
+                    onCancel={() => onCancel(true)}
+                    activity={selectedActivity}
+                    onUpsertActivity={onUpsertActivity}
+                    formLoading={formLoading}
+                />}
 
                 {!editMode && createMode && <ActivityForm
-                    onCancel={() => onCancel(false)} activity={null} onUpsertActivity={onUpsertActivity}/>}
+                    onCancel={() => onCancel(false)}
+                    activity={null}
+                    onUpsertActivity={onUpsertActivity}
+                    formLoading={formLoading}
+                />
+                }
             </Grid.Column>
         </Grid>
     );

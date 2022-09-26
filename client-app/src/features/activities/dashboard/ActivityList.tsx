@@ -4,11 +4,13 @@ import {Button, Item, Label, Segment} from "semantic-ui-react";
 
 interface Props {
     activities: Activity[],
-    onActivitySelected: (id: string) => void,
-    onDeleteActivity: (id: string) => void
+    onActivitySelected: (id: string) => void;
+    onDeleteActivity: (id: string) => void;
+    formLoading: boolean;
+    deleteLoadingId: string | null
 }
 
-const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivity}) => {
+const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivity, formLoading, deleteLoadingId}) => {
     return <Segment>
         <Item.Group divided>
             {
@@ -24,6 +26,7 @@ const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivi
                             <Item.Extra>
 
                                 <Button floated='right'
+                                        loading={formLoading && deleteLoadingId === activity.id}
                                         content='delete'
                                         negative
                                         onClick={() => onDeleteActivity(activity.id)}/>
