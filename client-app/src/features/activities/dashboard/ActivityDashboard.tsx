@@ -17,7 +17,6 @@ interface Props {
     onUpsertActivity: (activity: Activity) => void;
     onDeleteActivity: (id: string) => void;
     formLoading: boolean;
-    deleteLoadingId: string | null
 }
 
 const ActivityDashboard: FC<Props> = ({
@@ -32,14 +31,13 @@ const ActivityDashboard: FC<Props> = ({
                                           onUpsertActivity,
                                           onDeleteActivity,
                                           formLoading,
-                                          deleteLoadingId
                                       }) => {
 
     return (
         <Grid>
             <Grid.Column width='10'>
                 <ActivityList activities={activities} onActivitySelected={onActivitySelected}
-                              onDeleteActivity={onDeleteActivity} formLoading={formLoading} deleteLoadingId={deleteLoadingId}/>
+                              onDeleteActivity={onDeleteActivity} formLoading={formLoading}/>
             </Grid.Column>
             <Grid.Column width='6'>
                 {selectedActivity && !editMode && !createMode &&

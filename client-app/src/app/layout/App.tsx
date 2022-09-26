@@ -24,7 +24,6 @@ interface ActivitiesState {
 interface ActivityState {
     loading: boolean;
     error: string | null,
-    deleteLoadingId: string | null
 }
 
 const activitiesInitialState: ActivitiesState = {loading: true, error: null, activities: []};
@@ -55,26 +54,22 @@ const activitiesReducer = (state = activitiesInitialState, action: Action): Acti
     }
 }
 
-const activityInitialState: ActivityState = {loading: false, error: null, deleteLoadingId: null};
+const activityInitialState: ActivityState = {loading: false, error: null};
 
 const activityReducer = (state = activityInitialState, action: Action): ActivityState => {
     switch (action.type) {
         case "FETCH_START":
             return {
-                ...state,
                 loading: true,
                 error: null,
-                deleteLoadingId: action.payload.deleteLoadingId
             };
         case "FETCH_SUCCESS":
             return {
-                ...state,
                 loading: false,
                 error: null
             };
         case "FETCH_ERROR":
             return {
-                ...state,
                 loading: false,
                 error: action.payload,
             };
@@ -82,7 +77,6 @@ const activityReducer = (state = activityInitialState, action: Action): Activity
             return {
                 loading: false,
                 error: null,
-                deleteLoadingId: null
             };
 
         default:
@@ -121,7 +115,6 @@ const App = () => {
     };
 
     const onUpsertActivity = (upsertedActivity: Activity) => {
-        debugger;
         if (upsertedActivity.id === '') {
             upsertedActivity.id = uuidv4();
             activityDispatch({type: 'FETCH_START'})
@@ -183,7 +176,7 @@ const App = () => {
     }
 
     const onDeleteActivity = (id: string) => {
-        activityDispatch({type: 'FETCH_START', payload: {deleteLoadingId: id}});
+        activityDispatch({type: 'FETCH_START'});
         activityApi.delete(id)
             .then(() => {
                 activityDispatch({type: 'FETCH_SUCCESS'});
@@ -240,7 +233,6 @@ const App = () => {
                         onUpsertActivity={onUpsertActivity}
                         onDeleteActivity={onDeleteActivity}
                         formLoading={activityState.loading}
-                        deleteLoadingId = {activityState.deleteLoadingId}
                     />}
 
                 {activitiesState.activities.length === 0 && !editMode && createMode && <ActivityForm
@@ -251,16 +243,3 @@ const App = () => {
 };
 
 export default App;
-
-// show create form
-//      -- edit form shown
-// cancel create form
-
-// show edit form
-// cancel edit form
-
-
-// view activity
-//      edit form shown
-//      create form shown
-// hide activity
