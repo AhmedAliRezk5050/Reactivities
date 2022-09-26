@@ -8,6 +8,7 @@ import ActivityForm from "../../features/activities/form/ActivityForm";
 import {activityApi} from "../api/agent";
 import AppSpinner from "./AppSpinner";
 import {useStore} from "../stores/store";
+import {observer} from "mobx-react-lite";
 
 type Actions = 'FETCH_START' | 'FETCH_SUCCESS' | 'FETCH_ERROR' | 'RESET';
 
@@ -86,7 +87,7 @@ const activityReducer = (state = activityInitialState, action: Action): Activity
 }
 
 const App = () => {
-    const {activityStore} = useStore();
+    const {activityStore: {title, setTitle}} = useStore();
 
 
     //----------------
@@ -202,8 +203,10 @@ const App = () => {
             <NavBar onStartCreate={onShowForm}/>
 
             <div className="header-separator"></div>
-            
-            <h1>{activityStore.title}</h1>
+
+            <h1>{title}</h1>
+
+            <Button content='change title' onClick={setTitle}/>
 
             <Container>
                 <AppSpinner active={activitiesState.loading}/>
@@ -250,4 +253,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default observer(App);
