@@ -1,6 +1,6 @@
 import {Grid} from "semantic-ui-react";
 import Activity from "../../../app/models/activity";
-import {FC, useEffect, useState} from "react";
+import {FC} from "react";
 import ActivityList from "./ActivityList";
 import ActivityDetails from "../details/ActivityDetails";
 import ActivityForm from "../form/ActivityForm";

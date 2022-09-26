@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react';
 import {v4 as uuidv4} from 'uuid';
-import axios from 'axios';
 import Activity from "../models/activity";
 import NavBar from "./NavBar/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
