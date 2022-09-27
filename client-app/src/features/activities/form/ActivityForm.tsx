@@ -1,15 +1,13 @@
 import {Button, Form, Segment} from "semantic-ui-react";
 import {ChangeEvent, FC, useState} from "react";
 import Activity from "../../../app/models/activity";
+import {useStore} from "../../../app/stores/store";
 
 interface Props {
     activity: Activity | null,
-    onCancel: (id?: string) => void,
-    onUpsertActivity: (activity: Activity) => void,
-    formLoading?: boolean
 }
 
-const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity, formLoading}) => {
+const ActivityForm: FC<Props> = ({ activity}) => {
     console.log(activity)
     const [formData, setFormData] = useState<Activity>(activity ?? {
         id: '',
@@ -26,8 +24,11 @@ const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity, formLoad
     }
 
     const handleSubmit = () => {
-        onUpsertActivity(formData);
+        // onUpsertActivity(formData);
     }
+
+
+    const {activityStore: {setFormVisibility}} = useStore();
 
     return (
         <Segment clearing>
@@ -64,8 +65,8 @@ const ActivityForm: FC<Props> = ({onCancel, activity, onUpsertActivity, formLoad
                     name='venue'
                     onChange={handleChange}
                     value={formData.venue}/>
-                <Button floated='left' positive type='submit' content='Submit' loading={formLoading}/>
-                <Button floated='right' negative type='button' content='Cancel' onClick={() => onCancel(activity?.id)}/>
+                <Button floated='left' positive type='submit' content='Submit' />
+                <Button floated='right' negative type='button' content='Cancel' onClick={() => setFormVisibility(false)}/>
             </Form>
         </Segment>
     );

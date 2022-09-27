@@ -2,53 +2,44 @@ import {FC, MouseEvent, useState} from "react";
 import Activity from "../../../app/models/activity";
 import {Button, Item, Label, Segment} from "semantic-ui-react";
 import React from "react";
+import {useStore} from "../../../app/stores/store";
+import {observer} from "mobx-react-lite";
 
 interface Props {
-    activities: Activity[],
-    onActivitySelected: (id: string) => void;
-    onDeleteActivity: (id: string) => void;
-    formLoading: boolean;
 }
 
-const ActivityList: FC<Props> = ({activities, onActivitySelected, onDeleteActivity, formLoading}) => {
-    const [deleBtnId, setDeleBtnId] = useState('')
-    const handleDelete = (e: MouseEvent<HTMLButtonElement>, id: string) => {
+const ActivityList: FC<Props> = () => {
+    const {activityStore: {setSelectedActivity, activities, formVisibility}} = useStore();
 
-        setDeleBtnId(id);
-        onDeleteActivity(id)
-    }
 
     return <Segment>
         <Item.Group divided>
-            {
-                activities.map(activity => (
-                    <Item key={activity.id}>
-                        <Item.Content>
-                            <Item.Header as='a'>{activity.title}</Item.Header>
-                            <Item.Meta>{activity.date}</Item.Meta>
-                            <Item.Description>
-                                <div>{activity.description}</div>
-                                <div>{activity.city}, {activity.venue}</div>
-                            </Item.Description>
-                            <Item.Extra>
+            {activities.map(activity => (
+                <Item key={activity.id}>
+                    <Item.Content>
+                        <Item.Header as='a'>{activity.title}</Item.Header>
+                        <Item.Meta>{activity.date}</Item.Meta>
+                        <Item.Description>
+                            <div>{activity.description}</div>
+                            <div>{activity.city}, {activity.venue}</div>
+                        </Item.Description>
+                        <Item.Extra>
 
-                                <Button floated='right'
-                                        loading={formLoading && deleBtnId === activity.id}
-                                        content='delete'
-                                        negative
-                                        onClick={(e) => handleDelete(e, activity.id)}/>
-                                <Button floated='right'
-                                        content='view'
-                                        positive
-                                        onClick={() => onActivitySelected(activity.id)}/>
-                                <Label basic content={activity.category}/>
-                            </Item.Extra>
-                        </Item.Content>
-                    </Item>
-                ))
-            }
+                            <Button floated='right'
+                                    content='delete'
+                                    negative
+                            />
+                            <Button floated='right'
+                                    content='view'
+                                    positive
+                                    onClick={() => !formVisibility && setSelectedActivity(activity.id)}/>
+                            <Label basic content={activity.category}/>
+                        </Item.Extra>
+                    </Item.Content>
+                </Item>
+            ))}
         </Item.Group>
     </Segment>
 };
 
-export default ActivityList;
+export default observer(ActivityList);
