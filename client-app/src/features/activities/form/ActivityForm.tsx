@@ -2,14 +2,18 @@ import {Button, Form, Segment} from "semantic-ui-react";
 import {ChangeEvent, FC, useState} from "react";
 import Activity from "../../../app/models/activity";
 import {useStore} from "../../../app/stores/store";
+import {observer} from "mobx-react-lite";
 
 interface Props {
-    activity: Activity | null,
+
 }
 
-const ActivityForm: FC<Props> = ({ activity}) => {
-    console.log(activity)
-    const [formData, setFormData] = useState<Activity>(activity ?? {
+const ActivityForm: FC<Props> = () => {
+
+    const {activityStore: {setFormVisibility, upsertActivity, operationsLoading, setError, selectedActivity}} = useStore();
+
+
+    const [formData, setFormData] = useState<Activity>(selectedActivity ?? {
         id: '',
         title: '',
         date: '',
@@ -24,11 +28,15 @@ const ActivityForm: FC<Props> = ({ activity}) => {
     }
 
     const handleSubmit = () => {
-        // onUpsertActivity(formData);
+        debugger;
+        upsertActivity(formData)
     }
 
+    const handleCancel = () => {
+        setFormVisibility(false);
+        setError(null)
+    }
 
-    const {activityStore: {setFormVisibility}} = useStore();
 
     return (
         <Segment clearing>
@@ -65,11 +73,11 @@ const ActivityForm: FC<Props> = ({ activity}) => {
                     name='venue'
                     onChange={handleChange}
                     value={formData.venue}/>
-                <Button floated='left' positive type='submit' content='Submit' />
-                <Button floated='right' negative type='button' content='Cancel' onClick={() => setFormVisibility(false)}/>
+                <Button floated='left' positive type='submit' content='Submit' loading={operationsLoading}/>
+                <Button floated='right' negative type='button' content='Cancel' onClick={handleCancel}/>
             </Form>
         </Segment>
     );
 };
 
-export default ActivityForm;
+export default observer(ActivityForm);

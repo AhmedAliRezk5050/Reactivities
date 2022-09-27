@@ -2,6 +2,7 @@ import {Button, Container, Menu} from "semantic-ui-react";
 import  './NavBar.css';
 import {FC} from "react";
 import {useStore} from "../../stores/store";
+import {observer} from "mobx-react-lite";
 
 
 interface Props {
@@ -12,6 +13,7 @@ const NavBar:FC<Props> = () => {
     const {activityStore: {setFormVisibility, formVisibility, setSelectedActivity}} = useStore()
 
     const handleCreate = () => {
+        debugger
         if(!formVisibility) {
             setSelectedActivity(null)
             setFormVisibility(true)
@@ -34,4 +36,4 @@ const NavBar:FC<Props> = () => {
     );
 };
 
-export default NavBar;
+export default observer(NavBar);

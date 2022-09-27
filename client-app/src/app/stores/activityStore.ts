@@ -1,6 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import Activity from "../models/activity";
 import {activityApi} from "../api/agent";
+import {v4 as uuidv4} from 'uuid';
 
 interface Error {
     title: string;
@@ -12,6 +13,7 @@ export default class ActivityStore {
     activities: Activity[] = [];
     selectedActivity: Activity | null = null;
     activitiesLoading: boolean = true;
+    operationsLoading: boolean = false;
     error: Error | null = null;
     formVisibility = false;
 
@@ -39,12 +41,59 @@ export default class ActivityStore {
         this.setActivitiesLoading(false);
     }
 
-    setActivities(activities: Activity[]) {
+    upsertActivity = async (activity: Activity) => {
+        debugger
+        let createMode = true;
+        this.setOperationsLoading(true);
+
+        try {
+            if (!activity.id) {
+                const newActivity = {...activity, id: uuidv4()}
+                await activityApi.create(newActivity);
+                this.addActivity(newActivity);
+            } else {
+                createMode = false;
+                await activityApi.update(activity.id, activity);
+                this.setActivities(this.activities.map(a => a.id === activity.id ? activity : a));
+                this.setSelectedActivity(activity.id);
+            }
+            this.setError(null);
+            this.setFormVisibility(false);
+
+        } catch (e: any) {
+            this.setError({title: 'Activities', message: createMode ? 'Failed to create new activity' : 'Failed to edit activity'})
+        }
+        this.setOperationsLoading(false);
+    }
+
+    deleteActivity = async(id: string) => {
+        this.setOperationsLoading(true);
+        try {
+            await activityApi.delete(id);
+            this.setActivities(this.activities.filter(a => a.id !== id))
+            if(this.selectedActivity) this.setSelectedActivity(null);
+            if(this.formVisibility) this.setFormVisibility(false);
+            this.setError(null);
+        }catch (e: any) {
+            this.setError({title: 'Activities', message: 'Failed to delete activity'})
+        }
+        this.setOperationsLoading(false)
+    }
+
+    setActivities = (activities: Activity[])=> {
         this.activities = activities;
     }
 
+    addActivity = (activity: Activity) => {
+        this.activities.push(activity);
+    }
+
+
     setActivitiesLoading = (state: boolean) => {
         this.activitiesLoading = state;
+    }
+    setOperationsLoading = (state: boolean) => {
+        this.operationsLoading = state;
     }
 
     setError = (err: Error | null) => {
@@ -55,7 +104,6 @@ export default class ActivityStore {
         if (!id) this.selectedActivity = null;
         this.selectedActivity = this.activities.find(a => a.id === id) ?? null;
     }
-
 
     setFormVisibility = (status: boolean) => {
         this.formVisibility = status;

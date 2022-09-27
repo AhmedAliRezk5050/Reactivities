@@ -10,7 +10,7 @@ import {observer} from "mobx-react-lite";
 
 
 const App = () => {
-    const {activityStore: {fetchActivities, activitiesLoading, error}} = useStore();
+    const {activityStore: {fetchActivities, activitiesLoading, error, setError}} = useStore();
 
     useEffect(() => {
         fetchActivities()
@@ -25,13 +25,14 @@ const App = () => {
 
             <AppSpinner active={activitiesLoading}/>
 
-            {error && <Message warning>
-                <Message.Header>{error.title}</Message.Header>
-                <p>{error.message}</p>
-            </Message>}
-
 
             <Container>
+                {error && <Message warning className='message'>
+                    <Message.Header>{error.title}</Message.Header>
+                    <p>{error.message}</p>
+                    <Button icon='close' className='msg-close' onClick={() => setError(null)}/>
+                </Message>}
+
                 <ActivityDashboard/>
             </Container>
         </>

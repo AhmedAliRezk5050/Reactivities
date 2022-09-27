@@ -9,8 +9,26 @@ interface Props {
 }
 
 const ActivityList: FC<Props> = () => {
-    const {activityStore: {setSelectedActivity, activities, formVisibility}} = useStore();
+    const {
+        activityStore: {
+            setSelectedActivity,
+            activities,
+            formVisibility,
+            deleteActivity,
+            operationsLoading
+        }
+    } = useStore();
 
+    const [deleteBtnId, setDeleteBtnId] = useState('');
+
+
+    const handleDelete = (id: string) => {
+        setDeleteBtnId(id);
+        deleteActivity(id)
+    }
+
+
+    if (activities.length === 0) return null;
 
     return <Segment>
         <Item.Group divided>
@@ -28,6 +46,8 @@ const ActivityList: FC<Props> = () => {
                             <Button floated='right'
                                     content='delete'
                                     negative
+                                    onClick={() => handleDelete(activity.id)}
+                                    loading={deleteBtnId === activity.id && operationsLoading}
                             />
                             <Button floated='right'
                                     content='view'
