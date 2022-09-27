@@ -10,7 +10,7 @@ interface Error {
 
 
 export default class ActivityStore {
-    activities: Activity[] = [];
+    activities: Map<string, Activity> = new Map();
     selectedActivity: Activity | null = null;
     activitiesLoading: boolean = true;
     operationsLoading: boolean = false;
@@ -27,10 +27,7 @@ export default class ActivityStore {
         this.setError(null);
         try {
             const {data: activitiesFromDb} = await activityApi.getAll();
-            this.setActivities(activitiesFromDb.map(a => {
-                a.date = a.date.split('T')[0];
-                return a;
-            }))
+            this.setActivities(activitiesFromDb)
 
             if (activitiesFromDb.length === 0) {
                 this.setError({title: 'Activities', message: 'No activities found'});
@@ -42,7 +39,6 @@ export default class ActivityStore {
     }
 
     upsertActivity = async (activity: Activity) => {
-        debugger
         let createMode = true;
         this.setOperationsLoading(true);
 
@@ -54,44 +50,63 @@ export default class ActivityStore {
             } else {
                 createMode = false;
                 await activityApi.update(activity.id, activity);
-                this.setActivities(this.activities.map(a => a.id === activity.id ? activity : a));
+                this.editActivity(activity);
                 this.setSelectedActivity(activity.id);
             }
             this.setError(null);
             this.setFormVisibility(false);
 
         } catch (e: any) {
-            this.setError({title: 'Activities', message: createMode ? 'Failed to create new activity' : 'Failed to edit activity'})
+            this.setError({
+                title: 'Activities',
+                message: createMode ? 'Failed to create new activity' : 'Failed to edit activity'
+            })
         }
         this.setOperationsLoading(false);
     }
 
-    deleteActivity = async(id: string) => {
+    deleteActivity = async (id: string) => {
         this.setOperationsLoading(true);
         try {
             await activityApi.delete(id);
-            this.setActivities(this.activities.filter(a => a.id !== id))
-            if(this.selectedActivity) this.setSelectedActivity(null);
-            if(this.formVisibility) this.setFormVisibility(false);
+            this.removeActivity(id);
+            if (this.selectedActivity) this.setSelectedActivity(null);
+            if (this.formVisibility) this.setFormVisibility(false);
             this.setError(null);
-        }catch (e: any) {
+        } catch (e: any) {
             this.setError({title: 'Activities', message: 'Failed to delete activity'})
         }
         this.setOperationsLoading(false)
     }
 
-    setActivities = (activities: Activity[])=> {
-        this.activities = activities;
+    getActivitiesByDate = () => {
+        return Array.from(this.activities.values())
+            .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    }
+
+    setActivities = (activities: Activity[]) => {
+        activities.forEach(activity => {
+            activity.date = activity.date.split('T')[0];
+            this.activities.set(activity.id, activity)
+        })
     }
 
     addActivity = (activity: Activity) => {
-        this.activities.push(activity);
+        this.activities.set(activity.id, activity);
     }
 
+    removeActivity = (id: string) => {
+        this.activities.delete(id);
+    }
+
+    editActivity = (activity: Activity) => {
+        this.activities.set(activity.id, activity);
+    }
 
     setActivitiesLoading = (state: boolean) => {
         this.activitiesLoading = state;
     }
+
     setOperationsLoading = (state: boolean) => {
         this.operationsLoading = state;
     }
@@ -102,7 +117,7 @@ export default class ActivityStore {
 
     setSelectedActivity = (id: string | null) => {
         if (!id) this.selectedActivity = null;
-        this.selectedActivity = this.activities.find(a => a.id === id) ?? null;
+        this.selectedActivity = this.activities.get(id!) ?? null;
     }
 
     setFormVisibility = (status: boolean) => {

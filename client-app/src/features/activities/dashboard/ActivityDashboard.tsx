@@ -11,19 +11,18 @@ interface Props {
 
 const ActivityDashboard: FC<Props> = () => {
 
-    const {activityStore: {selectedActivity, formVisibility, activities}} = useStore()
-    console.log(selectedActivity)
+    const {activityStore: {selectedActivity, formVisibility, getActivitiesByDate}} = useStore()
     return (
         <Grid>
             <Grid.Column width='10'>
                 <ActivityList/>
-                {activities.length === 0 && formVisibility && <ActivityForm />}
+                {getActivitiesByDate().length === 0 && formVisibility && <ActivityForm />}
             </Grid.Column>
             <Grid.Column width='6'>
 
                 {selectedActivity && !formVisibility && <ActivityDetails activity={selectedActivity}/>}
 
-                {activities.length !== 0 && formVisibility && <ActivityForm />}
+                {getActivitiesByDate().length !== 0 && formVisibility && <ActivityForm />}
 
             </Grid.Column>
         </Grid>

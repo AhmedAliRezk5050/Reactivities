@@ -28,7 +28,6 @@ const ActivityForm: FC<Props> = () => {
     }
 
     const handleSubmit = () => {
-        debugger;
         upsertActivity(formData)
     }
 

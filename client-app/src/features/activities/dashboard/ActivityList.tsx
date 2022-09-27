@@ -12,7 +12,7 @@ const ActivityList: FC<Props> = () => {
     const {
         activityStore: {
             setSelectedActivity,
-            activities,
+            getActivitiesByDate,
             formVisibility,
             deleteActivity,
             operationsLoading
@@ -28,11 +28,11 @@ const ActivityList: FC<Props> = () => {
     }
 
 
-    if (activities.length === 0) return null;
+    if (getActivitiesByDate().length === 0) return null;
 
     return <Segment>
         <Item.Group divided>
-            {activities.map(activity => (
+            {getActivitiesByDate().map(activity => (
                 <Item key={activity.id}>
                     <Item.Content>
                         <Item.Header as='a'>{activity.title}</Item.Header>

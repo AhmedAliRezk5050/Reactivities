@@ -13,7 +13,6 @@ const NavBar:FC<Props> = () => {
     const {activityStore: {setFormVisibility, formVisibility, setSelectedActivity}} = useStore()
 
     const handleCreate = () => {
-        debugger
         if(!formVisibility) {
             setSelectedActivity(null)
             setFormVisibility(true)
