@@ -1,31 +1,33 @@
-import {Grid} from "semantic-ui-react";
-import {FC} from "react";
+import {Button, Grid, Message} from "semantic-ui-react";
+import React, {FC} from "react";
 import ActivityList from "./ActivityList";
-import ActivityDetails from "../details/ActivityDetails";
-import ActivityForm from "../form/ActivityForm";
 import {useStore} from "../../../app/stores/store";
 import {observer} from "mobx-react-lite";
+import AppSpinner from "../../../app/layout/AppSpinner";
 
 interface Props {
 }
 
 const ActivityDashboard: FC<Props> = () => {
 
-    const {activityStore: {selectedActivity, formVisibility, getActivitiesByDate}} = useStore()
+    const {activityStore: {activitiesLoading, error, setError}} = useStore();
+
     return (
-        <Grid>
-            <Grid.Column width='10'>
-                <ActivityList/>
-                {getActivitiesByDate().length === 0 && formVisibility && <ActivityForm />}
-            </Grid.Column>
-            <Grid.Column width='6'>
+        <>
+            {error && <Message warning className='message'>
+                <Message.Header>{error.title}</Message.Header>
+                <p>{error.message}</p>
+                <Button icon='close' className='msg-close' onClick={() => setError(null)}/>
+            </Message>}
+            <Grid className='centered'>
+                <AppSpinner active={activitiesLoading}/>
 
-                {selectedActivity && !formVisibility && <ActivityDetails activity={selectedActivity}/>}
+                <Grid.Column width='10'>
+                    <ActivityList/>
+                </Grid.Column>
+            </Grid>
+        </>
 
-                {getActivitiesByDate().length !== 0 && formVisibility && <ActivityForm />}
-
-            </Grid.Column>
-        </Grid>
     );
 };
 

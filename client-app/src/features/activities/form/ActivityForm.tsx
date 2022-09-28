@@ -10,10 +10,10 @@ interface Props {
 
 const ActivityForm: FC<Props> = () => {
 
-    const {activityStore: {setFormVisibility, upsertActivity, operationsLoading, setError, selectedActivity}} = useStore();
+    const {activityStore: { upsertActivity, operationsLoading, setError, activity}} = useStore();
 
 
-    const [formData, setFormData] = useState<Activity>(selectedActivity ?? {
+    const [formData, setFormData] = useState<Activity>(activity ?? {
         id: '',
         title: '',
         date: '',
@@ -32,7 +32,6 @@ const ActivityForm: FC<Props> = () => {
     }
 
     const handleCancel = () => {
-        setFormVisibility(false);
         setError(null)
     }
 

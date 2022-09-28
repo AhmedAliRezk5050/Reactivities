@@ -11,9 +11,10 @@ interface Error {
 
 export default class ActivityStore {
     activities: Map<string, Activity> = new Map();
-    selectedActivity: Activity | null = null;
-    activitiesLoading: boolean = true;
-    operationsLoading: boolean = false;
+    activity: Activity | null = null;
+    activitiesLoading = true;
+    activityLoading = true;
+    operationsLoading = false;
     error: Error | null = null;
     formVisibility = false;
 
@@ -33,6 +34,7 @@ export default class ActivityStore {
                 this.setError({title: 'Activities', message: 'No activities found'});
             }
         } catch (e: any) {
+            this.clearActivities();
             this.setError({title: 'Activities', message: 'Failed to load activities'});
         }
         this.setActivitiesLoading(false);
@@ -51,10 +53,9 @@ export default class ActivityStore {
                 createMode = false;
                 await activityApi.update(activity.id, activity);
                 this.editActivity(activity);
-                this.setSelectedActivity(activity.id);
+                // this.setSelectedActivity(activity.id);
             }
             this.setError(null);
-            this.setFormVisibility(false);
 
         } catch (e: any) {
             this.setError({
@@ -70,13 +71,34 @@ export default class ActivityStore {
         try {
             await activityApi.delete(id);
             this.removeActivity(id);
-            if (this.selectedActivity) this.setSelectedActivity(null);
-            if (this.formVisibility) this.setFormVisibility(false);
             this.setError(null);
         } catch (e: any) {
             this.setError({title: 'Activities', message: 'Failed to delete activity'})
         }
         this.setOperationsLoading(false)
+    }
+
+    fetchActivity = async (id: string) => {
+        this.setActivityLoading(true);
+        try {
+            const localActivity = this.activities.get(id);
+
+            if(localActivity) {
+                this.setActivity(localActivity);
+            } else {
+                const {data: fetchedActivity} = await activityApi.get(id);
+
+                if(!fetchedActivity) throw new Error("Activity not found");
+
+                this.convertActivityDate(fetchedActivity);
+
+                this.setActivity(fetchedActivity);
+            }
+            this.setError(null);
+        } catch (e) {
+            this.setError({title: 'Activity', message: 'Failed to fetch activity'})
+        }
+        this.setActivityLoading(false);
     }
 
     getActivitiesByDate = () => {
@@ -86,7 +108,7 @@ export default class ActivityStore {
 
     setActivities = (activities: Activity[]) => {
         activities.forEach(activity => {
-            activity.date = activity.date.split('T')[0];
+            this.convertActivityDate(activity);
             this.activities.set(activity.id, activity)
         })
     }
@@ -103,6 +125,15 @@ export default class ActivityStore {
         this.activities.set(activity.id, activity);
     }
 
+    clearActivities = () => {
+        this.activities.size > 0 && this.activities.clear();
+    }
+
+
+    setActivityLoading = (state: boolean) => {
+        this.activityLoading = state;
+    }
+
     setActivitiesLoading = (state: boolean) => {
         this.activitiesLoading = state;
     }
@@ -115,12 +146,11 @@ export default class ActivityStore {
         this.error = err
     }
 
-    setSelectedActivity = (id: string | null) => {
-        if (!id) this.selectedActivity = null;
-        this.selectedActivity = this.activities.get(id!) ?? null;
+    setActivity = (activity: Activity) => {
+        this.activity = activity;
     }
 
-    setFormVisibility = (status: boolean) => {
-        this.formVisibility = status;
+    convertActivityDate = (activity: Activity) => {
+        activity.date = activity.date.split('T')[0]
     }
 }
