@@ -1,42 +1,28 @@
-import {useEffect, useReducer, useState} from 'react';
-import Activity from "../models/activity";
-import NavBar from "./NavBar/NavBar";
-import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import {Button, Container, Message} from "semantic-ui-react";
-import ActivityForm from "../../features/activities/form/ActivityForm";
-import AppSpinner from "./AppSpinner";
-import {useStore} from "../stores/store";
-import {observer} from "mobx-react-lite";
+import RootLayout from "./RootLayout/RootLayout";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import Home from "../../features/home/Home";
+import ActivityList from "../../features/activities/dashboard/ActivityList";
 
 
 const App = () => {
-    const {activityStore: {fetchActivities, activitiesLoading, error, setError}} = useStore();
-
-    useEffect(() => {
-        fetchActivities()
-    }, [fetchActivities]);
-
-
     return (
-        <>
-            <NavBar/>
-
-            <div className="header-separator"></div>
-
-            <AppSpinner active={activitiesLoading}/>
-
-
-            <Container>
-                {error && <Message warning className='message'>
-                    <Message.Header>{error.title}</Message.Header>
-                    <p>{error.message}</p>
-                    <Button icon='close' className='msg-close' onClick={() => setError(null)}/>
-                </Message>}
-
-                <ActivityDashboard/>
-            </Container>
-        </>
-    );
+        <BrowserRouter>
+            <RootLayout>
+                <Routes>
+                    <Route path='/' element={<Home/>}/>
+                    <Route path='/activities' element={<ActivityList/>}/>
+                </Routes>
+            </RootLayout>
+        </BrowserRouter>
+    )
 };
 
-export default observer(App);
+export default App;
+
+
+// routes
+// get activity        =>   /activities/:id
+// edit activity     =>  /activities/:id/edit
+// create activity     =>  /activities/create
+// list activity     =>  /activities
+// home
