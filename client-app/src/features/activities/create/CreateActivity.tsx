@@ -26,7 +26,6 @@ const CreateActivity = () => {
     }
 
     const handleSubmit = () => {
-        console.log(activityStore.error);
         activityStore.upsertActivity(formData).finally(() => {
             if(!activityStore.error) navigate('/activities', {replace: true});
         })

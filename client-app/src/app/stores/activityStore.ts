@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction} from "mobx";
+import {makeAutoObservable} from "mobx";
 import Activity from "../models/activity";
 import {activityApi} from "../api/agent";
 import {v4 as uuidv4} from 'uuid';
@@ -23,7 +23,6 @@ export default class ActivityStore {
 
     fetchActivities = async () => {
         this.setActivitiesLoading(true);
-        // this.setError(null);
         try {
             const {data: activitiesFromDb} = await activityApi.getAll();
             this.setActivities(activitiesFromDb)
