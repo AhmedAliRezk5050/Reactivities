@@ -1,5 +1,5 @@
 import {FC, Fragment, useEffect} from "react";
-import {Header, Item, Segment} from "semantic-ui-react";
+import {Header} from "semantic-ui-react";
 import React from "react";
 import {useStore} from "../../../app/stores/store";
 import {observer} from "mobx-react-lite";
