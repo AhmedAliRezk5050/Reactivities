@@ -100,13 +100,11 @@ export default class ActivityStore {
     }
 
     get activitiesByDate() {
-        debugger;
         return Array.from(this.activities.values())
             .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
     }
 
     get groupedActivities() {
-        debugger;
         return Object.entries(this.activitiesByDate.reduce((prev: {[key: string]: Activity[]}, cur) => {
             if (!prev[cur.date]) {
                 prev[cur.date] = []
