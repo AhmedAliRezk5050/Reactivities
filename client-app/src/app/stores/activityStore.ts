@@ -9,6 +9,8 @@ interface Error {
 }
 
 
+
+
 export default class ActivityStore {
     activities: Map<string, Activity> = new Map();
     activity: Activity | null = null;
@@ -40,7 +42,6 @@ export default class ActivityStore {
     upsertActivity = async (activity: Activity) => {
         let createMode = true;
         this.setOperationsLoading(true);
-
         try {
             if (!activity.id) {
                 const newActivity = {...activity, id: uuidv4()}
@@ -98,9 +99,22 @@ export default class ActivityStore {
         this.setActivityLoading(false);
     }
 
-    getActivitiesByDate = () => {
+    get activitiesByDate() {
+        debugger;
         return Array.from(this.activities.values())
             .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    }
+
+    get groupedActivities() {
+        debugger;
+        return Object.entries(this.activitiesByDate.reduce((prev: {[key: string]: Activity[]}, cur) => {
+            if (!prev[cur.date]) {
+                prev[cur.date] = []
+            }
+
+            prev[cur.date].push(cur);
+            return prev;
+        }, {}))
     }
 
     setActivities = (activities: Activity[]) => {
@@ -151,3 +165,16 @@ export default class ActivityStore {
         activity.date = activity.date.split('T')[0]
     }
 }
+
+/*
+*
+
+org.reduce((prev, cur) => {
+            if (!prev[cur.date]) {
+                prev[cur.date] = []
+            }
+
+            prev[cur.date] = [cur];
+            return prev;
+        }, {}))
+* */

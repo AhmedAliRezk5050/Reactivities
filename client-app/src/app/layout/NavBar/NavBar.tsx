@@ -17,10 +17,10 @@ const NavBar:FC<Props> = () => {
                     Reactivities
                 </Menu.Item>
                 <Menu.Item name="Activities"
-                           as={NavLink} to='activities'
+                           as={NavLink} to='/activities'
                             end
                            />
-                <Menu.Item as={NavLink} to='activities/create' end>
+                <Menu.Item as={NavLink} to='/activities/create' end>
                     <Button positive content="Create Activity"/>
                 </Menu.Item>
             </Container>
