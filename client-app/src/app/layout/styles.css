@@ -1,19 +1,49 @@
 .header-separator {
-  margin-top: 5rem;
+    margin-top: 5rem;
 }
 
 .message {
-  position: relative;
+    position: relative;
 }
 
 .message .button.msg-close {
-  position: absolute;
-  top: 1rem;
-  right: 0;
+    position: absolute;
+    top: 1rem;
+    right: 0;
 }
 
 .react-calendar {
-  width: 100%;
-  border: none;
-  box-shadow: 0 1px 2px 0 rgba(34,36,38,.15);
+    width: 100%;
+    border: none;
+    box-shadow: 0 1px 2px 0 rgba(34, 36, 38, .15);
+}
+
+.masthead {
+    display: flex;
+    align-items: center;
+    background-image: linear-gradient(to right bottom,
+    #29275c, #212552, #1a2247, #161f3d, #131c32, #11192d,
+    #101727, #0e1422, #0c1121, #0a0d20, #08091e, #07041d) !important;
+    height: 100vh;
+}
+
+.masthead .ui.menu .ui.button,
+.ui.menu a.ui.inverted.button {
+    margin-left: 0.5em;
+}
+
+.masthead h1.ui.header {
+    font-size: 4em;
+    font-weight: normal;
+}
+
+.masthead h2 {
+    font-size: 1.7em;
+    font-weight: normal;
+}
+
+.ui.inverted.menu {
+    background-image: linear-gradient(to right bottom,
+    #29275c, #212552, #1a2247, #161f3d, #131c32, #11192d,
+    #101727, #0e1422, #0c1121, #0a0d20, #08091e, #07041d) !important;
 }

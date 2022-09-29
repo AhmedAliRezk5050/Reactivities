@@ -1,28 +1,13 @@
-import {Button, Icon, Item, Label, Segment} from "semantic-ui-react";
-import {Link, NavLink} from "react-router-dom";
-import React, {FC, useState} from "react";
+import {Button, Icon, Item, Segment} from "semantic-ui-react";
+import {Link} from "react-router-dom";
+import React, {FC} from "react";
 import Activity from "../../../app/models/activity";
-import {useStore} from "../../../app/stores/store";
 
 interface Props {
     activity: Activity;
 }
 
 const ActivityListItem: FC<Props> = ({activity}) => {
-
-    const {
-        activityStore: {
-            deleteActivity,
-            operationsLoading,
-        }
-    } = useStore();
-
-    const [deleteBtnId, setDeleteBtnId] = useState('');
-
-    const handleDelete = (id: string) => {
-        setDeleteBtnId(id);
-        deleteActivity(id)
-    }
 
     return (
         <Segment.Group>

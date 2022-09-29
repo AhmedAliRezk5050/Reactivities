@@ -1,4 +1,4 @@
-import {Button, Grid, Message} from "semantic-ui-react";
+import {Grid} from "semantic-ui-react";
 import React, {FC} from "react";
 import ActivityList from "./ActivityList";
 import {useStore} from "../../../app/stores/store";
