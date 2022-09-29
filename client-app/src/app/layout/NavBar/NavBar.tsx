@@ -12,7 +12,7 @@ const NavBar:FC<Props> = () => {
     return (
         <Menu inverted fixed="top" className="NavBar">
             <Container>
-                <Menu.Item header as={NavLink} to=''>
+                <Menu.Item header as={NavLink} to='/'>
                     <img src="/assets/logo.png" alt="logo" className="logo"/>
                     Reactivities
                 </Menu.Item>

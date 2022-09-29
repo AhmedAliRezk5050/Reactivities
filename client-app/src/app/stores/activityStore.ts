@@ -1,4 +1,4 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import Activity from "../models/activity";
 import {activityApi} from "../api/agent";
 import {v4 as uuidv4} from 'uuid';
@@ -16,8 +16,6 @@ export default class ActivityStore {
     activityLoading = true;
     operationsLoading = false;
     error: Error | null = null;
-    formVisibility = false;
-
 
     constructor() {
         makeAutoObservable(this)
@@ -25,7 +23,7 @@ export default class ActivityStore {
 
     fetchActivities = async () => {
         this.setActivitiesLoading(true);
-        this.setError(null);
+        // this.setError(null);
         try {
             const {data: activitiesFromDb} = await activityApi.getAll();
             this.setActivities(activitiesFromDb)
@@ -81,14 +79,14 @@ export default class ActivityStore {
     fetchActivity = async (id: string) => {
         this.setActivityLoading(true);
         try {
-            const localActivity = this.activities.get(id);
+            const localActivity = false;
 
-            if(localActivity) {
+            if (localActivity) {
                 this.setActivity(localActivity);
             } else {
                 const {data: fetchedActivity} = await activityApi.get(id);
 
-                if(!fetchedActivity) throw new Error("Activity not found");
+                if (!fetchedActivity) throw new Error("Activity not found");
 
                 this.convertActivityDate(fetchedActivity);
 
@@ -146,8 +144,8 @@ export default class ActivityStore {
         this.error = err
     }
 
-    setActivity = (activity: Activity) => {
-        this.activity = activity;
+    setActivity = (activity: Activity | null) => {
+        this.activity = activity
     }
 
     convertActivityDate = (activity: Activity) => {

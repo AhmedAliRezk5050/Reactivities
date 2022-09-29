@@ -11,15 +11,15 @@ const App = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path='/' element={<RootLayout/>}>
-                    <Route index element={<Home/>}/>
-                    <Route path='/activities' element={<ActivityDashboard/>}/>
-                    <Route path='/activities/:id' element={<ActivityDetails />}/>
+                <Route path='/' element={<Home />}/>
+                <Route path='/activities' element={<RootLayout/>}>
+                    <Route index element={<ActivityDashboard/>}/>
                     <Route path='/activities/create' element={<ActivityForm />}/>
-                    <Route path='/not-found' element={<NotFound />}/>
-                    <Route path='*' element={<Navigate to='/not-found'  replace/>}/>
+                    <Route path='/activities/:id' element={<ActivityDetails />}/>
+                    <Route path='/activities/:id/edit' element={<ActivityForm />}/>
                 </Route>
-
+                <Route path='/not-found' element={<NotFound />}/>
+                <Route path='*' element={<Navigate to='/not-found'  replace/>}/>
             </Routes>
         </BrowserRouter>
     )

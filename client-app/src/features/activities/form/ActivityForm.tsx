@@ -1,8 +1,10 @@
 import {Button, Form, Segment} from "semantic-ui-react";
-import {ChangeEvent, FC, useState} from "react";
+import {ChangeEvent, FC, useEffect, useState} from "react";
 import Activity from "../../../app/models/activity";
 import {useStore} from "../../../app/stores/store";
 import {observer} from "mobx-react-lite";
+import {Navigate, useNavigate, useParams} from "react-router-dom";
+import AppSpinner from "../../../app/layout/AppSpinner";
 
 interface Props {
 
@@ -10,10 +12,11 @@ interface Props {
 
 const ActivityForm: FC<Props> = () => {
 
-    const {activityStore: { upsertActivity, operationsLoading, setError, activity}} = useStore();
-
-
-    const [formData, setFormData] = useState<Activity>(activity ?? {
+    const {activityStore} = useStore();
+    const navigate = useNavigate();
+    const {id} = useParams()
+    const [localLoading, setLocalLoading] = useState(true);
+    const [formData, setFormData] = useState<Activity>({
         id: '',
         title: '',
         date: '',
@@ -21,20 +24,54 @@ const ActivityForm: FC<Props> = () => {
         category: '',
         venue: '',
         city: ''
-    });
+    })
+
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
         setFormData({...formData, [name]: value})
     }
 
     const handleSubmit = () => {
-        upsertActivity(formData)
+        activityStore.upsertActivity(formData).finally(() => {
+            if (!activityStore.error) navigate('/activities', {replace: true});
+        })
     }
 
     const handleCancel = () => {
-        setError(null)
+        if (activityStore.error) {
+            activityStore.setError(null)
+        }
+        navigate('/activities', {replace: true});
+
     }
 
+    useEffect(() => {
+        if (id) {
+            activityStore.fetchActivity(id)
+                .then(() => {
+                    if (activityStore.activity) {
+                        setFormData(activityStore.activity)
+                    }
+                })
+                .finally(() => setLocalLoading(false));
+        } else {
+            setFormData({
+                id: '',
+                title: '',
+                date: '',
+                description: '',
+                category: '',
+                venue: '',
+                city: ''
+            });
+        }
+    }, [id, activityStore])
+
+    if (id && (activityStore.activityLoading || localLoading)) return <AppSpinner
+        active={activityStore.activityLoading}/>
+
+    if (id && !formData.id) return <Navigate to='not-found'/>
 
     return (
         <Segment clearing>
@@ -71,7 +108,8 @@ const ActivityForm: FC<Props> = () => {
                     name='venue'
                     onChange={handleChange}
                     value={formData.venue}/>
-                <Button floated='left' positive type='submit' content='Submit' loading={operationsLoading}/>
+                <Button floated='left' positive type='submit' content='Submit'
+                        loading={activityStore.operationsLoading}/>
                 <Button floated='right' negative type='button' content='Cancel' onClick={handleCancel}/>
             </Form>
         </Segment>
