@@ -27,13 +27,9 @@ const ActivityList: FC<Props> = () => {
                     .map(([group, activities]) =>
                         <Fragment key={group}>
                             <Header sub>{group}</Header>
-                            <Segment>
-                                <Item.Group divided>
-                                    {activities.map(activity => (
-                                        <ActivityListItem activity={activity} key={activity.id}/>
-                                    ))}
-                                </Item.Group>
-                            </Segment>
+                            {activities.map(activity => (
+                                <ActivityListItem activity={activity} key={activity.id}/>
+                            ))}
                         </Fragment>)
             }
         </>
