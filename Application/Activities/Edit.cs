@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain;
+using FluentValidation;
 using MediatR;
 using Persistence;
 
@@ -10,6 +11,15 @@ public class Edit
     public class Command : IRequest<Activity>
     {
         public Activity Activity { get; set; } = null!;
+    }
+    
+    public class CommandValidator : AbstractValidator<Command>
+    {
+        public CommandValidator()
+        {
+            RuleFor(a => a.Activity)
+                .SetValidator(new ActivityValidator());
+        }
     }
 
     public class Handler : IRequestHandler<Command, Activity?>
