@@ -1,6 +1,7 @@
 using API;
 using Application.Activities;
 using Application.Core;
+using FluentValidation;
 using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,16 +17,18 @@ builder.Services.AddMediatR(typeof(List.Handler).Assembly);
 
 builder.Services.ConfigureDbContext(configuration);
 
-//-- 
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddValidatorsFromAssemblyContaining<ActivityValidator>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 // we are not using https now

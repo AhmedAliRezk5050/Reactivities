@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Domain;
 using Application.Activities;
+using FluentValidation;
 
 namespace API.Controllers;
 
 public class ActivitiesController : BaseApiController
 {
     private readonly IMediator _mediator;
+    private readonly IValidator<Activity> _validator;
 
-    public ActivitiesController(IMediator mediator)
+    public ActivitiesController(IMediator mediator, IValidator<Activity> validator)
     {
         _mediator = mediator;
+        _validator = validator;
     }
 
     [HttpGet]
@@ -29,6 +32,13 @@ public class ActivitiesController : BaseApiController
     [HttpPost]
     public async Task<ActionResult> CreateActivity(Activity activity)
     {
+        var result = await _validator.ValidateAsync(activity);
+
+        if (!result.IsValid)
+        {
+            return BadRequest(result.ToDictionary());
+        } 
+
         var createdActivity = await _mediator.Send(new Create.Command { Activity = activity });
         return Created($"/api/activities/{createdActivity.Id}", createdActivity);
     }
@@ -36,12 +46,19 @@ public class ActivitiesController : BaseApiController
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> EditActivity(Guid id, Activity activity)
     {
-        activity.Id = id;
+        var result = await _validator.ValidateAsync(activity);
         
+        if (!result.IsValid)
+        {
+            return BadRequest(result.ToDictionary());
+        }
+        
+        activity.Id = id;
+
         var updatedActivity = await _mediator.Send(new Edit.Command { Activity = activity });
 
         if (updatedActivity is null) return NotFound();
-        
+
         return NoContent();
     }
 
