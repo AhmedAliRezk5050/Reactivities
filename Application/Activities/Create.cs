@@ -1,5 +1,7 @@
-﻿using Domain;
+﻿using Application.Core;
+using Domain;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using Persistence;
 
@@ -7,7 +9,7 @@ namespace Application.Activities;
 
 public class Create
 {
-    public class Command : IRequest<Activity>
+    public class Command : IRequest<Result<Activity>>
     {
         public Activity Activity { get; set; } = null!;
     }
@@ -17,24 +19,41 @@ public class Create
         public CommandValidator()
         {
             RuleFor(a => a.Activity)
-                    .SetValidator(new ActivityValidator());
+                .SetValidator(new ActivityValidator());
         }
     }
 
-    public class Handler : IRequestHandler<Command, Activity>
+    public class Handler : IRequestHandler<Command, Result<Activity>>
     {
         private readonly DataContext _context;
 
-        public Handler(DataContext context)
+        private readonly IValidator<Activity> _validator;
+
+        public Handler(DataContext context, IValidator<Activity> validator)
         {
             _context = context;
+            _validator = validator;
         }
 
-        public async Task<Activity> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Activity>> Handle(Command request, CancellationToken cancellationToken)
         {
+            ValidationResult? validationResult = await _validator.ValidateAsync(request.Activity);
+
+            if (!validationResult.IsValid)
+            {
+                return Result<Activity>.Failure(validationResult.ToDictionary());
+            }
+
             _context.Activities.Add(request.Activity);
-            await _context.SaveChangesAsync();
-            return request.Activity;
+
+            int persistResult = await _context.SaveChangesAsync();
+
+            if (persistResult == 0)
+            {
+                return Result<Activity>.Failure("Failed to create activity");
+            }
+
+            return Result<Activity>.Success(request.Activity);
         }
     }
 }

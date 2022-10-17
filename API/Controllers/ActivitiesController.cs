@@ -18,41 +18,33 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Activity>>> GetActivities()
+    public async Task<ActionResult> GetActivities()
     {
-        return await _mediator.Send(new List.Query());
+        return HandleResult(await _mediator.Send(new List.Query()));
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Activity>> GetActivity(Guid id)
+    public async Task<ActionResult> GetActivity(Guid id)
     {
-        return await _mediator.Send(new Details.Query { Id = id });
+        return HandleResult(await _mediator.Send(new Details.Query { Id = id }));
     }
 
     [HttpPost]
     public async Task<ActionResult> CreateActivity(Activity activity)
     {
-        var result = await _validator.ValidateAsync(activity);
-
-        if (!result.IsValid)
-        {
-            return BadRequest(result.ToDictionary());
-        } 
-
-        var createdActivity = await _mediator.Send(new Create.Command { Activity = activity });
-        return Created($"/api/activities/{createdActivity.Id}", createdActivity);
+        return HandleResult(await _mediator.Send(new Create.Command { Activity = activity }));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> EditActivity(Guid id, Activity activity)
     {
         var result = await _validator.ValidateAsync(activity);
-        
+
         if (!result.IsValid)
         {
             return BadRequest(result.ToDictionary());
         }
-        
+
         activity.Id = id;
 
         var updatedActivity = await _mediator.Send(new Edit.Command { Activity = activity });
