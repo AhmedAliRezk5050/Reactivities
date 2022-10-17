@@ -38,29 +38,12 @@ public class ActivitiesController : BaseApiController
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> EditActivity(Guid id, Activity activity)
     {
-        var result = await _validator.ValidateAsync(activity);
-
-        if (!result.IsValid)
-        {
-            return BadRequest(result.ToDictionary());
-        }
-
-        activity.Id = id;
-
-        var updatedActivity = await _mediator.Send(new Edit.Command { Activity = activity });
-
-        if (updatedActivity is null) return NotFound();
-
-        return NoContent();
+        return HandleResult(await _mediator.Send(new Edit.Command { Activity = activity, Id = id}));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeleteActivity(Guid id)
     {
-        var deletedActivity = await _mediator.Send(new Delete.Command() { Id = id });
-
-        if (deletedActivity is null) return NotFound();
-
-        return NoContent();
+        return HandleResult(await _mediator.Send(new Delete.Command() { Id = id }));
     }
 }

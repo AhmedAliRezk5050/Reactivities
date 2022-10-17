@@ -7,8 +7,9 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class BaseApiController : ControllerBase
 {
-    protected ActionResult HandleResult<T>(Result<T> result)
+    protected ActionResult HandleResult(Result result)
     {
+        
         if (result.IsSuccess)
             return result.Value != null ? Ok(result.Value) : NotFound();
         
