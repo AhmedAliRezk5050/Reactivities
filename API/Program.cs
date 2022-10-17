@@ -1,4 +1,5 @@
 using API;
+using API.Middleware;
 using Application.Activities;
 using Application.Core;
 using FluentValidation;
@@ -25,10 +26,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<ActivityValidator>();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // we are not using https now
@@ -44,4 +47,3 @@ app.MapControllers();
 await Utility.MigrateAndSeed(app);
 
 app.Run();
-
