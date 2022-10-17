@@ -8,9 +8,9 @@ namespace Application.Activities;
 
 public class List
 {
-  public class Query : IRequest<Result<List<Activity>>> { }
+  public class Query : IRequest<Result> { }
 
-  public class Handler : IRequestHandler<Query, Result<List<Activity>>>
+  public class Handler : IRequestHandler<Query, Result>
   {
     private readonly DataContext _context;
 
@@ -20,9 +20,9 @@ public class List
     }
 
 
-    public async Task<Result<List<Activity>>> Handle(Query request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
     {
-      return Result<List<Activity>>.Success(await _context.Activities.ToListAsync());
+      return Result.Success(await _context.Activities.ToListAsync());
     }
   }
 

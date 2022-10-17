@@ -9,7 +9,7 @@ namespace Application.Activities;
 
 public class Create
 {
-    public class Command : IRequest<Result<Activity>>
+    public class Command : IRequest<Result>
     {
         public Activity Activity { get; set; } = null!;
     }
@@ -23,7 +23,7 @@ public class Create
         }
     }
 
-    public class Handler : IRequestHandler<Command, Result<Activity>>
+    public class Handler : IRequestHandler<Command, Result>
     {
         private readonly DataContext _context;
 
@@ -35,25 +35,25 @@ public class Create
             _validator = validator;
         }
 
-        public async Task<Result<Activity>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
             ValidationResult? validationResult = await _validator.ValidateAsync(request.Activity);
 
             if (!validationResult.IsValid)
             {
-                return Result<Activity>.Failure(validationResult.ToDictionary());
+                return Result.Failure(validationResult.ToDictionary());
             }
 
             _context.Activities.Add(request.Activity);
 
             int persistResult = await _context.SaveChangesAsync();
-
+            
             if (persistResult == 0)
             {
-                return Result<Activity>.Failure("Failed to create activity");
+                return Result.Failure("Failed to create activity");
             }
-
-            return Result<Activity>.Success(request.Activity);
+            
+            return Result.Success(request.Activity);
         }
     }
 }

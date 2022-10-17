@@ -1,16 +1,16 @@
 ﻿namespace Application.Core;
 
-public class Result<T>
+public class Result
 {
     public bool IsSuccess { get; set; }
 
-    public T? Value { get; set; }
+    public object? Value { get; set; }
 
     public object? Error { get; set; }
 
-    public static Result<T> Success(T? value) => new() {IsSuccess = true, Value = value};
+    public static Result Success(object? value) => new() {IsSuccess = true, Value = value};
     
-    public static Result<T> Failure(object error) => new() {IsSuccess = false, Error = error};
+    public static Result Failure(object error) => new() {IsSuccess = false, Error = error};
     
     
 }
