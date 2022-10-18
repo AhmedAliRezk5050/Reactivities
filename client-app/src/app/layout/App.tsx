@@ -5,12 +5,11 @@ import ActivityForm from '../../features/activities/form/ActivityForm';
 import ActivityDashboard from '../../features/activities/dashboard/ActivityDashboard';
 import ActivityDetails from '../../features/activities/details/ActivityDetails';
 import NotFound from '../../features/errors/not-found/NotFound';
-
-import { createBrowserHistory } from 'history';
+import AppRouter from '../../routing/AppRouter';
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <AppRouter>
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/activities' element={<RootLayout />}>
@@ -26,7 +25,7 @@ const App = () => {
           element={<Navigate to='/activities/not-found' replace />}
         />
       </Routes>
-    </BrowserRouter>
+    </AppRouter>
   );
 };
 

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
+import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
@@ -21,6 +22,7 @@ axios.interceptors.response.use(
           break;
         case 404:
           errorMessage = 'Not found';
+          appBrowserHistory.replace('/not-found');
           break;
       }
     }

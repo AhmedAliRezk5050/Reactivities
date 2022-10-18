@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button, Grid, Header, Icon, Segment } from 'semantic-ui-react';
+import { Button, Header, Icon, Segment } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 const NotFound = () => {
