@@ -37,7 +37,6 @@ const ActivityForm: FC<Props> = () => {
       .upsertActivity(formData)
       .catch((e: string[]) => {
         setFormErrors(e);
-        console.error(e);
       })
       .finally(() => {
         if (!activityStore.error) navigate('/activities', { replace: true });

@@ -22,11 +22,9 @@ export default class ActivityStore {
   }
 
   fetchActivities = async () => {
-    debugger;
     this.setActivitiesLoading(true);
     try {
       const { data: activitiesFromDb } = await activityApi.list();
-      debugger;
       this.setActivities(
         activitiesFromDb.map((a) => {
           a.date = a.date.split('T')[0];
@@ -76,7 +74,6 @@ export default class ActivityStore {
           : 'Failed to edit activity',
       });
       this.setOperationsLoading(false);
-      debugger;
       throw e;
     }
   };

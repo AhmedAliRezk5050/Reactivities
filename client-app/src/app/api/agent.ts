@@ -11,7 +11,6 @@ axios.interceptors.response.use(
     const { response } = error;
     const status = response?.status;
     let errorMessage = 'Unkown Error occured';
-    console.error(error);
     if (response && status) {
       switch (status) {
         case 400:
