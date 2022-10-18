@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import Activity from '../models/activity';
 import { activityApi } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
-import { dateToString, stringToDate } from '../../utilities';
+import { stringToDate } from '../../utilities';
 
 interface Error {
   title: string;
@@ -22,11 +22,16 @@ export default class ActivityStore {
   }
 
   fetchActivities = async () => {
+    debugger;
     this.setActivitiesLoading(true);
     try {
-      const { data: activitiesFromDb } = await activityApi.getAll();
+      const { data: activitiesFromDb } = await activityApi.list();
+      debugger;
       this.setActivities(
-        activitiesFromDb.map((a) => ({ ...a, date: dateToString(a.date) })),
+        activitiesFromDb.map((a) => {
+          a.date = a.date.split('T')[0];
+          return a;
+        }),
       );
 
       if (activitiesFromDb.length === 0) {
@@ -46,24 +51,23 @@ export default class ActivityStore {
     let createMode = true;
     this.setOperationsLoading(true);
     try {
-      debugger;
       if (!activity.id) {
         const newActivity = { ...activity, id: uuidv4() };
-        await activityApi.create({
+        await activityApi.add({
           ...newActivity,
           date: stringToDate(newActivity.date),
         });
         this.addActivity(newActivity);
       } else {
         createMode = false;
-        await activityApi.update(activity.id, {
+        await activityApi.edit({
           ...activity,
           date: stringToDate(activity.date),
         });
         this.editActivity(activity);
-        // this.setSelectedActivity(activity.id);
       }
       this.setError(null);
+      this.setOperationsLoading(false);
     } catch (e: any) {
       this.setError({
         title: 'Activities',
@@ -71,14 +75,16 @@ export default class ActivityStore {
           ? 'Failed to create new activity'
           : 'Failed to edit activity',
       });
+      this.setOperationsLoading(false);
+      debugger;
+      throw e;
     }
-    this.setOperationsLoading(false);
   };
 
   deleteActivity = async (id: string) => {
     this.setOperationsLoading(true);
     try {
-      await activityApi.delete(id);
+      await activityApi.remove(id);
       this.removeActivity(id);
       this.setError(null);
     } catch (e: any) {
@@ -98,14 +104,11 @@ export default class ActivityStore {
       if (localActivity) {
         this.setActivity(localActivity);
       } else {
-        const { data: fetchedActivity } = await activityApi.get(id);
+        const { data: fetchedActivity } = await activityApi.details(id);
 
         if (!fetchedActivity) throw new Error('Activity not found');
 
-        this.setActivity({
-          ...fetchedActivity,
-          date: dateToString(fetchedActivity.date),
-        });
+        this.setActivity(fetchedActivity);
       }
       this.setError(null);
     } catch (e) {

@@ -5,6 +5,7 @@ import { useStore } from '../../../app/stores/store';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams } from 'react-router-dom';
 import AppSpinner from '../../../app/layout/AppSpinner';
+import ErrorsList from '../../errors/ErrorsList';
 
 interface Props {}
 
@@ -13,6 +14,7 @@ const ActivityForm: FC<Props> = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [localLoading, setLocalLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const [formData, setFormData] = useState<Activity>({
     id: '',
     title: '',
@@ -31,9 +33,15 @@ const ActivityForm: FC<Props> = () => {
   };
 
   const handleSubmit = () => {
-    activityStore.upsertActivity(formData).finally(() => {
-      if (!activityStore.error) navigate('/activities', { replace: true });
-    });
+    activityStore
+      .upsertActivity(formData)
+      .catch((e: string[]) => {
+        setFormErrors(e);
+        console.error(e);
+      })
+      .finally(() => {
+        if (!activityStore.error) navigate('/activities', { replace: true });
+      });
   };
 
   const handleCancel = () => {
@@ -71,6 +79,7 @@ const ActivityForm: FC<Props> = () => {
 
   return (
     <Segment clearing>
+      <ErrorsList errors={formErrors} />
       <Form onSubmit={handleSubmit}>
         <Form.Input
           placeholder='Title'

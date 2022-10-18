@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
-// import Activity from '../models/activity';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -23,8 +22,8 @@ axios.interceptors.response.use(
             for (const key in validationErrors) {
               errors.push(...validationErrors[key]);
             }
+            throw errors;
           }
-          debugger;
           errorMessage = 'Bad request';
           break;
         case 401:
@@ -41,60 +40,18 @@ axios.interceptors.response.use(
   },
 );
 
-abstract class Api<T> {
-  protected abstract baseUrl: string;
+const baseUrl = '/activities';
 
-  protected makeActivityUrl(id: string) {
-    return `${this.baseUrl}/${id}`;
-  }
+const makeActivityUrl = (id: string) => `${baseUrl}/${id}`;
 
-  protected list(url: string) {
-    return axios.get<T[]>(url);
-  }
-
-  protected details(url: string) {
-    return axios.get<T>(url);
-  }
-
-  protected add(url: string, body: T) {
-    return axios.post(url, body);
-  }
-
-  edit(url: string, body: T) {
-    return axios.put(url, body);
-  }
-
-  protected remove(url: string) {
-    return axios.delete(url);
-  }
-}
-
-class ActivityApi extends Api<ApiActivity> {
-  protected baseUrl = '/activities';
-
-  getAll() {
-    return super.list(this.baseUrl);
-  }
-
-  get(id: string) {
-    return super.details(this.makeActivityUrl(id));
-  }
-
-  create(activity: ApiActivity) {
-    debugger;
-    return super.add(this.baseUrl, activity);
-  }
-
-  update(id: string, activity: ApiActivity) {
-    return super.edit(this.makeActivityUrl(id), activity);
-  }
-
-  delete(id: string) {
-    return super.remove(this.makeActivityUrl(id));
-  }
-}
-
-export const activityApi = new ActivityApi();
+export const activityApi = {
+  list: () => axios.get<Activity[]>(baseUrl),
+  details: (id: string) => axios.get<Activity>(makeActivityUrl(id)),
+  add: (activity: ApiActivity) => axios.post(baseUrl, activity),
+  edit: (activity: ApiActivity) =>
+    axios.put(makeActivityUrl(activity.id), activity),
+  remove: (id: string) => axios.delete(makeActivityUrl(id)),
+};
 
 interface ResponseData {
   validationErrors?: ValidationErrors;
