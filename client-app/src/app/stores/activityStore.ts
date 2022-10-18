@@ -1,178 +1,180 @@
-import {makeAutoObservable} from "mobx";
-import Activity from "../models/activity";
-import {activityApi} from "../api/agent";
-import {v4 as uuidv4} from 'uuid';
+import { makeAutoObservable } from 'mobx';
+import Activity from '../models/activity';
+import { activityApi } from '../api/agent';
+import { v4 as uuidv4 } from 'uuid';
+import { dateToString, stringToDate } from '../../utilities';
 
 interface Error {
-    title: string;
-    message: string
+  title: string;
+  message: string;
 }
-
-
-
 
 export default class ActivityStore {
-    activities: Map<string, Activity> = new Map();
-    activity: Activity | null = null;
-    activitiesLoading = true;
-    activityLoading = true;
-    operationsLoading = false;
-    error: Error | null = null;
+  activities: Map<string, Activity> = new Map();
+  activity: Activity | null = null;
+  activitiesLoading = true;
+  activityLoading = true;
+  operationsLoading = false;
+  error: Error | null = null;
 
-    constructor() {
-        makeAutoObservable(this)
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  fetchActivities = async () => {
+    this.setActivitiesLoading(true);
+    try {
+      const { data: activitiesFromDb } = await activityApi.getAll();
+      this.setActivities(
+        activitiesFromDb.map((a) => ({ ...a, date: dateToString(a.date) })),
+      );
+
+      if (activitiesFromDb.length === 0) {
+        this.setError({ title: 'Activities', message: 'No activities found' });
+      }
+    } catch (e: any) {
+      this.clearActivities();
+      this.setError({
+        title: 'Activities',
+        message: 'Failed to load activities',
+      });
     }
+    this.setActivitiesLoading(false);
+  };
 
-    fetchActivities = async () => {
-        this.setActivitiesLoading(true);
-        try {
-            const {data: activitiesFromDb} = await activityApi.getAll();
-            this.setActivities(activitiesFromDb)
-
-            if (activitiesFromDb.length === 0) {
-                this.setError({title: 'Activities', message: 'No activities found'});
-            }
-        } catch (e: any) {
-            this.clearActivities();
-            this.setError({title: 'Activities', message: 'Failed to load activities'});
-        }
-        this.setActivitiesLoading(false);
+  upsertActivity = async (activity: Activity) => {
+    let createMode = true;
+    this.setOperationsLoading(true);
+    try {
+      debugger;
+      if (!activity.id) {
+        const newActivity = { ...activity, id: uuidv4() };
+        await activityApi.create({
+          ...newActivity,
+          date: stringToDate(newActivity.date),
+        });
+        this.addActivity(newActivity);
+      } else {
+        createMode = false;
+        await activityApi.update(activity.id, {
+          ...activity,
+          date: stringToDate(activity.date),
+        });
+        this.editActivity(activity);
+        // this.setSelectedActivity(activity.id);
+      }
+      this.setError(null);
+    } catch (e: any) {
+      this.setError({
+        title: 'Activities',
+        message: createMode
+          ? 'Failed to create new activity'
+          : 'Failed to edit activity',
+      });
     }
+    this.setOperationsLoading(false);
+  };
 
-    upsertActivity = async (activity: Activity) => {
-        let createMode = true;
-        this.setOperationsLoading(true);
-        try {
-            if (!activity.id) {
-                const newActivity = {...activity, id: uuidv4()}
-                await activityApi.create(newActivity);
-                this.addActivity(newActivity);
-            } else {
-                createMode = false;
-                await activityApi.update(activity.id, activity);
-                this.editActivity(activity);
-                // this.setSelectedActivity(activity.id);
-            }
-            this.setError(null);
-
-        } catch (e: any) {
-            this.setError({
-                title: 'Activities',
-                message: createMode ? 'Failed to create new activity' : 'Failed to edit activity'
-            })
-        }
-        this.setOperationsLoading(false);
+  deleteActivity = async (id: string) => {
+    this.setOperationsLoading(true);
+    try {
+      await activityApi.delete(id);
+      this.removeActivity(id);
+      this.setError(null);
+    } catch (e: any) {
+      this.setError({
+        title: 'Activities',
+        message: 'Failed to delete activity',
+      });
     }
+    this.setOperationsLoading(false);
+  };
 
-    deleteActivity = async (id: string) => {
-        this.setOperationsLoading(true);
-        try {
-            await activityApi.delete(id);
-            this.removeActivity(id);
-            this.setError(null);
-        } catch (e: any) {
-            this.setError({title: 'Activities', message: 'Failed to delete activity'})
-        }
-        this.setOperationsLoading(false)
+  fetchActivity = async (id: string) => {
+    this.setActivityLoading(true);
+    try {
+      const localActivity = false;
+
+      if (localActivity) {
+        this.setActivity(localActivity);
+      } else {
+        const { data: fetchedActivity } = await activityApi.get(id);
+
+        if (!fetchedActivity) throw new Error('Activity not found');
+
+        this.setActivity({
+          ...fetchedActivity,
+          date: dateToString(fetchedActivity.date),
+        });
+      }
+      this.setError(null);
+    } catch (e) {
+      this.setError({ title: 'Activity', message: 'Failed to fetch activity' });
     }
+    this.setActivityLoading(false);
+  };
 
-    fetchActivity = async (id: string) => {
-        this.setActivityLoading(true);
-        try {
-            const localActivity = false;
+  get activitiesByDate() {
+    return Array.from(this.activities.values()).sort(
+      (a, b) => Date.parse(b.date) - Date.parse(a.date),
+    );
+  }
 
-            if (localActivity) {
-                this.setActivity(localActivity);
-            } else {
-                const {data: fetchedActivity} = await activityApi.get(id);
+  get groupedActivities() {
+    return Object.entries(
+      this.activitiesByDate.reduce(
+        (prev: { [key: string]: Activity[] }, cur) => {
+          if (!prev[cur.date]) {
+            prev[cur.date] = [];
+          }
 
-                if (!fetchedActivity) throw new Error("Activity not found");
+          prev[cur.date].push(cur);
+          return prev;
+        },
+        {},
+      ),
+    );
+  }
 
-                this.convertActivityDate(fetchedActivity);
+  setActivities = (activities: Activity[]) => {
+    activities.forEach((activity) => {
+      this.activities.set(activity.id, activity);
+    });
+  };
 
-                this.setActivity(fetchedActivity);
-            }
-            this.setError(null);
-        } catch (e) {
-            this.setError({title: 'Activity', message: 'Failed to fetch activity'})
-        }
-        this.setActivityLoading(false);
-    }
+  addActivity = (activity: Activity) => {
+    this.activities.set(activity.id, activity);
+  };
 
-    get activitiesByDate() {
-        return Array.from(this.activities.values())
-            .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
-    }
+  removeActivity = (id: string) => {
+    this.activities.delete(id);
+  };
 
-    get groupedActivities() {
-        return Object.entries(this.activitiesByDate.reduce((prev: {[key: string]: Activity[]}, cur) => {
-            if (!prev[cur.date]) {
-                prev[cur.date] = []
-            }
+  editActivity = (activity: Activity) => {
+    this.activities.set(activity.id, activity);
+  };
 
-            prev[cur.date].push(cur);
-            return prev;
-        }, {}))
-    }
+  clearActivities = () => {
+    this.activities.size > 0 && this.activities.clear();
+  };
 
-    setActivities = (activities: Activity[]) => {
-        activities.forEach(activity => {
-            this.convertActivityDate(activity);
-            this.activities.set(activity.id, activity)
-        })
-    }
+  setActivityLoading = (state: boolean) => {
+    this.activityLoading = state;
+  };
 
-    addActivity = (activity: Activity) => {
-        this.activities.set(activity.id, activity);
-    }
+  setActivitiesLoading = (state: boolean) => {
+    this.activitiesLoading = state;
+  };
 
-    removeActivity = (id: string) => {
-        this.activities.delete(id);
-    }
+  setOperationsLoading = (state: boolean) => {
+    this.operationsLoading = state;
+  };
 
-    editActivity = (activity: Activity) => {
-        this.activities.set(activity.id, activity);
-    }
+  setError = (err: Error | null) => {
+    this.error = err;
+  };
 
-    clearActivities = () => {
-        this.activities.size > 0 && this.activities.clear();
-    }
-
-
-    setActivityLoading = (state: boolean) => {
-        this.activityLoading = state;
-    }
-
-    setActivitiesLoading = (state: boolean) => {
-        this.activitiesLoading = state;
-    }
-
-    setOperationsLoading = (state: boolean) => {
-        this.operationsLoading = state;
-    }
-
-    setError = (err: Error | null) => {
-        this.error = err
-    }
-
-    setActivity = (activity: Activity | null) => {
-        this.activity = activity
-    }
-
-    convertActivityDate = (activity: Activity) => {
-        activity.date = activity.date.split('T')[0]
-    }
+  setActivity = (activity: Activity | null) => {
+    this.activity = activity;
+  };
 }
-
-/*
-*
-
-org.reduce((prev, cur) => {
-            if (!prev[cur.date]) {
-                prev[cur.date] = []
-            }
-
-            prev[cur.date] = [cur];
-            return prev;
-        }, {}))
-* */

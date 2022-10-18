@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
+// import Activity from '../models/activity';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -68,7 +69,7 @@ abstract class Api<T> {
   }
 }
 
-class ActivityApi extends Api<Activity> {
+class ActivityApi extends Api<ApiActivity> {
   protected baseUrl = '/activities';
 
   getAll() {
@@ -79,12 +80,12 @@ class ActivityApi extends Api<Activity> {
     return super.details(this.makeActivityUrl(id));
   }
 
-  create(activity: Activity) {
+  create(activity: ApiActivity) {
     debugger;
     return super.add(this.baseUrl, activity);
   }
 
-  update(id: string, activity: Activity) {
+  update(id: string, activity: ApiActivity) {
     return super.edit(this.makeActivityUrl(id), activity);
   }
 
@@ -109,4 +110,8 @@ interface ResponseDataInfo {
   title: string;
   status: number;
   traceId: string;
+}
+
+interface ApiActivity extends Omit<Activity, 'date'> {
+  date: Date;
 }

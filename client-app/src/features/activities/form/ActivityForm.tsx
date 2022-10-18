@@ -3,7 +3,7 @@ import { ChangeEvent, FC, useEffect, useState } from 'react';
 import Activity from '../../../app/models/activity';
 import { useStore } from '../../../app/stores/store';
 import { observer } from 'mobx-react-lite';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AppSpinner from '../../../app/layout/AppSpinner';
 
 interface Props {}

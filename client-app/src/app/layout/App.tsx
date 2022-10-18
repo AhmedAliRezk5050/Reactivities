@@ -1,5 +1,5 @@
 import RootLayout from './RootLayout/RootLayout';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Home from '../../features/home/Home';
 import ActivityForm from '../../features/activities/form/ActivityForm';
 import ActivityDashboard from '../../features/activities/dashboard/ActivityDashboard';
