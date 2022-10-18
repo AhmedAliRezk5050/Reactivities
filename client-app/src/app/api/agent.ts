@@ -54,18 +54,16 @@ export const activityApi = {
 
 interface ResponseData {
   validationErrors?: ValidationErrors;
-  info?: ResponseDataInfo;
+  type?: string;
+  title?: string;
+  status?: number;
+  traceId?: string;
+  details?: string;
+  statusCode?: number;
 }
 
 interface ValidationErrors {
   [key: string]: string[];
-}
-
-interface ResponseDataInfo {
-  type: string;
-  title: string;
-  status: number;
-  traceId: string;
 }
 
 interface ApiActivity extends Omit<Activity, 'date'> {
