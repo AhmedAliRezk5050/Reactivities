@@ -5,7 +5,7 @@ import Activity from '../models/activity';
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
 axios.interceptors.response.use(
-  (response) => {},
+  (response) => response,
   (error: AxiosError) => {
     const { response } = error;
     const status = response?.status;
