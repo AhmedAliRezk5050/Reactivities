@@ -7,14 +7,23 @@ axios.defaults.baseURL = 'http://localhost:5000/api';
 
 axios.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  (error: AxiosError<ResponseData>) => {
     const { response } = error;
     const status = response?.status;
     let errorMessage = 'Unkown Error occured';
-
+    console.error(error);
     if (response && status) {
       switch (status) {
         case 400:
+          const validationErrors = response.data.validationErrors;
+          const errors: string[] = [];
+
+          if (validationErrors) {
+            for (const key in validationErrors) {
+              errors.push(...validationErrors[key]);
+            }
+          }
+          debugger;
           errorMessage = 'Bad request';
           break;
         case 401:
@@ -71,6 +80,7 @@ class ActivityApi extends Api<Activity> {
   }
 
   create(activity: Activity) {
+    debugger;
     return super.add(this.baseUrl, activity);
   }
 
@@ -84,3 +94,19 @@ class ActivityApi extends Api<Activity> {
 }
 
 export const activityApi = new ActivityApi();
+
+interface ResponseData {
+  validationErrors?: ValidationErrors;
+  info?: ResponseDataInfo;
+}
+
+interface ValidationErrors {
+  [key: string]: string[];
+}
+
+interface ResponseDataInfo {
+  type: string;
+  title: string;
+  status: number;
+  traceId: string;
+}
