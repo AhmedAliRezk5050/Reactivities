@@ -4,7 +4,9 @@ import Home from '../../features/home/Home';
 import ActivityForm from '../../features/activities/form/ActivityForm';
 import ActivityDashboard from '../../features/activities/dashboard/ActivityDashboard';
 import ActivityDetails from '../../features/activities/details/ActivityDetails';
-import NotFound from '../../features/not-found/NotFound';
+import NotFound from '../../features/errors/not-found/NotFound';
+
+import { createBrowserHistory } from 'history';
 
 const App = () => {
   return (
@@ -13,12 +15,16 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/activities' element={<RootLayout />}>
           <Route index element={<ActivityDashboard />} />
-          <Route path='/activities/create' element={<ActivityForm />} />
-          <Route path='/activities/:id' element={<ActivityDetails />} />
-          <Route path='/activities/:id/edit' element={<ActivityForm />} />
+          <Route path='create' element={<ActivityForm />} />
+          <Route path='not-found' element={<NotFound />} />
+          <Route path=':id' element={<ActivityDetails />} />
+          <Route path=':id/edit' element={<ActivityForm />} />
         </Route>
-        <Route path='/not-found' element={<NotFound />} />
-        <Route path='*' element={<Navigate to='/not-found' replace />} />
+
+        <Route
+          path='*'
+          element={<Navigate to='/activities/not-found' replace />}
+        />
       </Routes>
     </BrowserRouter>
   );
