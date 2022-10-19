@@ -7,6 +7,7 @@ import App from './app/layout/App';
 import { store, StoreContext } from './app/stores/store';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-datepicker/dist/react-datepicker.css';
 
 ReactDOM.render(
   <StoreContext.Provider value={store}>

@@ -10,6 +10,7 @@ import { Button, Segment } from 'semantic-ui-react';
 import AppTextInput from '../../formik/AppTextInput';
 import AppTextArea from '../../formik/AppTextArea';
 import AppSelectInput from '../../formik/AppSelectInput';
+import AppDateInput from '../../formik/AppDateInput';
 
 interface Props {}
 
@@ -105,7 +106,15 @@ const ActivityForm: FC<Props> = () => {
               placeholder='Category'
               options={categoryptions}
             />
-            <AppTextInput name='date' placeholder='Enter date' />
+            <AppDateInput
+              name='date'
+              options={{
+                placeholderText: 'Date',
+                showTimeSelect: true,
+                timeCaption: 'time',
+                dateFormat: 'MMMM d, yyyy h:m aa',
+              }}
+            />
             <AppTextInput name='city' placeholder='Enter city' />
             <AppTextInput name='venue' placeholder='Enter venue' />
 
