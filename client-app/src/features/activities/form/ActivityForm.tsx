@@ -1,18 +1,19 @@
-import { FC, useEffect, useState } from "react";
-import * as Yup from "yup";
-import Activity from "../../../app/models/activity";
-import { useStore } from "../../../app/stores/store";
-import { observer } from "mobx-react-lite";
-import { useNavigate, useParams } from "react-router-dom";
-import AppSpinner from "../../../app/layout/AppSpinner";
-import { Form, Formik } from "formik";
-import { Button, Segment } from "semantic-ui-react";
-import AppTextInput from "../../formik/AppTextInput";
-import AppTextArea from "../../formik/AppTextArea";
+import { FC, useEffect, useState } from 'react';
+import * as Yup from 'yup';
+import Activity from '../../../app/models/activity';
+import { useStore } from '../../../app/stores/store';
+import { observer } from 'mobx-react-lite';
+import { useNavigate, useParams } from 'react-router-dom';
+import AppSpinner from '../../../app/layout/AppSpinner';
+import { Form, Formik } from 'formik';
+import { Button, Segment } from 'semantic-ui-react';
+import AppTextInput from '../../formik/AppTextInput';
+import AppTextArea from '../../formik/AppTextArea';
+import AppSelectInput from '../../formik/AppSelectInput';
 
 interface Props {}
 
-interface FormData extends Omit<Activity, "id"> {}
+interface FormData extends Omit<Activity, 'id'> {}
 
 const ActivityForm: FC<Props> = () => {
   const { activityStore } = useStore();
@@ -20,12 +21,12 @@ const ActivityForm: FC<Props> = () => {
   const { id } = useParams();
   const [localLoading, setLocalLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
-    title: "",
-    date: "",
-    description: "",
-    category: "",
-    venue: "",
-    city: "",
+    title: '',
+    date: '',
+    description: '',
+    category: '',
+    venue: '',
+    city: '',
   });
 
   useEffect(() => {
@@ -40,12 +41,12 @@ const ActivityForm: FC<Props> = () => {
         .finally(() => setLocalLoading(false));
     } else {
       setFormData({
-        title: "",
-        date: "",
-        description: "",
-        category: "",
-        venue: "",
-        city: "",
+        title: '',
+        date: '',
+        description: '',
+        category: '',
+        venue: '',
+        city: '',
       });
     }
   }, [id, activityStore]);
@@ -66,8 +67,17 @@ const ActivityForm: FC<Props> = () => {
     if (activityStore.error) {
       activityStore.setError(null);
     }
-    navigate("/activities", { replace: true });
+    navigate('/activities', { replace: true });
   };
+
+  const categoryptions = [
+    { value: 'drinks', text: 'Drinks' },
+    { value: 'calture', text: 'Calture' },
+    { value: 'film', text: 'Film' },
+    { value: 'food', text: 'Food' },
+    { value: 'music', text: 'Music' },
+    { value: 'travel', text: 'Travel' },
+  ];
 
   return (
     <Segment clearing>
@@ -83,23 +93,27 @@ const ActivityForm: FC<Props> = () => {
         }}
       >
         {({ touched, isValid, isSubmitting }) => (
-          <Form className="ui form error">
-            <AppTextInput name="title" placeholder="Enter title" />
+          <Form className='ui form error'>
+            <AppTextInput name='title' placeholder='Enter title' />
             <AppTextArea
-              name="description"
-              placeholder="Enter description"
+              name='description'
+              placeholder='Enter description'
               rows={3}
             />
-            <AppTextInput name="category" placeholder="Enter category" />
-            <AppTextInput name="date" placeholder="Enter date" />
-            <AppTextInput name="city" placeholder="Enter city" />
-            <AppTextInput name="venue" placeholder="Enter venue" />
+            <AppSelectInput
+              name='category'
+              placeholder='Category'
+              options={categoryptions}
+            />
+            <AppTextInput name='date' placeholder='Enter date' />
+            <AppTextInput name='city' placeholder='Enter city' />
+            <AppTextInput name='venue' placeholder='Enter venue' />
 
             <Button
-              floated="left"
+              floated='left'
               positive
-              type="submit"
-              content="Submit"
+              type='submit'
+              content='Submit'
               loading={activityStore.operationsLoading}
               disabled={
                 !isValid ||
@@ -110,10 +124,10 @@ const ActivityForm: FC<Props> = () => {
               }
             />
             <Button
-              floated="right"
+              floated='right'
               negative
-              type="button"
-              content="Cancel"
+              type='button'
+              content='Cancel'
               onClick={handleCancel}
             />
           </Form>
