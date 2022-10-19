@@ -1,4 +1,5 @@
 import {ChangeEvent, FC, useEffect, useState} from 'react';
+import * as Yup from 'yup';
 import Activity from '../../../app/models/activity';
 import {useStore} from '../../../app/stores/store';
 import {observer} from 'mobx-react-lite';
@@ -26,31 +27,6 @@ const ActivityForm: FC<Props> = () => {
         city: '',
     });
 
-    // const handleChange = (
-    //   e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    // ) => {
-    //   const { name, value } = e.target;
-    //   setFormData({ ...formData, [name]: value });
-    // };
-
-    // const handleSubmit = () => {
-    //   activityStore
-    //     .upsertActivity(formData)
-    //     .catch((e: string[]) => {
-    //       if (Array.isArray(e)) setFormErrors(e);
-    //     })
-    //     .finally(() => {
-    //       if (!activityStore.error) navigate('/activities', { replace: true });
-    //     });
-    // };
-
-    const handleCancel = () => {
-        if (activityStore.error) {
-            activityStore.setError(null);
-        }
-        navigate('/activities', {replace: true});
-    };
-
     useEffect(() => {
         if (id) {
             activityStore
@@ -77,9 +53,19 @@ const ActivityForm: FC<Props> = () => {
     if (id && (activityStore.activityLoading || localLoading))
         return <AppSpinner active={activityStore.activityLoading}/>;
 
+    const formValidationSchema: Yup.SchemaOf<Omit<Activity, 'id'>> = Yup.object().shape({
+        title: Yup.string().required(),
+        date: Yup.string().required(),
+        description: Yup.string().required(),
+        category: Yup.string().required(),
+        city: Yup.string().required(),
+        venue: Yup.string().required(),
+    });
+
     return (
         <Formik
             initialValues={formData}
+            validationSchema={formValidationSchema}
             onSubmit={(values, {setSubmitting}) => {
                 setTimeout(() => {
                     console.log(values);
@@ -87,12 +73,19 @@ const ActivityForm: FC<Props> = () => {
                 }, 2000);
             }}
         >
-            {({isSubmitting}) => (
+            {({
+                  errors,
+                  touched,
+                  isSubmitting
+              }) => (
                 <Form>
                     <Field
                         type='title'
                         name='title'
                     />
+                    {errors.title && touched.title &&
+                        <div>{errors.title}</div>
+                    }
                     <button type='submit' disabled={isSubmitting}>
                         Submit
                     </button>
