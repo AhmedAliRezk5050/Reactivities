@@ -14,7 +14,9 @@ import AppDateInput from '../../formik/AppDateInput';
 
 interface Props {}
 
-interface FormData extends Omit<Activity, 'id'> {}
+interface FormData extends Omit<Activity, 'id' | 'date'> {
+  date: Date | null;
+}
 
 const ActivityForm: FC<Props> = () => {
   const { activityStore } = useStore();
@@ -23,7 +25,7 @@ const ActivityForm: FC<Props> = () => {
   const [localLoading, setLocalLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     title: '',
-    date: '',
+    date: null,
     description: '',
     category: '',
     venue: '',
@@ -36,14 +38,15 @@ const ActivityForm: FC<Props> = () => {
         .fetchActivity(id)
         .then(() => {
           if (activityStore.activity) {
-            setFormData({ ...activityStore.activity });
+            const { id, ...formData } = activityStore.activity;
+            setFormData(formData);
           }
         })
         .finally(() => setLocalLoading(false));
     } else {
       setFormData({
         title: '',
-        date: '',
+        date: null,
         description: '',
         category: '',
         venue: '',
@@ -57,7 +60,7 @@ const ActivityForm: FC<Props> = () => {
 
   const formValidationSchema: Yup.SchemaOf<FormData> = Yup.object().shape({
     title: Yup.string().required(),
-    date: Yup.string().required(),
+    date: Yup.date().nullable().required(),
     description: Yup.string().required(),
     category: Yup.string().required(),
     city: Yup.string().required(),

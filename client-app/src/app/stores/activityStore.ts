@@ -2,7 +2,6 @@ import { makeAutoObservable } from 'mobx';
 import Activity from '../models/activity';
 import { activityApi } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
-import { stringToDate } from '../../utilities';
 
 interface Error {
   title: string;
@@ -27,7 +26,7 @@ export default class ActivityStore {
       const { data: activitiesFromDb } = await activityApi.list();
       this.setActivities(
         activitiesFromDb.map((a) => {
-          a.date = a.date.split('T')[0];
+          a.date = new Date(a.date);
           return a;
         }),
       );
@@ -51,17 +50,11 @@ export default class ActivityStore {
     try {
       if (!activity.id) {
         const newActivity = { ...activity, id: uuidv4() };
-        await activityApi.add({
-          ...newActivity,
-          date: stringToDate(newActivity.date),
-        });
+        await activityApi.add(newActivity);
         this.addActivity(newActivity);
       } else {
         createMode = false;
-        await activityApi.edit({
-          ...activity,
-          date: stringToDate(activity.date),
-        });
+        await activityApi.edit(activity);
         this.editActivity(activity);
       }
       this.setError(null);
@@ -105,7 +98,10 @@ export default class ActivityStore {
 
         if (!fetchedActivity) throw new Error('Activity not found');
 
-        this.setActivity(fetchedActivity);
+        this.setActivity({
+          ...fetchedActivity,
+          date: new Date(fetchedActivity.date),
+        });
       }
       this.setError(null);
     } catch (e) {
@@ -116,7 +112,7 @@ export default class ActivityStore {
 
   get activitiesByDate() {
     return Array.from(this.activities.values()).sort(
-      (a, b) => Date.parse(b.date) - Date.parse(a.date),
+      (a, b) => b.date.getTime() - a.date.getTime(),
     );
   }
 
@@ -124,11 +120,12 @@ export default class ActivityStore {
     return Object.entries(
       this.activitiesByDate.reduce(
         (prev: { [key: string]: Activity[] }, cur) => {
-          if (!prev[cur.date]) {
-            prev[cur.date] = [];
+          const dateAsString = cur.date.toISOString().split('T')[0];
+          if (!prev[dateAsString]) {
+            prev[dateAsString] = [];
           }
 
-          prev[cur.date].push(cur);
+          prev[dateAsString].push(cur);
           return prev;
         },
         {},

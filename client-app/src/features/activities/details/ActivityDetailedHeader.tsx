@@ -39,7 +39,7 @@ const ActivityDetailedHeader: FC<Props> = ({ activity }) => {
                   content={activity.title}
                   style={{ color: 'white' }}
                 />
-                <p>{activity.date}</p>
+                <p>{activity.date.toISOString()}</p>
                 <p>
                   Hosted by <strong>Bob</strong>
                 </p>
