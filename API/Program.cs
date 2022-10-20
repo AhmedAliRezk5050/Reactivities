@@ -17,6 +17,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddMediatR(typeof(List.Handler).Assembly);
 
 builder.Services.ConfigureDbContext(configuration);
+builder.Services.ConfigureIdentity(configuration);
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -30,8 +31,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 // we are not using https now
