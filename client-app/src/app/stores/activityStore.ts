@@ -9,6 +9,10 @@ interface Error {
   message: string;
 }
 
+interface UpsertActivity extends Omit<Activity, 'id'> {
+  id?: string;
+}
+
 export default class ActivityStore {
   activities: Map<string, Activity> = new Map();
   activity: Activity | null = null;
@@ -40,7 +44,7 @@ export default class ActivityStore {
     this.setActivitiesLoading(false);
   };
 
-  upsertActivity = async (activity: Activity) => {
+  upsertActivity = async (activity: UpsertActivity) => {
     let createMode = true;
     this.setOperationsLoading(true);
     try {
@@ -50,8 +54,9 @@ export default class ActivityStore {
         this.addActivity(newActivity);
       } else {
         createMode = false;
-        await activityApi.edit(activity);
-        this.editActivity(activity);
+        const updatedActivity = { ...activity, id: activity.id };
+        await activityApi.edit(updatedActivity);
+        this.editActivity(updatedActivity);
       }
       this.setError(null);
       this.setOperationsLoading(false);

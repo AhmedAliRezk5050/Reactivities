@@ -90,10 +90,13 @@ const ActivityForm: FC<Props> = () => {
         initialValues={formData}
         validationSchema={formValidationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          setTimeout(() => {
-            console.log(values);
-            setSubmitting(false);
-          }, 2000);
+          activityStore
+            .upsertActivity({ ...values, id: id, date: values.date! })
+            .finally(() => {
+              setSubmitting(false);
+              if (!activityStore.error)
+                navigate('/activities', { replace: true });
+            });
         }}
       >
         {({ touched, isValid, isSubmitting }) => (
@@ -131,8 +134,7 @@ const ActivityForm: FC<Props> = () => {
                 !isValid ||
                 isSubmitting ||
                 (Object.keys(touched).length === 0 &&
-                  touched.constructor === Object &&
-                  !id)
+                  touched.constructor === Object)
               }
             />
             <Button
