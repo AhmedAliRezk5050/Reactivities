@@ -44,8 +44,8 @@ const baseUrl = '/activities';
 const makeActivityUrl = (id: string) => `${baseUrl}/${id}`;
 
 export const activityApi = {
-  list: () => axios.get<Activity[]>(baseUrl),
-  details: (id: string) => axios.get<Activity>(makeActivityUrl(id)),
+  list: () => axios.get<FetchedActivity[]>(baseUrl),
+  details: (id: string) => axios.get<FetchedActivity>(makeActivityUrl(id)),
   add: (activity: Activity) => axios.post(baseUrl, activity),
   edit: (activity: Activity) =>
     axios.put(makeActivityUrl(activity.id), activity),
@@ -64,4 +64,8 @@ interface ResponseData {
 
 interface ValidationErrors {
   [key: string]: string[];
+}
+
+export interface FetchedActivity extends Omit<Activity, 'date'> {
+  date: string;
 }

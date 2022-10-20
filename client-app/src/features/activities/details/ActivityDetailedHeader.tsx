@@ -3,6 +3,7 @@ import { FC } from 'react';
 import Activity from '../../../app/models/activity';
 import { Item, Segment, Image, Header, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
 const activityImageStyle = {
   filter: 'brightness(30%)',
@@ -39,7 +40,7 @@ const ActivityDetailedHeader: FC<Props> = ({ activity }) => {
                   content={activity.title}
                   style={{ color: 'white' }}
                 />
-                <p>{activity.date.toISOString()}</p>
+                <p>{format(activity.date, 'dd MMM yyy')}</p>
                 <p>
                   Hosted by <strong>Bob</strong>
                 </p>

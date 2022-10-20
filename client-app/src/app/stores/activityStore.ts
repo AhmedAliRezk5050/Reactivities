@@ -1,7 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import Activity from '../models/activity';
-import { activityApi } from '../api/agent';
+import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
+import { format } from 'date-fns';
 
 interface Error {
   title: string;
@@ -24,12 +25,7 @@ export default class ActivityStore {
     this.setActivitiesLoading(true);
     try {
       const { data: activitiesFromDb } = await activityApi.list();
-      this.setActivities(
-        activitiesFromDb.map((a) => {
-          a.date = new Date(a.date);
-          return a;
-        }),
-      );
+      this.setActivities(activitiesFromDb);
 
       if (activitiesFromDb.length === 0) {
         this.setError({ title: 'Activities', message: 'No activities found' });
@@ -120,7 +116,7 @@ export default class ActivityStore {
     return Object.entries(
       this.activitiesByDate.reduce(
         (prev: { [key: string]: Activity[] }, cur) => {
-          const dateAsString = cur.date.toISOString().split('T')[0];
+          const dateAsString = format(cur.date, 'dd MMM yyy');
           if (!prev[dateAsString]) {
             prev[dateAsString] = [];
           }
@@ -133,9 +129,12 @@ export default class ActivityStore {
     );
   }
 
-  setActivities = (activities: Activity[]) => {
-    activities.forEach((activity) => {
-      this.activities.set(activity.id, activity);
+  setActivities = (fetchedActivities: FetchedActivity[]) => {
+    fetchedActivities.forEach((fetchedActivity) => {
+      this.activities.set(fetchedActivity.id, {
+        ...fetchedActivity,
+        date: new Date(fetchedActivity.date),
+      });
     });
   };
 
