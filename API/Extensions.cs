@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using API.Services;
+using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -37,5 +38,7 @@ public static class Extensions
             .AddSignInManager<SignInManager<AppUser>>();
 
         services.AddAuthentication();
+
+        services.AddScoped<AuthService>();
     }
 }
