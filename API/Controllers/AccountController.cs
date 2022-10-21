@@ -1,11 +1,13 @@
 using API.DTOs;
 using API.Services;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[AllowAnonymous]
 public class AccountController : BaseApiController
 {
     private readonly UserManager<AppUser> _userManager;
