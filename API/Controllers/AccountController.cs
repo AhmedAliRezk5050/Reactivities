@@ -70,7 +70,6 @@ public class AccountController : BaseApiController
         return CreateUserDto(user);
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetAuthenticatedUser()
     {
