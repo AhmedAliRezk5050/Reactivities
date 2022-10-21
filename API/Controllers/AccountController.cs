@@ -13,14 +13,14 @@ public class AccountController : BaseApiController
     private readonly UserManager<AppUser> _userManager;
 
     private readonly SignInManager<AppUser> _signInManager;
-    
+
     private readonly AuthService _authService;
 
     public AccountController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         AuthService authService
-        )
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -35,8 +35,8 @@ public class AccountController : BaseApiController
         if (user == null) return Unauthorized();
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-        
-        if(!result.Succeeded) return Unauthorized();
+
+        if (!result.Succeeded) return Unauthorized();
 
         return new UserDto
         {
@@ -44,6 +44,39 @@ public class AccountController : BaseApiController
             Token = _authService.CreateToken(user),
             Image = null,
             DisplayName = user.DisplayName ?? string.Empty
+        };
+    }
+
+    [HttpPost("register")]
+    public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+    {
+        if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
+        {
+            return BadRequest("Email is taken");
+        }
+
+        if (await _userManager.FindByNameAsync(registerDto.UserName) != null)
+        {
+            return BadRequest("Username is taken");
+        }
+
+        var user = new AppUser()
+        {
+            DisplayName = registerDto.DisplayName,
+            Email = registerDto.Email,
+            UserName = registerDto.UserName,
+        };
+
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+        if (!result.Succeeded) return BadRequest("Failed registering user");
+
+        return new UserDto()
+        {
+            Image = null,
+            Token = _authService.CreateToken(user),
+            DisplayName = registerDto.DisplayName,
+            UserName = registerDto.UserName
         };
     }
 }
