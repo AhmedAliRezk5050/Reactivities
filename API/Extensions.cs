@@ -1,7 +1,10 @@
-﻿using API.Services;
+﻿using System.Text;
+using API.Services;
 using Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Persistence;
 
 namespace API;
@@ -37,7 +40,21 @@ public static class Extensions
             .AddEntityFrameworkStores<DataContext>()
             .AddSignInManager<SignInManager<AppUser>>();
 
-        services.AddAuthentication();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+        
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // validate token against our provided secret key("super secret key")
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                        
+                };
+            });
 
         services.AddScoped<AuthService>();
     }

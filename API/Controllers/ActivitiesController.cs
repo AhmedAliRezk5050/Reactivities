@@ -3,6 +3,7 @@ using MediatR;
 using Domain;
 using Application.Activities;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -23,6 +24,7 @@ public class ActivitiesController : BaseApiController
         return HandleResult(await _mediator.Send(new List.Query()));
     }
 
+    [Authorize]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult> GetActivity(Guid id)
     {
