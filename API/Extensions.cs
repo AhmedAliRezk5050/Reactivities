@@ -7,35 +7,35 @@ namespace API;
 
 public static class Extensions
 {
-  public static void ConfigureCors(this IServiceCollection services)
-  {
-    services.AddCors(o =>
+    public static void ConfigureCors(this IServiceCollection services)
     {
-      o.AddPolicy("CorsPolicy",
-              policyBuilder =>
-                  policyBuilder
-                      // .AllowAnyOrigin()
-                      .WithOrigins("http://localhost:3000")
-                      .AllowAnyMethod()
-                      .AllowAnyHeader());
-    });
-  }
-
-  public static void ConfigureDbContext(this IServiceCollection services, IConfiguration configuration)
-  {
-    services.AddDbContext<DataContext>(options =>
+        services.AddCors(o =>
         {
-          options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
-        }
-    );
-  }
+            o.AddPolicy("CorsPolicy",
+                policyBuilder =>
+                    policyBuilder
+                        // .AllowAnyOrigin()
+                        .WithOrigins("http://localhost:3000")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+        });
+    }
 
-  public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
-  {
-    services.AddIdentityCore<AppUser>(options =>
+    public static void ConfigureDbContext(this IServiceCollection services, IConfiguration configuration)
     {
-      options.Password.RequireNonAlphanumeric = false;
-    })
-     .AddEntityFrameworkStores<DataContext>();
-  }
+        services.AddDbContext<DataContext>(options =>
+            {
+                options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
+            }
+        );
+    }
+
+    public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddIdentityCore<AppUser>(options => { options.Password.RequireNonAlphanumeric = false; })
+            .AddEntityFrameworkStores<DataContext>()
+            .AddSignInManager<SignInManager<AppUser>>();
+
+        services.AddAuthentication();
+    }
 }
