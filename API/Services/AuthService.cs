@@ -8,6 +8,13 @@ namespace API.Services;
 
 public class AuthService
 {
+    private readonly IConfiguration _config;
+
+    public AuthService(IConfiguration config)
+    {
+        _config = config;
+    }
+
     public string CreateToken(AppUser user)
     {
         var claims = new List<Claim>()
@@ -17,7 +24,7 @@ public class AuthService
             new(ClaimTypes.Email, user.Email),
         };
         
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
 
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

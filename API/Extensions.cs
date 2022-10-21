@@ -34,13 +34,13 @@ public static class Extensions
         );
     }
 
-    public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureIdentity(this IServiceCollection services, IConfiguration config)
     {
         services.AddIdentityCore<AppUser>(options => { options.Password.RequireNonAlphanumeric = false; })
             .AddEntityFrameworkStores<DataContext>()
             .AddSignInManager<SignInManager<AppUser>>();
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(o =>
