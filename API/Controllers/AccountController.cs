@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.DTOs;
 using API.Services;
 using Domain;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[AllowAnonymous]
+
 public class AccountController : BaseApiController
 {
     private readonly UserManager<AppUser> _userManager;
@@ -27,6 +28,7 @@ public class AccountController : BaseApiController
         _authService = authService;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
@@ -38,15 +40,12 @@ public class AccountController : BaseApiController
 
         if (!result.Succeeded) return Unauthorized();
 
-        return new UserDto
-        {
-            UserName = user.UserName,
-            Token = _authService.CreateToken(user),
-            Image = null,
-            DisplayName = user.DisplayName ?? string.Empty
-        };
+        return CreateUserDto(user);
     }
 
+    // [Authorize]
+
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
@@ -71,12 +70,26 @@ public class AccountController : BaseApiController
 
         if (!result.Succeeded) return BadRequest("Failed registering user");
 
+        return CreateUserDto(user);
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<ActionResult<UserDto>> GetAuthenticatedUser()
+    {
+        var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+
+        return CreateUserDto(user);
+    }
+
+    private UserDto CreateUserDto(AppUser user)
+    {
         return new UserDto()
         {
             Image = null,
             Token = _authService.CreateToken(user),
-            DisplayName = registerDto.DisplayName,
-            UserName = registerDto.UserName
+            DisplayName = user.DisplayName!,
+            UserName = user.UserName
         };
     }
 }
