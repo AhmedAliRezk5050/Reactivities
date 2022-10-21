@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-
 public class AccountController : BaseApiController
 {
     private readonly UserManager<AppUser> _userManager;
@@ -42,8 +41,6 @@ public class AccountController : BaseApiController
 
         return CreateUserDto(user);
     }
-
-    // [Authorize]
 
     [AllowAnonymous]
     [HttpPost("register")]
