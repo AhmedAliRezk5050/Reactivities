@@ -6,6 +6,14 @@ import { LoginData, User } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (config.headers && token) {
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('user')}`;
+  }
+  return config;
+});
+
 axios.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ResponseData>) => {

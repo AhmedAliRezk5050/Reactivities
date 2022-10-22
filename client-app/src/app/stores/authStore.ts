@@ -18,8 +18,10 @@ export default class AuthStore {
       (user) => {
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('token', user.token);
         } else {
           localStorage.removeItem('user');
+          localStorage.removeItem('token');
         }
       },
     );
