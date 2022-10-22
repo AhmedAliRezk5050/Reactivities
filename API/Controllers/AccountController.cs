@@ -48,12 +48,14 @@ public class AccountController : BaseApiController
     {
         if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
         {
-            return BadRequest("Email is taken");
+            ModelState.AddModelError("email", "Email is taken");
+            return ValidationProblem(ModelState);
         }
 
         if (await _userManager.FindByNameAsync(registerDto.UserName) != null)
         {
-            return BadRequest("Username is taken");
+            ModelState.AddModelError("userName", "Username is taken");
+            return ValidationProblem(ModelState);
         }
 
         var user = new AppUser()

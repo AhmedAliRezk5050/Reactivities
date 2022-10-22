@@ -23,14 +23,27 @@ axios.interceptors.response.use(
     if (response && status) {
       switch (status) {
         case 400:
-          const validationErrors = response.data.validationErrors;
-          const errors: string[] = [];
+          const { validationErrors, errors } = response.data;
+          const errsArray: string[] = [];
+          let errsObject: ValidationErrors | null = null;
 
           if (validationErrors) {
-            for (const key in validationErrors) {
-              errors.push(...validationErrors[key]);
+            errsObject = {};
+            errsObject = { ...errsObject, ...validationErrors };
+          }
+
+          if (errors) {
+            if (!errsObject) {
+              errsObject = {};
             }
-            throw errors;
+            errsObject = { ...errsObject, ...errors };
+          }
+
+          if (errsObject) {
+            for (const key in errsObject) {
+              errsArray.push(...errsObject[key]);
+            }
+            throw errsArray;
           }
           errorMessage = 'Bad request';
           break;
@@ -72,6 +85,7 @@ export const authApi = {
 
 interface ResponseData {
   validationErrors?: ValidationErrors;
+  errors?: ValidationErrors;
   type?: string;
   title?: string;
   status?: number;

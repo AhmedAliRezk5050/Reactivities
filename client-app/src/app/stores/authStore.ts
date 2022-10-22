@@ -49,6 +49,7 @@ export default class AuthStore {
       this.setUser(response.data);
     } catch (e: any) {
       this.setUser(null);
+      throw e;
     }
   };
 
