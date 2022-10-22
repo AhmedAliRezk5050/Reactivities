@@ -3,6 +3,7 @@ import { makeAutoObservable, reaction } from 'mobx';
 import { User } from '../models/user';
 import { authApi } from '../api/agent';
 import { appBrowserHistory } from '../../routing/AppRouter';
+import { store } from './store';
 
 export default class AuthStore {
   user: User | null = null;
@@ -24,8 +25,9 @@ export default class AuthStore {
         } else {
           localStorage.removeItem('user');
           localStorage.removeItem('token');
-          appBrowserHistory.replace('/login');
+          appBrowserHistory.replace('/');
         }
+        store.modalStore.closeModal();
       },
     );
   }
