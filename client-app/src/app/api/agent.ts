@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
-import { LoginData, User } from '../models/user';
+import { LoginData, RegisterData, User } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -66,6 +66,8 @@ export const activityApi = {
 export const authApi = {
   login: (loginData: LoginData) =>
     axios.post<User>(`${authBaseUrl}/login`, loginData),
+  register: (registerData: RegisterData) =>
+    axios.post<User>(`${authBaseUrl}/register`, registerData),
 };
 
 interface ResponseData {

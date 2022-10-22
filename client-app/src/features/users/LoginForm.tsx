@@ -9,9 +9,7 @@ const LoginForm = () => {
   return (
     <Formik
       initialValues={{ email: '', password: '' }}
-      onSubmit={(values, { setSubmitting }) => {
-        authStore.login(values);
-      }}
+      onSubmit={(values) => authStore.login(values)}
     >
       <Form className='ui form'>
         <Header as='h2' content='Login' textAlign='center' />

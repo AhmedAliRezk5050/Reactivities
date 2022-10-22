@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import { Button, Container, Header, Image, Segment } from 'semantic-ui-react';
 import { useStore } from '../../app/stores/store';
+import RegisterForm from '../users/RegisterForm';
 import LoginForm from '../users/LoginForm';
 
 const Home = () => {
@@ -34,7 +35,7 @@ const Home = () => {
               Login
             </Button>
             <Button
-              onClick={() => modalStore.openModal(<h1>Register</h1>)}
+              onClick={() => modalStore.openModal(<RegisterForm />)}
               size='huge'
               inverted
             >
