@@ -1,7 +1,11 @@
+import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import { Button, Container, Header, Image, Segment } from 'semantic-ui-react';
+import { useStore } from '../../app/stores/store';
 
 const Home = () => {
+  const { authStore } = useStore();
+
   return (
     <Segment inverted textAlign='center' vertical className='masthead'>
       <Container text>
@@ -15,12 +19,18 @@ const Home = () => {
           Reactivities
         </Header>
         <Header as='h2' inverted content='Welcome to Reactivities' />
-        <Button as={Link} to='/login' size='huge' inverted>
-          Take me to the Login
-        </Button>
+        {authStore.authenticated ? (
+          <Button as={Link} to='/activities' size='huge' inverted>
+            Take me to the Activities
+          </Button>
+        ) : (
+          <>
+            <>auth</>
+          </>
+        )}
       </Container>
     </Segment>
   );
 };
 
-export default Home;
+export default observer(Home);

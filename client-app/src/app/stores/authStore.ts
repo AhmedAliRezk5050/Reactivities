@@ -37,4 +37,8 @@ export default class AuthStore {
       this.setUser(null);
     }
   };
+
+  get authenticated() {
+    return !!this.user;
+  }
 }
