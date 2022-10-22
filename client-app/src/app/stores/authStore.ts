@@ -2,6 +2,7 @@ import { LoginData } from './../models/user';
 import { makeAutoObservable, reaction } from 'mobx';
 import { User } from '../models/user';
 import { authApi } from '../api/agent';
+import { appBrowserHistory } from '../../routing/AppRouter';
 
 export default class AuthStore {
   user: User | null = null;
@@ -19,9 +20,11 @@ export default class AuthStore {
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('token', user.token);
+          appBrowserHistory.replace('/activities');
         } else {
           localStorage.removeItem('user');
           localStorage.removeItem('token');
+          appBrowserHistory.replace('/login');
         }
       },
     );
@@ -36,6 +39,10 @@ export default class AuthStore {
     } catch (e: any) {
       this.setUser(null);
     }
+  };
+
+  logout = () => {
+    this.setUser(null);
   };
 
   get authenticated() {
