@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
+import { LoginData, User } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -39,17 +40,24 @@ axios.interceptors.response.use(
   },
 );
 
-const baseUrl = '/activities';
+const activitiesBaseUrl = '/activities';
 
-const makeActivityUrl = (id: string) => `${baseUrl}/${id}`;
+const authBaseUrl = '/account';
+
+const makeActivityUrl = (id: string) => `${activitiesBaseUrl}/${id}`;
 
 export const activityApi = {
-  list: () => axios.get<FetchedActivity[]>(baseUrl),
+  list: () => axios.get<FetchedActivity[]>(activitiesBaseUrl),
   details: (id: string) => axios.get<FetchedActivity>(makeActivityUrl(id)),
-  add: (activity: Activity) => axios.post(baseUrl, activity),
+  add: (activity: Activity) => axios.post(activitiesBaseUrl, activity),
   edit: (activity: Activity) =>
     axios.put(makeActivityUrl(activity.id), activity),
   remove: (id: string) => axios.delete(makeActivityUrl(id)),
+};
+
+export const authApi = {
+  login: (loginData: LoginData) =>
+    axios.post<User>(`${authBaseUrl}/login`, loginData),
 };
 
 interface ResponseData {
