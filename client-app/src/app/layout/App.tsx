@@ -6,6 +6,7 @@ import ActivityDashboard from '../../features/activities/dashboard/ActivityDashb
 import ActivityDetails from '../../features/activities/details/ActivityDetails';
 import NotFound from '../../features/errors/not-found/NotFound';
 import AppRouter from '../../routing/AppRouter';
+import LoginForm from '../../features/users/LoginForm';
 
 const App = () => {
   return (
@@ -19,7 +20,7 @@ const App = () => {
           <Route path=':id' element={<ActivityDetails />} />
           <Route path=':id/edit' element={<ActivityForm />} />
         </Route>
-
+        <Route path='/login' element={<LoginForm />} />
         <Route
           path='*'
           element={<Navigate to='/activities/not-found' replace />}

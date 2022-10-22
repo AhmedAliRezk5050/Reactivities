@@ -1,11 +1,12 @@
-import { useField } from "formik";
-import { FC } from "react";
-import { Form, Message } from "semantic-ui-react";
+import { useField } from 'formik';
+import { FC } from 'react';
+import { Form, Message } from 'semantic-ui-react';
 
 interface Props {
   label?: string;
   placeholder?: string;
   name: string;
+  type?: string;
 }
 
 const AppTextInput: FC<Props> = ({ label, ...props }) => {
@@ -13,7 +14,6 @@ const AppTextInput: FC<Props> = ({ label, ...props }) => {
   return (
     <>
       <Form.Input
-        type="text"
         {...field}
         {...props}
         label={label}
