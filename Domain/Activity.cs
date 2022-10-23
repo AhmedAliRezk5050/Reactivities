@@ -16,5 +16,5 @@ public class Activity
 
   public string? Venue { get; set; }
 
-  public ICollection<ActivityAttendee>? Attendees { get; set; }
+  public ICollection<ActivityAttendee> Attendees { get; set; } = new List<ActivityAttendee>();
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
 using FluentValidation.Results;
@@ -28,11 +29,14 @@ public class Create
     private readonly DataContext _context;
 
     private readonly IValidator<Activity> _validator;
+    
+    private readonly IUserNameAccessor _userNameAccessor;
 
-    public Handler(DataContext context, IValidator<Activity> validator)
+    public Handler(DataContext context, IValidator<Activity> validator, IUserNameAccessor userNameAccessor)
     {
       _context = context;
       _validator = validator;
+      _userNameAccessor = userNameAccessor;
     }
 
     public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
@@ -44,14 +48,24 @@ public class Create
         return Result.Failure(new { validationErrors = validationResult.ToDictionary() });
       }
 
+      var user = _context.Users.FirstOrDefault(u => u.UserName == _userNameAccessor.GetUserName());
+      
+      if(user == null) return Result.Failure("Failed to create activity");
+      
+      var attendee = new ActivityAttendee()
+      {
+        Activity = request.Activity,
+        AppUser = user,
+        IsHost = true
+      };
+      
+      request.Activity.Attendees.Add(attendee);
+      
       _context.Activities.Add(request.Activity);
 
-      int persistResult = await _context.SaveChangesAsync();
+      bool persistResult = await _context.SaveChangesAsync() > 0;
 
-      if (persistResult == 0)
-      {
-        return Result.Failure("Failed to create activity");
-      }
+      if (!persistResult) return Result.Failure("Failed to create activity");
 
       return Result.Success(request.Activity);
     }
