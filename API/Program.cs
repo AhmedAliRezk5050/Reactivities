@@ -2,7 +2,9 @@ using API;
 using API.Middleware;
 using Application.Activities;
 using Application.Core;
+using Application.Interfaces;
 using FluentValidation;
+using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -12,8 +14,8 @@ var configuration = builder.Configuration;
 
 builder.Services.AddControllers(o =>
 {
-    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    o.Filters.Add(new AuthorizeFilter(policy));
+  var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+  o.Filters.Add(new AuthorizeFilter(policy));
 });
 
 builder.Services.ConfigureCors();
@@ -21,6 +23,8 @@ builder.Services.ConfigureCors();
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 builder.Services.AddMediatR(typeof(List.Handler).Assembly);
+
+builder.Services.AddScoped<IUserNameAccessor, UserNameAccessor>();
 
 builder.Services.ConfigureDbContext(configuration);
 builder.Services.ConfigureIdentity(configuration);
@@ -37,8 +41,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 // we are not using https now
