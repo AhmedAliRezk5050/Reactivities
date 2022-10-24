@@ -20,5 +20,7 @@ public class ActivityDto
     
     public string? HostUserName { get; set; }
 
+    public bool IsCancelled { get; set; }
+    
     public ICollection<Profile> Attendees  { get; set; } = new List<Profile>();
 }
