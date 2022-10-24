@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import React, { FC } from 'react';
 import Activity from '../../../app/models/activity';
 import { format } from 'date-fns';
+import AttendeesList from './AttendeesList';
 
 interface Props {
   activity: Activity;
@@ -30,7 +31,9 @@ const ActivityListItem: FC<Props> = ({ activity }) => {
           <Icon name='marker' /> {activity.venue}
         </span>
       </Segment>
-      <Segment secondary>Attendees go here</Segment>
+      <Segment secondary>
+        <AttendeesList attendees={activity.attendees!} />
+      </Segment>
       <Segment clearing>
         <span>{activity.description}</span>
         <Button

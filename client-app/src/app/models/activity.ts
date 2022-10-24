@@ -1,3 +1,5 @@
+import { Profile } from './profile';
+
 export default interface Activity {
   id: string;
   title: string;
@@ -6,4 +8,7 @@ export default interface Activity {
   category: string;
   city: string;
   venue: string;
+  hostUserName?: string;
+  isCancelled?: boolean;
+  attendees?: Profile[];
 }

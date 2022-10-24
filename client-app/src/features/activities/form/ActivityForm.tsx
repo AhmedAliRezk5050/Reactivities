@@ -14,8 +14,13 @@ import AppDateInput from '../../formik/AppDateInput';
 
 interface Props {}
 
-interface FormData extends Omit<Activity, 'id' | 'date'> {
+interface FormData {
+  title: string;
   date: Date | null;
+  description: string;
+  category: string;
+  city: string;
+  venue: string;
 }
 
 const ActivityForm: FC<Props> = () => {
