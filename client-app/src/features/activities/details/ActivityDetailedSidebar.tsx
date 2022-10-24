@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Profile } from '../../../app/models/profile';
 import { FC } from 'react';
+import Activity from '../../../app/models/activity';
 
 interface Props {
-  attendees: Profile[];
+  activity: Activity;
 }
 
-const ActivityDetailedSidebar: FC<Props> = ({ attendees }) => {
+const ActivityDetailedSidebar: FC<Props> = ({
+  activity: { attendees, host },
+}) => {
+  if (!attendees) return null;
+
   return (
     <>
       <Segment
@@ -24,9 +29,16 @@ const ActivityDetailedSidebar: FC<Props> = ({ attendees }) => {
         <List relaxed divided>
           {attendees.map(({ displayName, image, userName }) => (
             <Item style={{ position: 'relative' }} key={userName}>
-              <Label style={{ position: 'absolute' }} ribbon='right'>
-                Host
-              </Label>
+              {userName === host?.userName && (
+                <Label
+                  style={{ position: 'absolute' }}
+                  ribbon='right'
+                  color='olive'
+                >
+                  Host
+                </Label>
+              )}
+
               <Image size='tiny' src={image ?? '/assets/user.png'} />
               <Item.Content verticalAlign='middle'>
                 <Item.Header as='h3'>

@@ -34,9 +34,7 @@ const ActivityDetails: FC<Props> = () => {
         <ActivityDetailedChat />
       </Grid.Column>
       <Grid.Column width={6}>
-        <ActivityDetailedSidebar
-          attendees={activityStore.activity.attendees!}
-        />
+        <ActivityDetailedSidebar activity={activityStore.activity} />
       </Grid.Column>
     </Grid>
   );

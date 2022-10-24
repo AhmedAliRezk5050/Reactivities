@@ -3,6 +3,7 @@ import Activity from '../models/activity';
 import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
+import { store } from './store';
 
 interface Error {
   title: string;
@@ -90,20 +91,12 @@ export default class ActivityStore {
   fetchActivity = async (id: string) => {
     this.setActivityLoading(true);
     try {
-      const localActivity = false;
+      const { data: fetchedActivity } = await activityApi.details(id);
 
-      if (localActivity) {
-        this.setActivity(localActivity);
-      } else {
-        const { data: fetchedActivity } = await activityApi.details(id);
+      if (!fetchedActivity) throw new Error('Activity not found');
 
-        if (!fetchedActivity) throw new Error('Activity not found');
+      this.setActivity(fetchedActivity);
 
-        this.setActivity({
-          ...fetchedActivity,
-          date: new Date(fetchedActivity.date),
-        });
-      }
       this.setError(null);
     } catch (e) {
       this.setError({ title: 'Activity', message: 'Failed to fetch activity' });
@@ -136,10 +129,9 @@ export default class ActivityStore {
 
   setActivities = (fetchedActivities: FetchedActivity[]) => {
     fetchedActivities.forEach((fetchedActivity) => {
-      this.activities.set(fetchedActivity.id, {
-        ...fetchedActivity,
-        date: new Date(fetchedActivity.date),
-      });
+      const x = this.foo(fetchedActivity);
+      debugger;
+      this.activities.set(fetchedActivity.id, x);
     });
   };
 
@@ -175,7 +167,27 @@ export default class ActivityStore {
     this.error = err;
   };
 
-  setActivity = (activity: Activity | null) => {
-    this.activity = activity;
+  setActivity = (fetchedActivity: FetchedActivity) => {
+    this.activity = this.foo(fetchedActivity);
+  };
+
+  foo = (fetchedActivity: FetchedActivity) => {
+    const user = store.authStore.user;
+
+    const activity: Activity = {
+      ...fetchedActivity,
+      date: new Date(fetchedActivity.date),
+    };
+
+    if (user) {
+      activity.isGoing = activity.attendees?.some(
+        (attendee) => attendee.userName === user.userName,
+      );
+      activity.isHost = activity.hostUserName === user.userName;
+      activity.host = activity.attendees?.find(
+        (attendee) => attendee.userName === activity.hostUserName,
+      );
+    }
+    return activity;
   };
 }

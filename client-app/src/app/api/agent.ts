@@ -98,6 +98,7 @@ interface ValidationErrors {
   [key: string]: string[];
 }
 
-export interface FetchedActivity extends Omit<Activity, 'date'> {
+export interface FetchedActivity
+  extends Omit<Activity, 'date' | 'isGoing' | 'isHost' | 'host'> {
   date: string;
 }

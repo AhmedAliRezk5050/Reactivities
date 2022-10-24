@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { FC } from 'react';
 import Activity from '../../../app/models/activity';
-import { Item, Segment, Image, Header, Button } from 'semantic-ui-react';
+import { Item, Segment, Image, Header, Button, Label } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -41,24 +41,35 @@ const ActivityDetailedHeader: FC<Props> = ({ activity }) => {
                   style={{ color: 'white' }}
                 />
                 <p>{format(activity.date, 'dd MMM yyy')}</p>
-                <p>
-                  Hosted by <strong>Bob</strong>
-                </p>
+                <span style={{ marginRight: '5px' }}>Hosted by</span>
+                <Label
+                  size='small'
+                  as={Link}
+                  to={`/profiles/${activity.host?.userName}`}
+                >
+                  {activity.host?.displayName}
+                </Label>
               </Item.Content>
             </Item>
           </Item.Group>
         </Segment>
       </Segment>
       <Segment clearing attached='bottom'>
-        <Button>Join Activity</Button>
-        <Button>Cancel attendance</Button>
-        <Button
-          floated='right'
-          as={Link}
-          to={`/activities/${activity.id}/edit`}
-        >
-          Manage Event
-        </Button>
+        {!activity.isHost && !activity.isGoing && (
+          <Button>Join Activity</Button>
+        )}
+        {!activity.isHost && activity.isGoing && (
+          <Button>Cancel attendance</Button>
+        )}
+        {activity.isHost && (
+          <Button
+            floated='right'
+            as={Link}
+            to={`/activities/${activity.id}/edit`}
+          >
+            Manage Event
+          </Button>
+        )}
       </Segment>
     </Segment.Group>
   );

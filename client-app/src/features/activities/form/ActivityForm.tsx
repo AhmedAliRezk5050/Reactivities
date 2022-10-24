@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import Activity from '../../../app/models/activity';
 import { useStore } from '../../../app/stores/store';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams } from 'react-router-dom';
