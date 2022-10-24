@@ -129,9 +129,7 @@ export default class ActivityStore {
 
   setActivities = (fetchedActivities: FetchedActivity[]) => {
     fetchedActivities.forEach((fetchedActivity) => {
-      const x = this.foo(fetchedActivity);
-      debugger;
-      this.activities.set(fetchedActivity.id, x);
+      this.activities.set(fetchedActivity.id, this.toActivity(fetchedActivity));
     });
   };
 
@@ -168,10 +166,10 @@ export default class ActivityStore {
   };
 
   setActivity = (fetchedActivity: FetchedActivity) => {
-    this.activity = this.foo(fetchedActivity);
+    this.activity = this.toActivity(fetchedActivity);
   };
 
-  foo = (fetchedActivity: FetchedActivity) => {
+  toActivity = (fetchedActivity: FetchedActivity) => {
     const user = store.authStore.user;
 
     const activity: Activity = {
