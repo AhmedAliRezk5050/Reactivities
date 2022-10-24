@@ -23,7 +23,7 @@ const ActivityDetailedSidebar: FC<Props> = ({ attendees }) => {
       <Segment attached>
         <List relaxed divided>
           {attendees.map(({ displayName, image, userName }) => (
-            <Item style={{ position: 'relative' }}>
+            <Item style={{ position: 'relative' }} key={userName}>
               <Label style={{ position: 'absolute' }} ribbon='right'>
                 Host
               </Label>
