@@ -18,7 +18,7 @@ const ActivityDetailedSidebar: FC<Props> = ({ attendees }) => {
         secondary
         inverted
       >
-        3 People Going
+        {attendees.length} {attendees.length === 1 ? 'Person' : 'People'} Going
       </Segment>
       <Segment attached>
         <List relaxed divided>
