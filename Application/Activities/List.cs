@@ -1,4 +1,5 @@
 using Application.Core;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,26 @@ public class List
   public class Handler : IRequestHandler<Query, Result>
   {
     private readonly DataContext _context;
+    
+    private readonly IMapper _mapper;
 
-    public Handler(DataContext context)
+    public Handler(DataContext context, IMapper mapper)
     {
       _context = context;
+      _mapper = mapper;
     }
 
 
     public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
     {
-      return Result.Success(await _context.Activities.ToListAsync());
+      var activities = await _context.Activities
+        .Include(a => a.Attendees)
+        .ThenInclude(at => at.AppUser)
+        .ToListAsync();
+
+      var activityDtos = _mapper.Map<List<ActivityDto>>(activities);
+      
+      return Result.Success(activityDtos);
     }
   }
 

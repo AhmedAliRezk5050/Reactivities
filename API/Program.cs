@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using API;
 using API.Middleware;
 using Application.Activities;
@@ -17,11 +16,7 @@ builder.Services.AddControllers(o =>
 {
   var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
   o.Filters.Add(new AuthorizeFilter(policy));
-}).AddJsonOptions(options =>
-{
-  options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-  options.JsonSerializerOptions.WriteIndented = true;
-});;
+});
 
 builder.Services.ConfigureCors();
 
