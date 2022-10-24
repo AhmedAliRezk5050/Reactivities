@@ -3,6 +3,7 @@ using MediatR;
 using Domain;
 using Application.Activities;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -36,6 +37,7 @@ public class ActivitiesController : BaseApiController
     return HandleResult(await _mediator.Send(new Create.Command { Activity = activity }));
   }
 
+  [Authorize(Policy = "IsActivityHost")]
   [HttpPut("{id:guid}")]
   public async Task<ActionResult> EditActivity(Guid id, Activity activity)
   {

@@ -40,7 +40,8 @@ public class Edit
 
     public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
     {
-      var activityToUpdate = await _context.Activities.FindAsync(request.Id);
+      var activityToUpdate = await _context.Activities
+        .FindAsync(request.Id);
 
       if (activityToUpdate is null) return Result.Success(null);
 
@@ -52,14 +53,18 @@ public class Edit
         return Result.Failure(new { validationErrors = validationResult.ToDictionary() });
       }
 
-      request.Activity.Id = request.Id;
+      // activityToUpdate.Title = request.Activity.Title;
+      // activityToUpdate.Date = request.Activity.Date;
+      // activityToUpdate.Description = request.Activity.Description;
+      // activityToUpdate.Category = request.Activity.Category;
+      // activityToUpdate.City = request.Activity.City;
+      // activityToUpdate.Venue = request.Activity.Venue;
 
       _mapper.Map(request.Activity, activityToUpdate);
+      
+      var result = await _context.SaveChangesAsync() > 0;
 
-
-      int persistResult = await _context.SaveChangesAsync();
-
-      if (persistResult == 0)
+      if (!result)
       {
         return Result.Failure("Failed to edit activity");
       }

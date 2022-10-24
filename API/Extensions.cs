@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using API.Services;
 using Domain;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -56,6 +58,14 @@ public static class Extensions
                 };
             });
 
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("IsActivityHost", policy =>
+            {
+                policy.Requirements.Add(new HostRequirement());
+            });
+        });
+        services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
         services.AddScoped<AuthService>();
     }
 }
