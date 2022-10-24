@@ -3,7 +3,6 @@ using MediatR;
 using Domain;
 using Application.Activities;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -47,5 +46,11 @@ public class ActivitiesController : BaseApiController
   public async Task<ActionResult> DeleteActivity(Guid id)
   {
     return HandleResult(await _mediator.Send(new Delete.Command() { Id = id }));
+  }
+  
+  [HttpPost("update-attendance/{id:guid}")]
+  public async Task<ActionResult> HandleAttendance(Guid id)
+  {
+    return HandleResult(await _mediator.Send(new UpdateAttendance.Command() { ActivityId = id }));
   }
 }
