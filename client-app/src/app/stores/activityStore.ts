@@ -16,6 +16,7 @@ export default class ActivityStore {
   activity: Activity | null = null;
   activitiesLoading = true;
   activityLoading = true;
+  toggleIsCanceledLoading = false;
   operationsLoading = false;
   attendanceLoading = false;
   error: Error | null = null;
@@ -152,6 +153,18 @@ export default class ActivityStore {
     }
   };
 
+  cancelActivityToggle = async () => {
+    this.setToggleIsCanceledLoading(true);
+    try {
+      await activityApi.attend(this.activity!.id);
+      this.toggleActivityIsCancelled();
+      this.editActivity(this.activity!);
+    } catch (error) {
+    } finally {
+      this.setToggleIsCanceledLoading(false);
+    }
+  };
+
   get groupedActivities() {
     return Object.entries(
       this.activitiesByDate.reduce(
@@ -247,4 +260,11 @@ export default class ActivityStore {
   setIsGoing = (state: boolean) => {
     this.activity!.isGoing = state;
   };
+
+  toggleActivityIsCancelled = () => {
+    this.activity!.isCancelled = !this.activity!.isCancelled;
+  };
+
+  setToggleIsCanceledLoading = (state: boolean) =>
+    (this.toggleIsCanceledLoading = state);
 }

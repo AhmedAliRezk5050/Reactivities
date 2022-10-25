@@ -28,6 +28,14 @@ const ActivityDetailedHeader: FC<Props> = ({ activity }) => {
   return (
     <Segment.Group>
       <Segment basic attached='top' style={{ padding: '0' }}>
+        {activity.isCancelled && (
+          <Label
+            style={{ position: 'absolute', zIndex: 1000, left: -14, top: 20 }}
+            ribbon
+            color='red'
+            content='Cancelled'
+          ></Label>
+        )}
         <Image
           src={`/assets/categoryImages/${activity.category}.jpg`}
           fluid
@@ -61,18 +69,33 @@ const ActivityDetailedHeader: FC<Props> = ({ activity }) => {
           <Button
             onClick={activityStore.updateAttendance}
             loading={activityStore.attendanceLoading}
+            disabled={activity.isCancelled}
           >
             {activity.isGoing ? 'Cancel attendance' : 'Join Activity'}
           </Button>
         )}
         {activity.isHost && (
-          <Button
-            floated='right'
-            as={Link}
-            to={`/activities/${activity.id}/edit`}
-          >
-            Manage Event
-          </Button>
+          <>
+            <Button
+              floated='right'
+              as={Link}
+              to={`/activities/${activity.id}/edit`}
+              disabled={activity.isCancelled}
+            >
+              Manage Event
+            </Button>
+            <Button
+              color={activity.isCancelled ? 'green' : 'red'}
+              floated='left'
+              content={
+                activity.isCancelled
+                  ? 'Re-activate Activity'
+                  : 'Cancel Activity'
+              }
+              onClick={activityStore.cancelActivityToggle}
+              loading={activityStore.toggleIsCanceledLoading}
+            />
+          </>
         )}
       </Segment>
     </Segment.Group>
