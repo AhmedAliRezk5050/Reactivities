@@ -10,7 +10,7 @@ appsettings.json
 **.db-wal
 
 node_modules
-
+api/wwwroot/images
 # User-specific files
 *.rsuser
 *.suo
