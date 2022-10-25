@@ -4,6 +4,7 @@ import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import { store } from './store';
+import { Profile } from '../models/profile';
 
 interface Error {
   title: string;
@@ -20,6 +21,7 @@ export default class ActivityStore {
   activitiesLoading = true;
   activityLoading = true;
   operationsLoading = false;
+  attendanceLoading = false;
   error: Error | null = null;
 
   constructor() {
@@ -106,6 +108,27 @@ export default class ActivityStore {
     );
   }
 
+  updateAttendance = async () => {
+    this.setAttendanceLoading(true);
+    const user = store.authStore.user;
+
+    try {
+      await activityApi.attend(this.activity!.id);
+      if (this.activity?.isGoing) {
+        this.removeAttendee(user!.userName);
+        this.setIsGoing(false);
+      } else {
+        const { displayName, image, userName } = user!;
+        this.addAttendee({ displayName, image, userName });
+        this.setIsGoing(true);
+      }
+      this.editActivity(this.activity!);
+    } catch (error) {
+    } finally {
+      this.setAttendanceLoading(false);
+    }
+  };
+
   get groupedActivities() {
     return Object.entries(
       this.activitiesByDate.reduce(
@@ -183,5 +206,23 @@ export default class ActivityStore {
       );
     }
     return activity;
+  };
+
+  setAttendanceLoading = (state: boolean) => {
+    this.attendanceLoading = state;
+  };
+
+  addAttendee = (profile: Profile) => {
+    this.activity?.attendees?.push(profile);
+  };
+
+  removeAttendee = (username: string) => {
+    this.activity!.attendees = this.activity?.attendees?.filter(
+      (attendee) => attendee.userName !== username,
+    );
+  };
+
+  setIsGoing = (state: boolean) => {
+    this.activity!.isGoing = state;
   };
 }

@@ -49,8 +49,8 @@ public class ActivitiesController : BaseApiController
   {
     return HandleResult(await _mediator.Send(new Delete.Command() { Id = id }));
   }
-  
-  [HttpPost("update-attendance/{id:guid}")]
+
+  [HttpPost("{id:guid}/update-attendance")]
   public async Task<ActionResult> HandleAttendance(Guid id)
   {
     return HandleResult(await _mediator.Send(new UpdateAttendance.Command() { ActivityId = id }));

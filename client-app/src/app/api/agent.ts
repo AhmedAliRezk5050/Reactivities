@@ -74,6 +74,8 @@ export const activityApi = {
   edit: (activity: Activity) =>
     axios.put(makeActivityUrl(activity.id), activity),
   remove: (id: string) => axios.delete(makeActivityUrl(id)),
+  attend: (id: string) =>
+    axios.post(`${makeActivityUrl(id)}/update-attendance`),
 };
 
 export const authApi = {
