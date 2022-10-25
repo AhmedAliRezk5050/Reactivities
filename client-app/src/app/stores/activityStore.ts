@@ -1,4 +1,5 @@
-import { makeAutoObservable } from 'mobx';
+import { ActivityFormValues } from './../models/activity';
+import { makeAutoObservable, runInAction } from 'mobx';
 import Activity from '../models/activity';
 import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,11 +11,6 @@ interface Error {
   title: string;
   message: string;
 }
-
-interface UpsertActivity extends Omit<Activity, 'id'> {
-  id?: string;
-}
-
 export default class ActivityStore {
   activities: Map<string, Activity> = new Map();
   activity: Activity | null = null;
@@ -47,30 +43,55 @@ export default class ActivityStore {
     this.setActivitiesLoading(false);
   };
 
-  upsertActivity = async (activity: UpsertActivity) => {
-    let createMode = true;
-    this.setOperationsLoading(true);
+  createActivity = async (formValues: ActivityFormValues) => {
     try {
-      if (!activity.id) {
-        const newActivity = { ...activity, id: uuidv4() };
-        await activityApi.add(newActivity);
-        this.addActivity(newActivity);
-      } else {
-        createMode = false;
-        const updatedActivity = { ...activity, id: activity.id };
-        await activityApi.edit(updatedActivity);
-        this.editActivity(updatedActivity);
-      }
-      this.setError(null);
-      this.setOperationsLoading(false);
-    } catch (e: any) {
+      const newActivity = { ...formValues, id: uuidv4() };
+
+      await activityApi.add(newActivity);
+
+      const user = store.authStore.user!;
+      const profile = new Profile(user);
+
+      const dbCeatedActivity = {
+        ...newActivity,
+        date: newActivity.date!,
+        hostUserName: user.userName,
+        isHost: true,
+        attendees: [profile],
+        host: profile,
+        isGoing: true,
+      };
+
+      this.addActivity({
+        ...dbCeatedActivity,
+      });
+
+      runInAction(() => {
+        this.activity = dbCeatedActivity;
+      });
+    } catch (e) {
       this.setError({
         title: 'Activities',
-        message: createMode
-          ? 'Failed to create new activity'
-          : 'Failed to edit activity',
+        message: 'Failed to create new activity',
       });
-      this.setOperationsLoading(false);
+      throw e;
+    }
+  };
+
+  updateActivity = async (formValues: ActivityFormValues) => {
+    try {
+      await activityApi.edit(formValues);
+      const updateActivity = {
+        ...this.activity!,
+        ...formValues,
+        date: formValues.date!,
+      };
+      this.editActivity(updateActivity);
+    } catch (e) {
+      this.setError({
+        title: 'Activities',
+        message: 'Failed to edit activity',
+      });
       throw e;
     }
   };
@@ -96,10 +117,12 @@ export default class ActivityStore {
       const { data: fetchedActivity } = await activityApi.details(id);
       this.setActivity(fetchedActivity);
       this.setError(null);
+      this.setActivityLoading(false);
+      return this.activity;
     } catch (e) {
+      this.setActivityLoading(false);
       this.setError({ title: 'Activity', message: 'Failed to fetch activity' });
     }
-    this.setActivityLoading(false);
   };
 
   get activitiesByDate() {
@@ -190,7 +213,6 @@ export default class ActivityStore {
 
   toActivity = (fetchedActivity: FetchedActivity) => {
     const user = store.authStore.user;
-
     const activity: Activity = {
       ...fetchedActivity,
       date: new Date(fetchedActivity.date),

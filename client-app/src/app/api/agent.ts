@@ -1,3 +1,4 @@
+import { ActivityFormValues } from './../models/activity';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { appBrowserHistory } from '../../routing/AppRouter';
@@ -70,9 +71,10 @@ const makeActivityUrl = (id: string) => `${activitiesBaseUrl}/${id}`;
 export const activityApi = {
   list: () => axios.get<FetchedActivity[]>(activitiesBaseUrl),
   details: (id: string) => axios.get<FetchedActivity>(makeActivityUrl(id)),
-  add: (activity: Activity) => axios.post(activitiesBaseUrl, activity),
-  edit: (activity: Activity) =>
-    axios.put(makeActivityUrl(activity.id), activity),
+  add: (activity: ActivityFormValues) =>
+    axios.post(activitiesBaseUrl, activity),
+  edit: (activity: ActivityFormValues) =>
+    axios.put(makeActivityUrl(activity.id!), activity),
   remove: (id: string) => axios.delete(makeActivityUrl(id)),
   attend: (id: string) =>
     axios.post(`${makeActivityUrl(id)}/update-attendance`),

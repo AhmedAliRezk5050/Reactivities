@@ -10,6 +10,7 @@ import AppTextInput from '../../formik/AppTextInput';
 import AppTextArea from '../../formik/AppTextArea';
 import AppSelectInput from '../../formik/AppSelectInput';
 import AppDateInput from '../../formik/AppDateInput';
+import { ActivityFormValues } from '../../../app/models/activity';
 
 interface Props {}
 
@@ -27,35 +28,20 @@ const ActivityForm: FC<Props> = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [localLoading, setLocalLoading] = useState(true);
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    date: null,
-    description: '',
-    category: '',
-    venue: '',
-    city: '',
-  });
+  const [formData, setFormData] = useState<ActivityFormValues>(
+    new ActivityFormValues(),
+  );
 
   useEffect(() => {
     if (id) {
       activityStore
         .fetchActivity(id)
-        .then(() => {
-          if (activityStore.activity) {
-            const { id, ...formData } = activityStore.activity;
-            setFormData(formData);
-          }
+        .then((activity) => {
+          setFormData(new ActivityFormValues({ ...activity! }));
         })
         .finally(() => setLocalLoading(false));
     } else {
-      setFormData({
-        title: '',
-        date: null,
-        description: '',
-        category: '',
-        venue: '',
-        city: '',
-      });
+      setFormData(new ActivityFormValues());
     }
   }, [id, activityStore]);
 
@@ -93,14 +79,18 @@ const ActivityForm: FC<Props> = () => {
         enableReinitialize
         initialValues={formData}
         validationSchema={formValidationSchema}
-        onSubmit={(values, { setSubmitting }) => {
-          activityStore
-            .upsertActivity({ ...values, id: id, date: values.date! })
-            .finally(() => {
-              setSubmitting(false);
-              if (!activityStore.error)
-                navigate('/activities', { replace: true });
-            });
+        onSubmit={async (values) => {
+          try {
+            if (!id) {
+              await activityStore.createActivity({ ...values });
+              navigate(`/activities/${activityStore.activity?.id}`, {
+                replace: true,
+              });
+            } else {
+              await activityStore.updateActivity({ ...values });
+              navigate(`/activities/${id}`, { replace: true });
+            }
+          } catch (error) {}
         }}
       >
         {({ touched, isValid, isSubmitting }) => (
@@ -133,7 +123,7 @@ const ActivityForm: FC<Props> = () => {
               positive
               type='submit'
               content='Submit'
-              loading={activityStore.operationsLoading}
+              loading={isSubmitting}
               disabled={
                 !isValid ||
                 isSubmitting ||
