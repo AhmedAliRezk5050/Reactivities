@@ -92,11 +92,7 @@ export default class ActivityStore {
     this.setActivityLoading(true);
     try {
       const { data: fetchedActivity } = await activityApi.details(id);
-
-      if (!fetchedActivity) throw new Error('Activity not found');
-
       this.setActivity(fetchedActivity);
-
       this.setError(null);
     } catch (e) {
       this.setError({ title: 'Activity', message: 'Failed to fetch activity' });
