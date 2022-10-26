@@ -5,6 +5,7 @@ using Application.Core;
 using Application.Interfaces;
 using FluentValidation;
 using Infrastructure;
+using Infrastructure.Photos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -34,6 +35,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ActivityValidator>();
+
+builder.Services.Configure<CloudinarySettings>(configuration.GetSection("Cloudinary"));
 
 var app = builder.Build();
 
