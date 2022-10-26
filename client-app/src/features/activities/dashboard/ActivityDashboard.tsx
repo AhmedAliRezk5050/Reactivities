@@ -1,10 +1,10 @@
-import { Grid } from 'semantic-ui-react';
-import React, { FC } from 'react';
-import ActivityList from './ActivityList';
-import { useStore } from '../../../app/stores/store';
-import { observer } from 'mobx-react-lite';
-import AppSpinner from '../../../app/layout/AppSpinner';
-import ActivityFilters from './ActivityFilters';
+import { Grid } from "semantic-ui-react";
+import React, { FC } from "react";
+import ActivityList from "./ActivityList";
+import { useStore } from "../../../app/stores/store";
+import { observer } from "mobx-react-lite";
+import AppSpinner from "../../../app/layout/AppSpinner";
+import ActivityFilters from "./ActivityFilters";
 
 interface Props {}
 
@@ -15,11 +15,11 @@ const ActivityDashboard: FC<Props> = () => {
 
   return (
     <Grid>
-      <AppSpinner active={activitiesLoading} text='Activies loading' />
-      <Grid.Column width='10'>
+      <AppSpinner active={activitiesLoading} text="Activies loading" />
+      <Grid.Column width="10">
         <ActivityList />
       </Grid.Column>
-      <Grid.Column width='6'>
+      <Grid.Column width="6">
         <ActivityFilters />
       </Grid.Column>
     </Grid>
