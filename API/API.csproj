@@ -23,4 +23,9 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\images\579157e4-93d5-468f-90c4-d35c31deb813_Captjjure.PNG" />
+    <_ContentIncludedByDefault Remove="wwwroot\images\688f38bd-3a2f-4030-9513-d0a8241a77d2_Captjjure.PNG" />
+  </ItemGroup>
+
 </Project>

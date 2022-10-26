@@ -50,8 +50,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("CorsPolicy");
 
-app.UseStaticFiles();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
