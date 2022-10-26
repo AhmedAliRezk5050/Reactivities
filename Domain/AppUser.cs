@@ -9,4 +9,6 @@ public class AppUser : IdentityUser
   public string? Bio { get; set; }
 
   public ICollection<ActivityAttendee> Activities { get; set; } = new List<ActivityAttendee>();
+
+  public List<Photo> Photos { get; set; } = null!;
 }
