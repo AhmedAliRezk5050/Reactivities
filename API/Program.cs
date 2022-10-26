@@ -36,6 +36,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ActivityValidator>();
 
+builder.Services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+
 builder.Services.Configure<CloudinarySettings>(configuration.GetSection("Cloudinary"));
 
 var app = builder.Build();
