@@ -24,4 +24,10 @@ public class PhotosController : BaseApiController
     {
         return HandleResult(await _mediator.Send(new Delete.Command { Id = id }));
     }
+    
+    [HttpPost("{id}/setMain")]
+    public async Task<ActionResult> SetMain(string id)
+    {
+        return HandleResult(await _mediator.Send(new SetMain.Command { Id = id }));
+    }
 }
