@@ -33,8 +33,6 @@ public class PhotoAccessor : IPhotoAccessor
                 Transformation = new Transformation().Height(500).Width(500).Crop("fill"),
                 
             };
-            
-           
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
