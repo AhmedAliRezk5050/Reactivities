@@ -13,10 +13,11 @@ public class PhotoAccessor : IPhotoAccessor
 
     public PhotoAccessor(IOptions<CloudinarySettings> options)
     {
+        
         Account account = new Account(
             options.Value.CloudName,
             options.Value.ApiKey,
-            options.Value.ApiKey);
+            options.Value.ApiSecret);
 
         _cloudinary = new Cloudinary(account);
     }
@@ -29,8 +30,11 @@ public class PhotoAccessor : IPhotoAccessor
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, stream),
-                Transformation = new Transformation().Height(500).Width(500).Crop("fill")
+                Transformation = new Transformation().Height(500).Width(500).Crop("fill"),
+                
             };
+            
+           
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
