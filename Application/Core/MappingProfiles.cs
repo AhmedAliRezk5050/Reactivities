@@ -15,7 +15,7 @@ public class MappingProfiles : Profile
                     configurationExpression.MapFrom(activity =>
                         activity.Attendees.FirstOrDefault(attendee => attendee.IsHost)!.AppUser.UserName));
         
-        CreateMap<ActivityAttendee, Profiles.Profile>()
+        CreateMap<ActivityAttendee, AttendeeDto>()
             .ForMember(profile => profile.DisplayName,
                 configurationExpression =>
                     configurationExpression.MapFrom(activityAttendee => activityAttendee.AppUser.DisplayName))
@@ -24,8 +24,13 @@ public class MappingProfiles : Profile
                     configurationExpression.MapFrom(activityAttendee => activityAttendee.AppUser.Bio))
             .ForMember(profile => profile.UserName,
                 configurationExpression =>
-                    configurationExpression.MapFrom(activityAttendee => activityAttendee.AppUser.UserName));
-
+                    configurationExpression.MapFrom(activityAttendee => activityAttendee.AppUser.UserName))
+            .ForMember(attendeeDto => attendeeDto.Image,
+            configurationExpression =>
+                configurationExpression.MapFrom(activityAttendee => 
+                    activityAttendee.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url));
+        
+        
         CreateMap<AppUser, Profiles.Profile>()
             .ForMember(profile => profile.Image,
                 configurationExpression =>

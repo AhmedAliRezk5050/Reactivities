@@ -10,5 +10,5 @@ public class AppUser : IdentityUser
 
   public ICollection<ActivityAttendee> Activities { get; set; } = new List<ActivityAttendee>();
 
-  public List<Photo> Photos { get; set; } = null!;
+  public List<Photo> Photos { get; set; } = new ();
 }

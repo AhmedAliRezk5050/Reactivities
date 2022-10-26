@@ -10,7 +10,6 @@ public class ActivityAttendee
 
   public Activity Activity { get; set; } = null!;
 
-
   public bool IsHost { get; set; }
 
 }

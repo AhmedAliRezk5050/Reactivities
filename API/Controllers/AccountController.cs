@@ -5,6 +5,7 @@ using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -31,7 +32,10 @@ public class AccountController : BaseApiController
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+        var user = await _userManager
+            .Users
+            .Include(u => u.Photos)
+            .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
         if (user == null) return Unauthorized();
 
@@ -75,16 +79,18 @@ public class AccountController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<UserDto>> GetAuthenticatedUser()
     {
-        var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+        var user = await _userManager.Users
+            .Include(u => u.Photos)
+            .FirstOrDefaultAsync(u => u.Email == User.FindFirstValue(ClaimTypes.Email));
 
-        return CreateUserDto(user);
+        return CreateUserDto(user!);
     }
 
     private UserDto CreateUserDto(AppUser user)
     {
         return new UserDto()
         {
-            Image = null,
+            Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url,
             Token = _authService.CreateToken(user),
             DisplayName = user.DisplayName!,
             UserName = user.UserName
