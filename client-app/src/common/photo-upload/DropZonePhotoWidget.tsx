@@ -11,9 +11,12 @@ const DropZonePhotoWidget: FC<Props> = ({ setFiles }) => {
     border: 'dashed 3px #eee',
     borderColor: '#eee',
     borderRadius: '5px',
-    paddingTop: '30px',
     textAlign: 'center' as 'center',
     height: 200,
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   };
 
   const dzActive = {
@@ -41,7 +44,7 @@ const DropZonePhotoWidget: FC<Props> = ({ setFiles }) => {
     >
       <input {...getInputProps()} />
       <Icon name='upload' size='large' />
-      <Header content='Drop image here' />
+      <Header content='Drop image here' size='small' />
     </div>
   );
 };
