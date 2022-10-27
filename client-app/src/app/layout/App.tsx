@@ -6,6 +6,7 @@ import ActivityDashboard from '../../features/activities/dashboard/ActivityDashb
 import ActivityDetails from '../../features/activities/details/ActivityDetails';
 import NotFound from '../../features/errors/not-found/NotFound';
 import AppRouter from '../../routing/AppRouter';
+import ProfilePage from '../../features/profiles/ProfilePage';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path='activities/not-found' element={<NotFound />} />
           <Route path='activities/:id' element={<ActivityDetails />} />
           <Route path='activities/:id/edit' element={<ActivityForm />} />
+          <Route path='profiles/:username' element={<ProfilePage />} />
           <Route path='not-found' element={<NotFound />} />
         </Route>
         <Route path='*' element={<Navigate to='not-found' replace />} />

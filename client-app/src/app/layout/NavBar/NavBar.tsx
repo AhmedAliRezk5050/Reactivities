@@ -32,7 +32,7 @@ const NavBar: FC<Props> = () => {
 
           <Dropdown text={user?.displayName} pointing='top left'>
             <Dropdown.Menu>
-              <Dropdown.Item as={Link} to={`/profile/${user?.userName}`}>
+              <Dropdown.Item as={Link} to={`/profiles/${user?.userName}`}>
                 My Profile
               </Dropdown.Item>
               <Dropdown.Item
