@@ -22,7 +22,7 @@ const ProfilePage = () => {
     <Grid>
       <Grid.Column width={16}>
         <ProfileHeader profile={profileStore.profile!} />
-        <ProfileContent />
+        <ProfileContent profile={profileStore.profile!} />
       </Grid.Column>
     </Grid>
   );
