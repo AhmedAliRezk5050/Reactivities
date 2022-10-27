@@ -1,4 +1,4 @@
-import { Profile } from './../models/profile';
+import { Photo, Profile } from './../models/profile';
 import { ActivityFormValues } from './../models/activity';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
@@ -90,6 +90,11 @@ export const authApi = {
 
 export const profilesApi = {
   get: (username: string) => axios.get<Profile>(`/profiles/${username}`),
+  uploadPhoto: (file: Blob) => {
+    let formData = new FormData();
+    formData.append('File', file);
+    return axios.post<Photo>('/photos', formData);
+  },
 };
 
 interface ResponseData {

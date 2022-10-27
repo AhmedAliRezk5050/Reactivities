@@ -60,4 +60,10 @@ export default class AuthStore {
   get authenticated() {
     return !!this.user;
   }
+
+  setImage = (image: string) => {
+    if (this.user) {
+      this.user.image = image;
+    }
+  };
 }

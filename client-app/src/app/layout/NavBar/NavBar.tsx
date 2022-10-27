@@ -8,9 +8,8 @@ import { useStore } from '../../stores/store';
 interface Props {}
 
 const NavBar: FC<Props> = () => {
-  const {
-    authStore: { user, logout },
-  } = useStore();
+  const { authStore } = useStore();
+  console.log(authStore.user);
 
   return (
     <Menu inverted fixed='top' className='NavBar'>
@@ -24,19 +23,18 @@ const NavBar: FC<Props> = () => {
           <Button content='Create Activity' />
         </Menu.Item>
         <Menu.Item position='right'>
-          <Image
-            src={user?.image || '/assets/user.png'}
-            avatar
-            spaced='right'
-          />
+          <Image src={authStore.user?.image} avatar spaced='right' />
 
-          <Dropdown text={user?.displayName} pointing='top left'>
+          <Dropdown text={authStore.user?.displayName} pointing='top left'>
             <Dropdown.Menu>
-              <Dropdown.Item as={Link} to={`/profiles/${user?.userName}`}>
+              <Dropdown.Item
+                as={Link}
+                to={`/profiles/${authStore.user?.userName}`}
+              >
                 My Profile
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={() => logout()}
+                onClick={() => authStore.logout()}
                 icon='power'
                 text='Logout'
               />

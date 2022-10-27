@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState, FC } from 'react';
 import { Button, Grid, GridColumn, Header } from 'semantic-ui-react';
+import { useStore } from '../../app/stores/store';
 import CropperPhotoWidget from './CropperPhotoWidget';
 import DropZonePhotoWidget from './DropZonePhotoWidget';
 
-const PhotoUploadWidget = () => {
+interface Props {
+  onPhotoUpload: (file: Blob) => void;
+}
+
+const PhotoUploadWidget: FC<Props> = ({ onPhotoUpload }) => {
   const [files, setFiles] = useState<any>([]);
   const [cropper, setCropper] = useState<Cropper>();
-
+  const { profileStore } = useStore();
   const onCrop = () => {
     if (cropper) {
-      cropper.getCroppedCanvas().toBlob((blob) => console.log(blob));
+      cropper.getCroppedCanvas().toBlob((blob) => blob && onPhotoUpload(blob));
     }
   };
 
@@ -59,8 +65,17 @@ const PhotoUploadWidget = () => {
                 }}
               />
               <Button.Group>
-                <Button onClick={onCrop} positive icon='check' />
-                <Button onClick={() => setFiles([])} icon='close' />
+                <Button
+                  onClick={onCrop}
+                  positive
+                  icon='check'
+                  loading={profileStore.photoUploadLoading}
+                />
+                <Button
+                  onClick={() => setFiles([])}
+                  icon='close'
+                  disabled={profileStore.photoUploadLoading}
+                />
               </Button.Group>
             </>
           )}
@@ -70,4 +85,4 @@ const PhotoUploadWidget = () => {
   );
 };
 
-export default PhotoUploadWidget;
+export default observer(PhotoUploadWidget);
