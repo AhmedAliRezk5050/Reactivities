@@ -1,4 +1,5 @@
 import { Grid, GridColumn, Header } from 'semantic-ui-react';
+import DropZonePhotoWidget from './DropZonePhotoWidget';
 
 const PhotoUploadWidget = () => {
   return (
@@ -8,6 +9,7 @@ const PhotoUploadWidget = () => {
         <Header color='grey'>
           <p>Step 1</p>
           <p>Add Photo</p>
+          <DropZonePhotoWidget />
         </Header>
       </GridColumn>
       <Grid.Column width={1} />
