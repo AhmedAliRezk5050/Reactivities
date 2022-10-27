@@ -5,7 +5,7 @@ import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import { store } from './store';
-import { Profile } from '../models/profile';
+import { UserProfile } from '../models/profile';
 
 interface Error {
   title: string;
@@ -51,7 +51,7 @@ export default class ActivityStore {
       await activityApi.add(newActivity);
 
       const user = store.authStore.user!;
-      const profile = new Profile(user);
+      const profile = new UserProfile(user);
 
       const dbCeatedActivity = {
         ...newActivity,
@@ -247,7 +247,7 @@ export default class ActivityStore {
     this.attendanceLoading = state;
   };
 
-  addAttendee = (profile: Profile) => {
+  addAttendee = (profile: UserProfile) => {
     this.activity?.attendees?.push(profile);
   };
 

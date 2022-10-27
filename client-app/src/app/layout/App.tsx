@@ -21,8 +21,8 @@ const App = () => {
           <Route path='activities/:id/edit' element={<ActivityForm />} />
           <Route path='profiles/:username' element={<ProfilePage />} />
           <Route path='not-found' element={<NotFound />} />
+          <Route path='*' element={<Navigate to='not-found' replace />} />
         </Route>
-        <Route path='*' element={<Navigate to='not-found' replace />} />
       </Routes>
     </AppRouter>
   );

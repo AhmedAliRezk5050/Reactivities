@@ -1,4 +1,4 @@
-import { Profile } from './profile';
+import { UserProfile } from './profile';
 
 export default interface Activity {
   id: string;
@@ -12,8 +12,8 @@ export default interface Activity {
   isCancelled?: boolean;
   isGoing?: boolean;
   isHost?: boolean;
-  host?: Profile;
-  attendees?: Profile[];
+  host?: UserProfile;
+  attendees?: UserProfile[];
 }
 
 export class ActivityFormValues {

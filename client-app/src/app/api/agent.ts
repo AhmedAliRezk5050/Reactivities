@@ -1,3 +1,4 @@
+import { Profile } from './../models/profile';
 import { ActivityFormValues } from './../models/activity';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
@@ -85,6 +86,10 @@ export const authApi = {
     axios.post<User>(`${authBaseUrl}/login`, loginData),
   register: (registerData: RegisterData) =>
     axios.post<User>(`${authBaseUrl}/register`, registerData),
+};
+
+export const profilesApi = {
+  get: (username: string) => axios.get<Profile>(`/profiles/${username}`),
 };
 
 interface ResponseData {

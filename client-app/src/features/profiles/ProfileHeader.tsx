@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import {
   Button,
   Divider,
@@ -10,17 +11,26 @@ import {
   Statistic,
   StatisticGroup,
 } from 'semantic-ui-react';
+import { Profile } from '../../app/models/profile';
 
-const ProfileHeader = () => {
+interface Props {
+  profile: Profile;
+}
+
+const ProfileHeader: FC<Props> = ({ profile }) => {
   return (
     <Segment>
       <Grid>
         <Grid.Column width={12}>
           <ItemGroup>
             <Item>
-              <Item.Image avatar size='small' src='/assets/user.png' />
+              <Item.Image
+                avatar
+                size='small'
+                src={profile.image ?? '/assets/user.png'}
+              />
               <Item.Content verticalAlign='middle'>
-                <Header as='h1' content='Display name' />
+                <Header as='h1' content={profile.displayName} />
               </Item.Content>
             </Item>
           </ItemGroup>

@@ -2,10 +2,10 @@ import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Icon, Image } from 'semantic-ui-react';
 
-import { Profile } from '../../app/models/profile';
+import { UserProfile } from '../../app/models/profile';
 
 interface Props {
-  profile: Profile;
+  profile: UserProfile;
 }
 
 const ProfileCard: FC<Props> = ({ profile }) => {
