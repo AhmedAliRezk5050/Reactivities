@@ -1,7 +1,9 @@
-import { Grid, GridColumn, Header } from 'semantic-ui-react';
+import { useState } from 'react';
+import { Grid, GridColumn, Header, Image } from 'semantic-ui-react';
 import DropZonePhotoWidget from './DropZonePhotoWidget';
 
 const PhotoUploadWidget = () => {
+  const [files, setFiles] = useState<any>([]);
   return (
     <Grid style={{ textAlign: 'center' }}>
       <Grid.Column width={1} />
@@ -9,7 +11,7 @@ const PhotoUploadWidget = () => {
         <Header color='grey'>
           <p>Step 1</p>
           <p>Add Photo</p>
-          <DropZonePhotoWidget />
+          <DropZonePhotoWidget setFiles={setFiles} />
         </Header>
       </GridColumn>
       <Grid.Column width={1} />
@@ -18,6 +20,7 @@ const PhotoUploadWidget = () => {
           <p>Step 2</p>
           <p>Resize Image</p>
         </Header>
+        {files.length > 0 && <Image src={files[0].preview} />}
       </GridColumn>
       <Grid.Column width={1} />
       <GridColumn width={4}>
