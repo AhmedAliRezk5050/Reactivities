@@ -8,6 +8,7 @@ export default class ProfileStore {
   photoUploadLoading: boolean = false;
   makePhotoMainLoading: boolean = false;
   deletePhotoLoading: boolean = false;
+  profileUpdateLoading: boolean = true;
 
   constructor() {
     makeAutoObservable(this);
@@ -22,6 +23,19 @@ export default class ProfileStore {
       this.setProfile(null);
     } finally {
       this.setProfileLoading(false);
+    }
+  };
+
+  updateProfile = async (displayName: string, bio?: string) => {
+    try {
+      this.setProfileUpdateLoading(true);
+      await profilesApi.update(displayName, bio);
+      this.editProfileData(displayName, bio);
+      store.authStore.setDisplayName(displayName);
+    } catch (error) {
+      throw error;
+    } finally {
+      this.setProfileUpdateLoading(false);
     }
   };
 
@@ -103,6 +117,16 @@ export default class ProfileStore {
   removePhotoFromProfile = (photoId: string) => {
     if (this.profile) {
       this.profile.photos = this.profile.photos.filter((p) => p.id !== photoId);
+    }
+  };
+
+  setProfileUpdateLoading = (status: boolean) =>
+    (this.deletePhotoLoading = status);
+
+  editProfileData = (displayName: string, bio?: string) => {
+    if (this.profile) {
+      this.profile.displayName = displayName;
+      this.profile.bio = bio;
     }
   };
 }

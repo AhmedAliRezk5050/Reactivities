@@ -67,4 +67,11 @@ export default class AuthStore {
       localStorage.setItem('user', JSON.stringify(this.user));
     }
   };
+
+  setDisplayName = (displayName: string) => {
+    if (this.user) {
+      this.user.displayName = displayName;
+      localStorage.setItem('user', JSON.stringify(this.user));
+    }
+  };
 }
