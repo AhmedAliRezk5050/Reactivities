@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { Tab } from 'semantic-ui-react';
+import EditProfile from './EditProfile';
 import ProfilePhotos from './ProfilePhotos';
 
 const ProfileContent = () => {
   const panes = [
-    { menuItem: 'About', render: () => <Tab.Pane>About Content</Tab.Pane> },
+    { menuItem: 'About', render: () => <EditProfile /> },
     {
       menuItem: 'Photos',
       render: () => <ProfilePhotos />,

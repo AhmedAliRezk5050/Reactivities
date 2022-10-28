@@ -6,18 +6,26 @@ namespace API.Controllers;
 
 public class ProfilesController : BaseApiController
 {
-    private readonly IMediator _mediator;
+  private readonly IMediator _mediator;
 
-    public ProfilesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+  public ProfilesController(IMediator mediator)
+  {
+    _mediator = mediator;
+  }
 
-    [HttpGet("{username}")]
-    public async Task<ActionResult> Get(string username)
-    {
-        return HandleResult(
-            await _mediator.Send(
-                new Details.Query { UserName = username }));
-    }
+  [HttpGet("{username}")]
+  public async Task<ActionResult> Get(string username)
+  {
+    return HandleResult(
+        await _mediator.Send(
+            new Details.Query { UserName = username }));
+  }
+
+  [HttpPut]
+  public async Task<ActionResult> Update(UpdateProfileDto updateProfileDto)
+  {
+    return HandleResult(
+        await _mediator.Send(
+            new Update.Command { UpdateProfileDto = updateProfileDto }));
+  }
 }
