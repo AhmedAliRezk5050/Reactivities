@@ -142,8 +142,7 @@ export default class ActivityStore {
         this.removeAttendee(user!.userName);
         this.setIsGoing(false);
       } else {
-        const { displayName, image, userName } = user!;
-        this.addAttendee({ displayName, image, userName });
+        this.addAttendee(new UserProfile(user!));
         this.setIsGoing(true);
       }
       this.editActivity(this.activity!);

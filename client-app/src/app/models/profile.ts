@@ -5,7 +5,7 @@ export interface Profile {
   displayName: string;
   bio?: string;
   image?: string;
-  photos?: Photo[];
+  photos: Photo[];
 }
 
 export class UserProfile implements Profile {
@@ -13,7 +13,7 @@ export class UserProfile implements Profile {
   displayName: string;
   bio?: string | undefined;
   image?: string | undefined;
-  photos?: Photo[];
+  photos: Photo[] = [];
 
   constructor(user: User) {
     this.userName = user.userName;

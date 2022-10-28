@@ -64,6 +64,7 @@ export default class AuthStore {
   setImage = (image: string) => {
     if (this.user) {
       this.user.image = image;
+      localStorage.setItem('user', JSON.stringify(this.user));
     }
   };
 }

@@ -95,6 +95,9 @@ export const profilesApi = {
     formData.append('File', file);
     return axios.post<Photo>('/photos', formData);
   },
+  setMainPhoto: (photoId: string) =>
+    axios.post<string>(`/photos/${photoId}/setMain`),
+  delete: (photoId: string) => axios.delete(`/photos/${photoId}`),
 };
 
 interface ResponseData {

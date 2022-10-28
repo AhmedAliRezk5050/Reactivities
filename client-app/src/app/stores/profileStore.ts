@@ -6,6 +6,8 @@ export default class ProfileStore {
   profile: Profile | null = null;
   profileLoading: boolean = true;
   photoUploadLoading: boolean = false;
+  makePhotoMainLoading: boolean = false;
+  deletePhotoLoading: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -38,6 +40,30 @@ export default class ProfileStore {
     }
   };
 
+  makePhotoMain = async (photo: Photo) => {
+    try {
+      this.setMakePhotoMainLoading(true);
+      await profilesApi.setMainPhoto(photo.id);
+      store.authStore.setImage(photo.url);
+      this.setProfileMainPhoto(photo.id);
+      this.setImage(photo.url);
+    } catch (error) {
+    } finally {
+      this.setMakePhotoMainLoading(false);
+    }
+  };
+
+  deletePhoto = async (photoId: string) => {
+    this.setDeletePhotoLoading(true);
+    try {
+      await profilesApi.delete(photoId);
+      this.removePhotoFromProfile(photoId);
+    } catch (error) {
+    } finally {
+      this.setDeletePhotoLoading(false);
+    }
+  };
+
   get isAuthenticatedProfile() {
     const { user } = store.authStore;
     return user && this.profile && user.userName === this.profile.userName;
@@ -53,11 +79,30 @@ export default class ProfileStore {
     (this.photoUploadLoading = status);
 
   pushToProfilePhotos = (photo: Photo) =>
-    this.profile && this.profile.photos?.push(photo);
+    this.profile && this.profile.photos.push(photo);
 
-  setImage = (image: string) => {
+  setImage = (url: string) => {
     if (this.profile) {
-      this.profile.image = image;
+      this.profile.image = url;
+    }
+  };
+
+  setMakePhotoMainLoading = (status: boolean) =>
+    (this.makePhotoMainLoading = status);
+
+  setProfileMainPhoto = (photoId: string) => {
+    if (this.profile) {
+      this.profile.photos.find((p) => p.isMain)!.isMain = false;
+      this.profile.photos.find((p) => p.id === photoId)!.isMain = true;
+    }
+  };
+
+  setDeletePhotoLoading = (status: boolean) =>
+    (this.deletePhotoLoading = status);
+
+  removePhotoFromProfile = (photoId: string) => {
+    if (this.profile) {
+      this.profile.photos = this.profile.photos.filter((p) => p.id !== photoId);
     }
   };
 }

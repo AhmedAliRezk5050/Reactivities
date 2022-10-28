@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react-lite';
 import { FC } from 'react';
 import {
   Button,
@@ -55,4 +56,4 @@ const ProfileHeader: FC<Props> = ({ profile }) => {
   );
 };
 
-export default ProfileHeader;
+export default observer(ProfileHeader);

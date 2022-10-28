@@ -9,7 +9,6 @@ interface Props {}
 
 const NavBar: FC<Props> = () => {
   const { authStore } = useStore();
-  console.log(authStore.user);
 
   return (
     <Menu inverted fixed='top' className='NavBar'>
