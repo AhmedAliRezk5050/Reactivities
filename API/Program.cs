@@ -1,5 +1,6 @@
 using API;
 using API.Middleware;
+using API.SignalR;
 using Application.Activities;
 using Application.Core;
 using Application.Interfaces;
@@ -19,6 +20,7 @@ builder.Services.AddControllers(o =>
   o.Filters.Add(new AuthorizeFilter(policy));
 });
 
+builder.Services.AddSignalR();
 builder.Services.ConfigureCors();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
@@ -58,6 +60,7 @@ app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<ChatHub>("/chat");
 app.MapControllers();
 
 await Utility.MigrateAndSeed(app);
