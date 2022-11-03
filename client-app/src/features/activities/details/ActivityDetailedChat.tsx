@@ -1,7 +1,10 @@
+import { Formik, Form, Field, FieldProps } from 'formik';
+import * as Yup from 'yup';
 import { observer } from 'mobx-react-lite';
 import { FC, useEffect, useState } from 'react';
-import { Segment, Header, Comment, Form, Button } from 'semantic-ui-react';
+import { Segment, Header, Comment, Button, Loader } from 'semantic-ui-react';
 import { useStore } from '../../../app/stores/store';
+import AppTextArea from '../../formik/AppTextArea';
 
 interface Props {
   activityId: string;
@@ -19,6 +22,11 @@ const ActivityDetailedChat: FC<Props> = ({ activityId }) => {
       commentStore.stopConnection();
     };
   }, [activityId, commentStore]);
+
+  const formValidationSchema: Yup.SchemaOf<{ body: string }> =
+    Yup.object().shape({
+      body: Yup.string().required("Can't send empty comment"),
+    });
   return (
     <>
       <Segment
@@ -38,30 +46,51 @@ const ActivityDetailedChat: FC<Props> = ({ activityId }) => {
                 <Comment.Content>
                   <Comment.Author as='a'>{displayName}</Comment.Author>
                   <Comment.Metadata>
-                    <div>Today at 5:42PM</div>
+                    <div>{createdAt.toString().split('T')[0]}</div>
                   </Comment.Metadata>
-                  <Comment.Text>{body}</Comment.Text>
-                  <Comment.Actions>
-                    <Comment.Action>Reply</Comment.Action>
-                  </Comment.Actions>
+                  <Comment.Text style={{ whiteSpace: 'pre-wrap' }}>
+                    {body}
+                  </Comment.Text>
                 </Comment.Content>
               </Comment>
             ),
           )}
-
-          <Form reply>
-            <Form.TextArea
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-            />
-            <Button
-              content='Add Reply'
-              labelPosition='left'
-              icon='edit'
-              primary
-              disabled={!reply}
-            />
-          </Form>
+          <Formik
+            validationSchema={formValidationSchema}
+            initialValues={{ body: '' }}
+            onSubmit={(values, { resetForm }) =>
+              commentStore
+                .createComment(activityId, values.body)
+                .then(() => resetForm())
+            }
+          >
+            {({ touched, isValid, isSubmitting, handleSubmit }) => (
+              <Form className='ui form error'>
+                <Field name='body'>
+                  {(props: FieldProps) => (
+                    <div style={{ position: 'relative' }}>
+                      <Loader active={isSubmitting} />
+                      <textarea
+                        placeholder='Enter your comment (Enter to submit, Shift + Enter for new line)'
+                        rows={2}
+                        {...props.field}
+                        onKeyPress={(e) => {
+                          // todo validation => empty comment
+                          if (e.key === 'Enter' && e.shiftKey) {
+                            return;
+                          }
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            isValid && handleSubmit();
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                </Field>
+              </Form>
+            )}
+          </Formik>
         </Comment.Group>
       </Segment>
     </>

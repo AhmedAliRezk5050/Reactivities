@@ -41,6 +41,6 @@ public class MappingProfiles : Profile
     CreateMap<Comment, CommentDto>()
     .ForMember(cd => cd.DisplayName, ce => ce.MapFrom(c => c.Author.DisplayName))
     .ForMember(cd => cd.UserName, ce => ce.MapFrom(c => c.Author.UserName))
-    .ForMember(cd => cd.Image, ce => ce.MapFrom(c => c.Author.Photos.FirstOrDefault(p => p.IsMain)));
+    .ForMember(cd => cd.Image, ce => ce.MapFrom(c => c.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
   }
 }

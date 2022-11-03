@@ -44,6 +44,18 @@ export default class CommentStore {
       .catch((err) => console.log(err));
   };
 
+  createComment = async (activityId: string, reply: string) => {
+    debugger;
+    try {
+      await this.hubConnection.invoke('CreateComment', {
+        activityId: activityId,
+        body: reply,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   setComments = (comments: any) => {
     this.comments = comments;
   };
