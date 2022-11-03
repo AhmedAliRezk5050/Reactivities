@@ -26,10 +26,13 @@ export default class CommentStore {
       .catch((err) => console.log(err));
 
     this.hubConnection.on('ListComments', (comments) => {
+      console.log(comments);
+
       this.setComments(comments);
     });
 
     this.hubConnection.on('ReceiveComment', (comment) => {
+      console.log(comment);
       this.addComment(comment);
     });
   };

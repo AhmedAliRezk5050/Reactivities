@@ -31,7 +31,7 @@ const ActivityDetails: FC<Props> = () => {
       <Grid.Column width={10}>
         <ActivityDetailedHeader activity={activityStore.activity} />
         <ActivityDetailedInfo activity={activityStore.activity} />
-        <ActivityDetailedChat />
+        <ActivityDetailedChat activityId={activityStore.activity.id} />
       </Grid.Column>
       <Grid.Column width={6}>
         <ActivityDetailedSidebar activity={activityStore.activity} />

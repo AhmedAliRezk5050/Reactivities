@@ -20,8 +20,8 @@ builder.Services.AddControllers(o =>
   o.Filters.Add(new AuthorizeFilter(policy));
 });
 
-builder.Services.AddSignalR();
 builder.Services.ConfigureCors();
+builder.Services.AddSignalR();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 

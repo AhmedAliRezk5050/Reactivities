@@ -23,7 +23,9 @@ public static class Extensions
                       // .AllowAnyOrigin()
                       .WithOrigins("http://localhost:3000")
                       .AllowAnyMethod()
-                      .AllowAnyHeader());
+                      .AllowAnyHeader()
+                      .AllowCredentials()
+                      );
     });
   }
 
@@ -77,8 +79,8 @@ public static class Extensions
     {
       options.AddPolicy("IsActivityHost", policy =>
           {
-          policy.Requirements.Add(new HostRequirement());
-        });
+            policy.Requirements.Add(new HostRequirement());
+          });
     });
     services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
     services.AddScoped<AuthService>();
