@@ -45,7 +45,6 @@ export default class CommentStore {
   };
 
   createComment = async (activityId: string, reply: string) => {
-    debugger;
     try {
       await this.hubConnection.invoke('CreateComment', {
         activityId: activityId,
@@ -57,11 +56,15 @@ export default class CommentStore {
   };
 
   setComments = (comments: any) => {
-    this.comments = comments;
+    this.comments = comments.map((comment: any) => {
+      comment.createdAt = new Date(comment.createdAt + 'Z');
+      return comment;
+    });
   };
 
   addComment = (comment: any) => {
-    this.comments.push(comment);
+    comment.createdAt = new Date(comment.createdAt);
+    this.comments.unshift(comment);
   };
 
   clearComments = () => (this.comments = []);

@@ -1,10 +1,10 @@
 import { Formik, Form, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { observer } from 'mobx-react-lite';
-import { FC, useEffect, useState } from 'react';
-import { Segment, Header, Comment, Button, Loader } from 'semantic-ui-react';
+import { FC, useEffect } from 'react';
+import { Segment, Header, Comment, Loader } from 'semantic-ui-react';
 import { useStore } from '../../../app/stores/store';
-import AppTextArea from '../../formik/AppTextArea';
+import { formatDistanceToNow } from 'date-fns';
 
 interface Props {
   activityId: string;
@@ -12,7 +12,6 @@ interface Props {
 
 const ActivityDetailedChat: FC<Props> = ({ activityId }) => {
   const { commentStore } = useStore();
-  const [reply, setReply] = useState('');
   useEffect(() => {
     commentStore.createConnection(activityId);
 
@@ -46,7 +45,7 @@ const ActivityDetailedChat: FC<Props> = ({ activityId }) => {
                 <Comment.Content>
                   <Comment.Author as='a'>{displayName}</Comment.Author>
                   <Comment.Metadata>
-                    <div>{createdAt.toString().split('T')[0]}</div>
+                    <div>{formatDistanceToNow(createdAt)} ago</div>
                   </Comment.Metadata>
                   <Comment.Text style={{ whiteSpace: 'pre-wrap' }}>
                     {body}

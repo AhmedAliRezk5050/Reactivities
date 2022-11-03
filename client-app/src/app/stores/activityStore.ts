@@ -227,7 +227,7 @@ export default class ActivityStore {
     const user = store.authStore.user;
     const activity: Activity = {
       ...fetchedActivity,
-      date: new Date(fetchedActivity.date),
+      date: new Date(fetchedActivity.date + 'Z'),
     };
 
     if (user) {
