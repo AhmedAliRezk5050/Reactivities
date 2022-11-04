@@ -14,10 +14,21 @@ public class FollowController : BaseApiController
   }
 
   [HttpPost("{username}")]
-  public async Task<ActionResult> Post(string username)
+  public async Task<ActionResult> ToggleFollow(string username)
   {
     return HandleResult(await _mediator
     .Send(new FollowToggle.Command()
     { FollowingUsername = username }));
+  }
+
+  [HttpGet("{username}")]
+  public async Task<ActionResult> FetchFollow(string username, string predicate)
+  {
+    return HandleResult(await _mediator
+    .Send(new List.Query()
+    {
+      Username = username,
+      Predicate = predicate
+    }));
   }
 }
