@@ -1,4 +1,5 @@
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
@@ -23,10 +24,13 @@ public class List
 
         private readonly IMapper _mapper;
 
-        public Handler(DataContext dataContext, IMapper mapper)
+        private readonly IUserNameAccessor _userNameAccessor;
+
+        public Handler(DataContext dataContext, IMapper mapper, IUserNameAccessor userNameAccessor)
         {
             _dataContext = dataContext;
             _mapper = mapper;
+            _userNameAccessor = userNameAccessor;
         }
 
         public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
@@ -35,21 +39,23 @@ public class List
 
             if (request.Predicate == "following")
             {
-                profiles  = await _dataContext
+                profiles = await _dataContext
                     .UserFollowings
                     .Where(u => u.Follower.UserName == request.Username)
                     .Select(u => u.Following)
-                    .ProjectTo<Profile>(_mapper.ConfigurationProvider)
+                    .ProjectTo<Profile>(_mapper.ConfigurationProvider,
+                        new { currentUsername = _userNameAccessor.GetUserName() })
                     .ToListAsync();
             }
-            
+
             if (request.Predicate == "followers")
             {
-                profiles  = await _dataContext
+                profiles = await _dataContext
                     .UserFollowings
                     .Where(u => u.Following.UserName == request.Username)
                     .Select(u => u.Follower)
-                    .ProjectTo<Profile>(_mapper.ConfigurationProvider)
+                    .ProjectTo<Profile>(_mapper.ConfigurationProvider,
+                        new { currentUsername = _userNameAccessor.GetUserName() })
                     .ToListAsync();
             }
 
