@@ -42,7 +42,7 @@ namespace Persistence
         x.HasKey(uF => new { uF.FollowerId, uF.FollowingId });
 
         x.HasOne(userFollowing => userFollowing.Follower)
-         .WithMany(follower => follower.Followings)
+         .WithMany(follower => follower.Following)
          .HasForeignKey(following => following.FollowerId);
 
         x.HasOne(userFollowing => userFollowing.Following)

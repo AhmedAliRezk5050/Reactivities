@@ -10,6 +10,7 @@ public class MappingProfiles : Profile
   public MappingProfiles()
   {
     CreateMap<Activity, Activity>();
+
     CreateMap<Activity, ActivityDto>()
         .ForMember(activityDto => activityDto.HostUserName,
             configurationExpression =>
@@ -29,18 +30,30 @@ public class MappingProfiles : Profile
         .ForMember(attendeeDto => attendeeDto.Image,
         configurationExpression =>
             configurationExpression.MapFrom(activityAttendee =>
-                activityAttendee.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url));
-
+                GetPhoto(activityAttendee.AppUser)));
 
     CreateMap<AppUser, Profiles.Profile>()
         .ForMember(profile => profile.Image,
-            configurationExpression =>
-                configurationExpression.MapFrom(appUser =>
-                    appUser.Photos.FirstOrDefault(p => p.IsMain).Url));
+            c => c.MapFrom(appUser => GetPhoto(appUser)))
+        .ForMember(profile => profile.FollowersCount,
+            c => c.MapFrom(a => a.Followers.Count)
+        )
+        .ForMember(profile => profile.FollowingCount,
+            c => c.MapFrom(a => a.Following.Count)
+        );
 
     CreateMap<Comment, CommentDto>()
     .ForMember(cd => cd.DisplayName, ce => ce.MapFrom(c => c.Author.DisplayName))
     .ForMember(cd => cd.UserName, ce => ce.MapFrom(c => c.Author.UserName))
-    .ForMember(cd => cd.Image, ce => ce.MapFrom(c => c.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
+    .ForMember(cd => cd.Image, ce => ce.MapFrom(c => GetPhoto(c.Author)));
   }
+
+  // must be static to avoid memory leak
+  public static string? GetPhoto(AppUser appUser)
+  {
+    var photo = appUser.Photos.FirstOrDefault(p => p.IsMain);
+    return photo == null ? null : photo.Url;
+  }
+
+
 }

@@ -16,5 +16,5 @@ public class AppUser : IdentityUser
 
   public List<UserFollowing> Followers { get; set; } = new();
 
-  public List<UserFollowing> Followings { get; set; } = new();
+  public List<UserFollowing> Following { get; set; } = new();
 }
