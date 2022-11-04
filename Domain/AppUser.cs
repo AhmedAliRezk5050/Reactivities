@@ -13,4 +13,8 @@ public class AppUser : IdentityUser
   public List<Photo> Photos { get; set; } = new();
 
   public List<Comment> Comments { get; set; } = new();
+
+  public List<UserFollowing> Followers { get; set; } = new();
+
+  public List<UserFollowing> Followings { get; set; } = new();
 }

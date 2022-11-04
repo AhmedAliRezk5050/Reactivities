@@ -17,11 +17,12 @@ namespace Persistence
 
     public DbSet<Comment> Comments { get; set; } = null!;
 
+    public DbSet<UserFollowing> UserFollowings { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
 
       base.OnModelCreating(builder);
-
 
       builder.Entity<ActivityAttendee>(a =>
         a.HasKey(aa => new { aa.AppUserId, aa.ActivityId }));
@@ -36,16 +37,19 @@ namespace Persistence
       .WithMany(a => a.Attendees)
       .HasForeignKey(aa => aa.ActivityId);
 
-      // to override any conventions 
-      // prevent foreign key to be nullable, hence deletion behavior becomes cascade
-      // builder.Entity<Comment>()
-      // .HasOne(c => c.Author)
-      // .WithMany(a => a.Comments)
-      // .IsRequired();
+      builder.Entity<UserFollowing>(x =>
+      {
+        x.HasKey(uF => new { uF.FollowerId, uF.FollowingId });
+
+        x.HasOne(userFollowing => userFollowing.Follower)
+         .WithMany(follower => follower.Followings)
+         .HasForeignKey(following => following.FollowerId);
+
+        x.HasOne(userFollowing => userFollowing.Following)
+         .WithMany(following => following.Followers)
+         .HasForeignKey(following => following.FollowingId);
+
+      });
     }
   }
 }
-
-// notes
-// add identity migration command(from root directory):
-// dotnet ef migrations add IdentityAdded -p Persistence -s API
