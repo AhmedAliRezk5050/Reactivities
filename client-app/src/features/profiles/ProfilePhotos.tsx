@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   Header,
@@ -10,7 +10,6 @@ import {
   ButtonGroup,
 } from 'semantic-ui-react';
 import PhotoUploadWidget from '../../common/photo-upload/PhotoUploadWidget';
-import { Photo } from '../../app/models/profile';
 import { useStore } from '../../app/stores/store';
 
 const ProfilePhotos = () => {

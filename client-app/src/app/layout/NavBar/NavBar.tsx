@@ -22,7 +22,11 @@ const NavBar: FC<Props> = () => {
           <Button content='Create Activity' />
         </Menu.Item>
         <Menu.Item position='right'>
-          <Image src={authStore.user?.image} avatar spaced='right' />
+          <Image
+            src={authStore.user?.image ?? '/assets/user.png'}
+            avatar
+            spaced='right'
+          />
 
           <Dropdown text={authStore.user?.displayName} pointing='top left'>
             <Dropdown.Menu>

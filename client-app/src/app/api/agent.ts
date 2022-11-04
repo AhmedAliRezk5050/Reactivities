@@ -51,6 +51,7 @@ axios.interceptors.response.use(
           break;
         case 401:
           errorMessage = 'Unauthorized';
+          appBrowserHistory.replace('/');
           break;
         case 404:
           errorMessage = 'Not found';
