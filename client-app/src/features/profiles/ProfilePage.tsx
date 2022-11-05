@@ -12,11 +12,16 @@ const ProfilePage = () => {
   const { username } = useParams<{ username: string }>();
   useEffect(() => {
     profileStore.loadProfile(username!);
+
+    return () => {
+      profileStore.setActiveTab(0);
+    };
   }, [profileStore, username]);
 
   if (!profileStore.profile && profileStore.profileLoading) {
     return <AppSpinner text='Profile loading' />;
   }
+
   return (
     <Grid>
       <Grid.Column width={16}>

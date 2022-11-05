@@ -1,7 +1,7 @@
 import { store } from './store';
 import { profilesApi } from './../api/agent';
 import { Profile, Photo } from './../models/profile';
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, reaction } from 'mobx';
 export default class ProfileStore {
   profile: Profile | null = null;
   profileLoading: boolean = true;
@@ -12,8 +12,22 @@ export default class ProfileStore {
   updateFollowStatusLoading = false;
   fetchFollowingsLoading = false;
   followings: Profile[] = [];
+  activeTab = 0;
   constructor() {
     makeAutoObservable(this);
+
+    reaction(
+      () => this.activeTab,
+      (tab) => {
+        if (tab === 3) {
+          this.fetchFollowings('followers');
+        } else if (tab === 4) {
+          this.fetchFollowings('following');
+        } else {
+          this.setFollowings([]);
+        }
+      },
+    );
   }
 
   loadProfile = async (username: string) => {
@@ -85,7 +99,7 @@ export default class ProfileStore {
     try {
       await profilesApi.updateFollowStatus(username);
       store.activityStore.updateAttendeesFollowStatus(username);
-      this.updateProfileFollowStatus(followStatus);
+      this.updateProfileFollowStatus(followStatus, username);
       this.updateFollowings(username);
     } catch (error) {}
     this.setUpdateFollowStatusLoading(false);
@@ -155,11 +169,10 @@ export default class ProfileStore {
     }
   };
 
-  updateProfileFollowStatus = (followStatus: boolean) => {
-    if (
-      this.profile &&
-      this.profile.userName !== store.authStore.user?.userName
-    ) {
+  updateProfileFollowStatus = (followStatus: boolean, username: string) => {
+    if (!this.profile) return;
+
+    if (this.profile.userName === username) {
       followStatus
         ? this.profile.followersCount++
         : this.profile.followersCount--;
@@ -174,6 +187,7 @@ export default class ProfileStore {
         profile.isFollowing
           ? profile.followersCount--
           : profile.followersCount++;
+        profile.isFollowing = !profile.isFollowing;
       }
     });
   };
@@ -188,5 +202,9 @@ export default class ProfileStore {
 
   setFollowings = (followings: Profile[]) => {
     this.followings = followings;
+  };
+
+  setActiveTab = (tab: number) => {
+    this.activeTab = tab;
   };
 }
