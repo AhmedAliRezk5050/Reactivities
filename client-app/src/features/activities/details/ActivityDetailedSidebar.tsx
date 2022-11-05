@@ -26,7 +26,7 @@ const ActivityDetailedSidebar: FC<Props> = ({
       </Segment>
       <Segment attached>
         <List relaxed divided>
-          {attendees.map(({ displayName, image, userName }) => (
+          {attendees.map(({ displayName, image, userName, isFollowing }) => (
             <Item style={{ position: 'relative' }} key={userName}>
               {userName === host?.userName && (
                 <Label
@@ -43,7 +43,7 @@ const ActivityDetailedSidebar: FC<Props> = ({
                 <Item.Header as='h3'>
                   <Link to={`/profiles/${userName}`}>{displayName}</Link>
                 </Item.Header>
-                <Item.Extra>Following</Item.Extra>
+                {isFollowing && <Item.Extra>Following</Item.Extra>}
               </Item.Content>
             </Item>
           ))}

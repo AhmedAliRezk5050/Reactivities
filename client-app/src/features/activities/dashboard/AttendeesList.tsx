@@ -10,6 +10,10 @@ interface Props {
 }
 
 const AttendeesList: FC<Props> = ({ attendees }) => {
+  const imgStyles = {
+    borderColor: 'orange',
+    borderWidth: 2,
+  };
   return (
     <List horizontal>
       {attendees.map((attendee) => (
@@ -26,6 +30,8 @@ const AttendeesList: FC<Props> = ({ attendees }) => {
                 size='mini'
                 circular
                 src={`${attendee.image ?? '/assets/user.png'}`}
+                bordered
+                style={attendee.isFollowing ? imgStyles : null}
               />
             </List.Item>
           }
