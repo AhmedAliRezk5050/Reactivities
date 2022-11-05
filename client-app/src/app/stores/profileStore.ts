@@ -9,7 +9,7 @@ export default class ProfileStore {
   makePhotoMainLoading: boolean = false;
   deletePhotoLoading: boolean = false;
   profileUpdateLoading: boolean = true;
-
+  followings: Profile[] = [];
   constructor() {
     makeAutoObservable(this);
   }
@@ -128,5 +128,37 @@ export default class ProfileStore {
       this.profile.displayName = displayName;
       this.profile.bio = bio;
     }
+  };
+
+  updateFollowStatus = async (username: string, followStatus: boolean) => {
+    try {
+      await profilesApi.updateFollowStatus(username);
+      store.activityStore.updateAttendeesFollowStatus(username);
+      this.updateProfileFollowStatus(followStatus);
+      this.updateFollowings(username);
+    } catch (error) {}
+  };
+
+  updateProfileFollowStatus = (followStatus: boolean) => {
+    if (
+      this.profile &&
+      this.profile.userName !== store.authStore.user?.userName
+    ) {
+      followStatus
+        ? this.profile.followersCount++
+        : this.profile.followersCount--;
+
+      this.profile.isFollowing = !this.profile.isFollowing;
+    }
+  };
+
+  updateFollowings = (username: string) => {
+    this.followings.forEach((profile) => {
+      if (profile.userName === username) {
+        profile.isFollowing
+          ? profile.followersCount--
+          : profile.followersCount++;
+      }
+    });
   };
 }

@@ -266,4 +266,18 @@ export default class ActivityStore {
 
   setToggleIsCanceledLoading = (state: boolean) =>
     (this.toggleIsCanceledLoading = state);
+
+  updateAttendeesFollowStatus = (username: string) => {
+    this.activities.forEach((activity) => {
+      activity.attendees?.forEach((attendee) => {
+        if (attendee.userName === username) {
+          attendee.isFollowing
+            ? attendee.followersCount--
+            : attendee.followersCount++;
+
+          attendee.isFollowing = !attendee.isFollowing;
+        }
+      });
+    });
+  };
 }

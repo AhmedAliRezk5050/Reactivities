@@ -101,6 +101,7 @@ export const profilesApi = {
   delete: (photoId: string) => axios.delete(`/photos/${photoId}`),
   update: (displayName: string, bio?: string) =>
     axios.put(`/profiles`, { displayName, bio }),
+  updateFollowStatus: (username: string) => axios.post(`/follow/${username}`),
 };
 
 interface ResponseData {
