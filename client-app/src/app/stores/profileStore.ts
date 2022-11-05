@@ -9,6 +9,7 @@ export default class ProfileStore {
   makePhotoMainLoading: boolean = false;
   deletePhotoLoading: boolean = false;
   profileUpdateLoading: boolean = true;
+  updateFollowStatusLoading = false;
   followings: Profile[] = [];
   constructor() {
     makeAutoObservable(this);
@@ -131,12 +132,14 @@ export default class ProfileStore {
   };
 
   updateFollowStatus = async (username: string, followStatus: boolean) => {
+    this.setUpdateFollowStatusLoading(true);
     try {
       await profilesApi.updateFollowStatus(username);
       store.activityStore.updateAttendeesFollowStatus(username);
       this.updateProfileFollowStatus(followStatus);
       this.updateFollowings(username);
     } catch (error) {}
+    this.setUpdateFollowStatusLoading(false);
   };
 
   updateProfileFollowStatus = (followStatus: boolean) => {
@@ -160,5 +163,9 @@ export default class ProfileStore {
           : profile.followersCount++;
       }
     });
+  };
+
+  setUpdateFollowStatusLoading = (status: boolean) => {
+    this.updateFollowStatusLoading = status;
   };
 }
