@@ -18,6 +18,8 @@ interface Props {
 }
 
 const ProfileHeader: FC<Props> = ({ profile }) => {
+  console.log('--------ProfileHeader----------');
+
   return (
     <Segment>
       <Grid>

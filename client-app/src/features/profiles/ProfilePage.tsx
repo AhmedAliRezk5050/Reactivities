@@ -17,7 +17,6 @@ const ProfilePage = () => {
   if (!profileStore.profile && profileStore.profileLoading) {
     return <AppSpinner text='Profile loading' />;
   }
-
   return (
     <Grid>
       <Grid.Column width={16}>

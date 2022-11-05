@@ -10,6 +10,7 @@ export default class ProfileStore {
   deletePhotoLoading: boolean = false;
   profileUpdateLoading: boolean = true;
   updateFollowStatusLoading = false;
+  fetchFollowingsLoading = false;
   followings: Profile[] = [];
   constructor() {
     makeAutoObservable(this);
@@ -79,6 +80,29 @@ export default class ProfileStore {
     }
   };
 
+  updateFollowStatus = async (username: string, followStatus: boolean) => {
+    this.setUpdateFollowStatusLoading(true);
+    try {
+      await profilesApi.updateFollowStatus(username);
+      store.activityStore.updateAttendeesFollowStatus(username);
+      this.updateProfileFollowStatus(followStatus);
+      this.updateFollowings(username);
+    } catch (error) {}
+    this.setUpdateFollowStatusLoading(false);
+  };
+
+  fetchFollowings = async (predicate: string) => {
+    this.setFetchFollowingsLoading(true);
+    try {
+      const { data } = await profilesApi.listFollowings(
+        this.profile!.userName,
+        predicate,
+      );
+      this.setFollowings(data);
+    } catch (error) {}
+    this.setFetchFollowingsLoading(false);
+  };
+
   get isAuthenticatedProfile() {
     const { user } = store.authStore;
     return user && this.profile && user.userName === this.profile.userName;
@@ -131,17 +155,6 @@ export default class ProfileStore {
     }
   };
 
-  updateFollowStatus = async (username: string, followStatus: boolean) => {
-    this.setUpdateFollowStatusLoading(true);
-    try {
-      await profilesApi.updateFollowStatus(username);
-      store.activityStore.updateAttendeesFollowStatus(username);
-      this.updateProfileFollowStatus(followStatus);
-      this.updateFollowings(username);
-    } catch (error) {}
-    this.setUpdateFollowStatusLoading(false);
-  };
-
   updateProfileFollowStatus = (followStatus: boolean) => {
     if (
       this.profile &&
@@ -167,5 +180,13 @@ export default class ProfileStore {
 
   setUpdateFollowStatusLoading = (status: boolean) => {
     this.updateFollowStatusLoading = status;
+  };
+
+  setFetchFollowingsLoading = (status: boolean) => {
+    this.fetchFollowingsLoading = status;
+  };
+
+  setFollowings = (followings: Profile[]) => {
+    this.followings = followings;
   };
 }

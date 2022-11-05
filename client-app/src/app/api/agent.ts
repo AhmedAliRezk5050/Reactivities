@@ -102,6 +102,8 @@ export const profilesApi = {
   update: (displayName: string, bio?: string) =>
     axios.put(`/profiles`, { displayName, bio }),
   updateFollowStatus: (username: string) => axios.post(`/follow/${username}`),
+  listFollowings: (username: string, predicate: string) =>
+    axios.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
 };
 
 interface ResponseData {
