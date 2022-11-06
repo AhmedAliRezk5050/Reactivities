@@ -8,7 +8,7 @@ appsettings.json
 **.db
 **.db-shm
 **.db-wal
-
+*.sql
 node_modules
 # User-specific files
 *.rsuser
