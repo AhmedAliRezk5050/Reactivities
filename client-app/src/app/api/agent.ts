@@ -1,27 +1,41 @@
-import { Photo, Profile } from './../models/profile';
-import { ActivityFormValues } from './../models/activity';
-import axios, { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
-import { appBrowserHistory } from '../../routing/AppRouter';
-import Activity from '../models/activity';
-import { LoginData, RegisterData, User } from '../models/user';
+import { Photo, Profile } from "./../models/profile";
+import { ActivityFormValues } from "./../models/activity";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { toast } from "react-toastify";
+import { appBrowserHistory } from "../../routing/AppRouter";
+import Activity from "../models/activity";
+import { LoginData, RegisterData, User } from "../models/user";
+import { PaginatedResult } from "../models/pagination";
+import { json } from "stream/consumers";
 
-axios.defaults.baseURL = 'http://localhost:5000/api';
+axios.defaults.baseURL = "http://localhost:5000/api";
 
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (config.headers && token) {
-    config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+    config.headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
   }
   return config;
 });
 
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const pagination = response.headers["pagination"];
+
+    if (pagination) {
+      response.data = new PaginatedResult(
+        response.data,
+        JSON.parse(pagination)
+      );
+      return response;
+    }
+
+    return response;
+  },
   (error: AxiosError<ResponseData>) => {
     const { response } = error;
     const status = response?.status;
-    let errorMessage = 'Unkown Error occured';
+    let errorMessage = "Unkown Error occured";
     if (response && status) {
       switch (status) {
         case 400:
@@ -47,31 +61,31 @@ axios.interceptors.response.use(
             }
             throw errsArray;
           }
-          errorMessage = 'Bad request';
+          errorMessage = "Bad request";
           break;
         case 401:
-          errorMessage = 'Unauthorized';
-          appBrowserHistory.replace('/');
+          errorMessage = "Unauthorized";
+          appBrowserHistory.replace("/");
           break;
         case 404:
-          errorMessage = 'Not found';
-          appBrowserHistory.replace('/not-found');
+          errorMessage = "Not found";
+          appBrowserHistory.replace("/not-found");
           break;
       }
     }
     toast.error(errorMessage);
     return Promise.reject(error);
-  },
+  }
 );
 
-const activitiesBaseUrl = '/activities';
+const activitiesBaseUrl = "/activities";
 
-const authBaseUrl = '/account';
+const authBaseUrl = "/account";
 
 const makeActivityUrl = (id: string) => `${activitiesBaseUrl}/${id}`;
 
 export const activityApi = {
-  list: () => axios.get<FetchedActivity[]>(activitiesBaseUrl),
+  list: () => axios.get<PaginatedResult<FetchedActivity[]>>(activitiesBaseUrl),
   details: (id: string) => axios.get<FetchedActivity>(makeActivityUrl(id)),
   add: (activity: ActivityFormValues) =>
     axios.post(activitiesBaseUrl, activity),
@@ -93,8 +107,8 @@ export const profilesApi = {
   get: (username: string) => axios.get<Profile>(`/profiles/${username}`),
   uploadPhoto: (file: Blob) => {
     let formData = new FormData();
-    formData.append('File', file);
-    return axios.post<Photo>('/photos', formData);
+    formData.append("File", file);
+    return axios.post<Photo>("/photos", formData);
   },
   setMainPhoto: (photoId: string) => axios.post(`/photos/${photoId}/setMain`),
   delete: (photoId: string) => axios.delete(`/photos/${photoId}`),
@@ -121,6 +135,6 @@ interface ValidationErrors {
 }
 
 export interface FetchedActivity
-  extends Omit<Activity, 'date' | 'isGoing' | 'isHost' | 'host'> {
+  extends Omit<Activity, "date" | "isGoing" | "isHost" | "host"> {
   date: string;
 }
