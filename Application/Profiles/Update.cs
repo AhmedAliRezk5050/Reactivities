@@ -8,12 +8,12 @@ using Persistence;
 
 public class Update
 {
-  public class Command : IRequest<Result>
+  public class Command : IRequest<Result<Unit>?>
   {
     public UpdateProfileDto UpdateProfileDto { get; set; } = null!;
   }
 
-  public class Handler : IRequestHandler<Command, Result>
+  public class Handler : IRequestHandler<Command, Result<Unit>?>
   {
     private readonly DataContext _context;
 
@@ -28,13 +28,13 @@ public class Update
       _mapper = mapper;
     }
 
-    public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>?> Handle(Command request, CancellationToken cancellationToken)
     {
       var user = await _context.Users
       .FirstOrDefaultAsync(u => u.UserName
               == _userNameAccessor.GetUserName());
 
-      if (user == null) return Result.Success(null);
+      if (user == null) return null;
 
       user.DisplayName = request.UpdateProfileDto.DisplayName;
 
@@ -42,9 +42,9 @@ public class Update
 
       var isSuccess = await _context.SaveChangesAsync() > 0;
 
-      if (!isSuccess) return Result.Failure("Failed to update user");
+      if (!isSuccess) return Result<Unit>.Failure("Failed to update user");
 
-      return Result.Success("");
+      return Result<Unit>.Success(Unit.Value);
     }
   }
 

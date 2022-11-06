@@ -11,7 +11,7 @@ namespace Application.Activities;
 
 public class Create
 {
-  public class Command : IRequest<Result>
+  public class Command : IRequest<Result<Unit>>
   {
     public Activity Activity { get; set; } = null!;
   }
@@ -25,7 +25,7 @@ public class Create
     }
   }
 
-  public class Handler : IRequestHandler<Command, Result>
+  public class Handler : IRequestHandler<Command, Result<Unit>>
   {
     private readonly IMapper _mapper;
     private readonly DataContext _context;
@@ -47,18 +47,18 @@ public class Create
       _mapper = mapper;
     }
 
-    public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
     {
       ValidationResult? validationResult = await _validator.ValidateAsync(request.Activity);
 
       if (!validationResult.IsValid)
       {
-        return Result.Failure(new { validationErrors = validationResult.ToDictionary() });
+        return Result<Unit>.Failure(new { validationErrors = validationResult.ToDictionary() });
       }
 
       var user = _context.Users.FirstOrDefault(u => u.UserName == _userNameAccessor.GetUserName());
 
-      if (user == null) return Result.Failure("Failed to create activity");
+      if (user == null) return Result<Unit>.Failure("Failed to create activity");
 
       var attendee = new ActivityAttendee()
       {
@@ -73,9 +73,9 @@ public class Create
 
       bool persistResult = await _context.SaveChangesAsync() > 0;
 
-      if (!persistResult) return Result.Failure("Failed to create activity");
+      if (!persistResult) return Result<Unit>.Failure("Failed to create activity");
 
-      return Result.Success(_mapper.Map<ActivityDto>(request.Activity));
+      return Result<Unit>.Success(Unit.Value);
     }
   }
 }

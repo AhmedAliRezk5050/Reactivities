@@ -10,12 +10,12 @@ namespace Application.Activities;
 
 public class Details
 {
-  public class Query : IRequest<Result>
+  public class Query : IRequest<Result<ActivityDto>>
   {
     public Guid Id { get; set; }
   }
 
-  public class Handler : IRequestHandler<Query, Result>
+  public class Handler : IRequestHandler<Query, Result<ActivityDto>>
   {
     private readonly IUserNameAccessor _userNameAccessor;
 
@@ -30,14 +30,14 @@ public class Details
       _userNameAccessor = userNameAccessor;
     }
 
-    public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
+    public async Task<Result<ActivityDto>> Handle(Query request, CancellationToken cancellationToken)
     {
       var activity = await _context.Activities
           .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider,
            new { currentUsername = _userNameAccessor.GetUserName() })
           .FirstOrDefaultAsync(a => a.Id == request.Id);
 
-      return Result.Success(_mapper.Map<ActivityDto>(activity));
+      return Result<ActivityDto>.Success(_mapper.Map<ActivityDto>(activity));
     }
   }
 }

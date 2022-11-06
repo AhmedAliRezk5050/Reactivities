@@ -8,12 +8,12 @@ using Persistence;
 namespace Application.Followers;
 public class FollowToggle
 {
-  public class Command : IRequest<Result>
+  public class Command : IRequest<Result<Unit>>
   {
     public string FollowingUsername { get; set; } = null!;
   }
 
-  public class Handler : IRequestHandler<Command, Result>
+  public class Handler : IRequestHandler<Command, Result<Unit>>
   {
     private readonly IUserNameAccessor _userNameAccessor;
     private readonly DataContext _dataContext;
@@ -23,7 +23,7 @@ public class FollowToggle
       _dataContext = dataContext;
     }
 
-    public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
     {
       var follower = await _dataContext.Users
         .FirstOrDefaultAsync(u => u.UserName == _userNameAccessor.GetUserName());
@@ -31,7 +31,7 @@ public class FollowToggle
       var following = await _dataContext.Users
       .FirstOrDefaultAsync(u => u.UserName == request.FollowingUsername);
 
-      if (following == null) return Result.Success(null);
+      if (following == null) return Result<Unit>.Success(Unit.Value);
 
 
       var userFollowing = await _dataContext.UserFollowings
@@ -54,9 +54,9 @@ public class FollowToggle
 
       var isSuccessSave = await _dataContext.SaveChangesAsync() > 0;
 
-      if (!isSuccessSave) return Result.Failure("Failed to follow/unfollow user");
+      if (!isSuccessSave) return Result<Unit>.Failure("Failed to follow/unfollow user");
 
-      return Result.Success("Success");
+      return Result<Unit>.Success(Unit.Value);
     }
   }
 }

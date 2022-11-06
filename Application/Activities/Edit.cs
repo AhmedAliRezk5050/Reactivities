@@ -10,7 +10,7 @@ namespace Application.Activities;
 
 public class Edit
 {
-  public class Command : IRequest<Result>
+  public class Command : IRequest<Result<Unit>?>
   {
     public Guid Id { get; set; }
     public Activity Activity { get; set; } = null!;
@@ -25,7 +25,7 @@ public class Edit
     }
   }
 
-  public class Handler : IRequestHandler<Command, Result>
+  public class Handler : IRequestHandler<Command, Result<Unit>?>
   {
     private readonly DataContext _context;
     private readonly IMapper _mapper;
@@ -38,38 +38,28 @@ public class Edit
       _validator = validator;
     }
 
-    public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>?> Handle(Command request, CancellationToken cancellationToken)
     {
       var activityToUpdate = await _context.Activities
         .FindAsync(request.Id);
 
-      if (activityToUpdate is null) return Result.Success(null);
+      if (activityToUpdate is null) return null;
 
 
       ValidationResult? validationResult = await _validator.ValidateAsync(request.Activity);
 
       if (!validationResult.IsValid)
       {
-        return Result.Failure(new { validationErrors = validationResult.ToDictionary() });
+        return Result<Unit>.Failure(new { validationErrors = validationResult.ToDictionary() });
       }
-
-      // activityToUpdate.Title = request.Activity.Title;
-      // activityToUpdate.Date = request.Activity.Date;
-      // activityToUpdate.Description = request.Activity.Description;
-      // activityToUpdate.Category = request.Activity.Category;
-      // activityToUpdate.City = request.Activity.City;
-      // activityToUpdate.Venue = request.Activity.Venue;
 
       _mapper.Map(request.Activity, activityToUpdate);
-      
+
       var result = await _context.SaveChangesAsync() > 0;
 
-      if (!result)
-      {
-        return Result.Failure("Failed to edit activity");
-      }
+      if (!result) return Result<Unit>.Failure("Failed to edit activity");
 
-      return Result.Success(Unit.Value);
+      return Result<Unit>.Success(Unit.Value);
     }
   }
 }

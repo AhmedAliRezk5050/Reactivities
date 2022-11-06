@@ -7,12 +7,13 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class BaseApiController : ControllerBase
 {
-    protected ActionResult HandleResult(Result result)
-    {
-        
-        if (result.IsSuccess)
-            return result.Value != null ? Ok(result.Value) : NotFound();
-        
-        return BadRequest(result.Error);
-    }
+  protected ActionResult HandleResult<T>(Result<T>? result)
+  {
+    if (result == null) return NotFound();
+    if (result.IsSuccess && result.Value != null)
+      return Ok(result.Value);
+    if (result.IsSuccess && result.Value == null)
+      return NotFound();
+    return BadRequest(result.Error);
+  }
 }
