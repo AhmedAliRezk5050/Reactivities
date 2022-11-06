@@ -5,8 +5,7 @@ public class PagingParams
 
   public int PageNumber { get; set; } = 1;
 
-  // 10 but set 2 temporarily for testing
-  private int _pageSize = 2;
+  private int _pageSize = 10;
 
   public int PageSize
   {

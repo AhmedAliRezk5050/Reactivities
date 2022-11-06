@@ -23,7 +23,7 @@ public class ActivitiesController : BaseApiController
   [HttpGet]
   public async Task<ActionResult> GetActivities([FromQuery] PagingParams pagingParams)
   {
-    return HandleResult(await _mediator.Send(new List.Query() { PagingParams = pagingParams }));
+    return HandlePagedResult(await _mediator.Send(new List.Query() { PagingParams = pagingParams }));
   }
 
   [HttpGet("{id:guid}")]

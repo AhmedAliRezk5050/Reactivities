@@ -32,6 +32,7 @@ public class List
     public async Task<Result<PagedList<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
     {
       var query = _context.Activities
+        .OrderBy(a => a.Date)
         .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider,
         new { currentUsername = _userNameAccessor.GetUserName() });
 
