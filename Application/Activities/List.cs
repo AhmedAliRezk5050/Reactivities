@@ -10,7 +10,10 @@ namespace Application.Activities;
 
 public class List
 {
-  public class Query : IRequest<Result> { }
+  public class Query : IRequest<Result>
+  {
+    public PagingParams PagingParams { get; set; } = null!;
+  }
 
   public class Handler : IRequestHandler<Query, Result>
   {
@@ -29,12 +32,16 @@ public class List
 
     public async Task<Result> Handle(Query request, CancellationToken cancellationToken)
     {
-      var activityDtos = await _context.Activities
+      var query = _context.Activities
         .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider,
-        new { currentUsername = _userNameAccessor.GetUserName() })
-        .ToListAsync();
+        new { currentUsername = _userNameAccessor.GetUserName() });
 
-      return Result.Success(activityDtos);
+
+      return Result.Success(await
+        PagedList<ActivityDto>
+        .CreateAsync(query,
+         request.PagingParams.PageNumber,
+         request.PagingParams.PageSize));
     }
   }
 

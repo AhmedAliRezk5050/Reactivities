@@ -4,6 +4,7 @@ using Domain;
 using Application.Activities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Application.Core;
 
 namespace API.Controllers;
 
@@ -20,9 +21,9 @@ public class ActivitiesController : BaseApiController
   }
 
   [HttpGet]
-  public async Task<ActionResult> GetActivities()
+  public async Task<ActionResult> GetActivities([FromQuery] PagingParams pagingParams)
   {
-    return HandleResult(await _mediator.Send(new List.Query()));
+    return HandleResult(await _mediator.Send(new List.Query() { PagingParams = pagingParams }));
   }
 
   [HttpGet("{id:guid}")]
