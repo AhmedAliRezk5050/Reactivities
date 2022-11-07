@@ -58,7 +58,7 @@ export default class ActivityStore {
       const user = store.authStore.user!;
       const profile = new UserProfile(user);
 
-      const dbCeatedActivity = {
+      const dbCreatedActivity = {
         ...newActivity,
         date: newActivity.date!,
         hostUserName: user.userName,
@@ -69,11 +69,11 @@ export default class ActivityStore {
       };
 
       this.addActivity({
-        ...dbCeatedActivity,
+        ...dbCreatedActivity,
       });
 
       runInAction(() => {
-        this.activity = dbCeatedActivity;
+        this.activity = dbCreatedActivity;
       });
     } catch (e) {
       this.setError({
