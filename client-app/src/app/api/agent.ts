@@ -1,12 +1,11 @@
-import { Photo, Profile } from "./../models/profile";
-import { ActivityFormValues } from "./../models/activity";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { Photo, Profile } from "../models/profile";
+import { ActivityFormValues } from "../models/activity";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import { appBrowserHistory } from "../../routing/AppRouter";
 import Activity from "../models/activity";
 import { LoginData, RegisterData, User } from "../models/user";
 import { PaginatedResult } from "../models/pagination";
-import { json } from "stream/consumers";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
 
@@ -85,7 +84,10 @@ const authBaseUrl = "/account";
 const makeActivityUrl = (id: string) => `${activitiesBaseUrl}/${id}`;
 
 export const activityApi = {
-  list: () => axios.get<PaginatedResult<FetchedActivity[]>>(activitiesBaseUrl),
+  list: (params: URLSearchParams) =>
+    axios.get<PaginatedResult<FetchedActivity[]>>(activitiesBaseUrl, {
+      params,
+    }),
   details: (id: string) => axios.get<FetchedActivity>(makeActivityUrl(id)),
   add: (activity: ActivityFormValues) =>
     axios.post(activitiesBaseUrl, activity),

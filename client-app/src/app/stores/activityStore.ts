@@ -1,4 +1,4 @@
-import { ActivityFormValues } from "./../models/activity";
+import { ActivityFormValues } from "../models/activity";
 import { makeAutoObservable, runInAction } from "mobx";
 import Activity from "../models/activity";
 import { activityApi, FetchedActivity } from "../api/agent";
@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 import { store } from "./store";
 import { UserProfile } from "../models/profile";
-import { Pagination } from "../models/pagination";
+import { Pagination, PagingParams } from "../models/pagination";
 
 interface Error {
   title: string;
@@ -23,6 +23,7 @@ export default class ActivityStore {
   attendanceLoading = false;
   error: Error | null = null;
   pagination: Pagination | null = null;
+  pagingParams = new PagingParams();
 
   constructor() {
     makeAutoObservable(this);
@@ -31,7 +32,7 @@ export default class ActivityStore {
   fetchActivities = async () => {
     this.setActivitiesLoading(true);
     try {
-      const response = await activityApi.list();
+      const response = await activityApi.list(this.axiosPagingParams);
       this.setActivities(response.data.data);
       this.setPagination(response.data.pagination);
 
@@ -286,4 +287,16 @@ export default class ActivityStore {
   };
 
   setPagination = (pagination: Pagination) => (this.pagination = pagination);
+
+  setPagingParams = (pagingParams: PagingParams) => {
+    this.pagingParams = pagingParams;
+  };
+
+  get axiosPagingParams() {
+    const params = new URLSearchParams();
+    params.append("pageNumber", this.pagingParams.pageNumber.toString());
+    params.append("pageSize", this.pagingParams.pageSize.toString());
+
+    return params;
+  }
 }
