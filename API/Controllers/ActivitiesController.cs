@@ -4,7 +4,6 @@ using Domain;
 using Application.Activities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Application.Core;
 
 namespace API.Controllers;
 
@@ -12,18 +11,16 @@ namespace API.Controllers;
 public class ActivitiesController : BaseApiController
 {
   private readonly IMediator _mediator;
-  private readonly IValidator<Activity> _validator;
 
   public ActivitiesController(IMediator mediator, IValidator<Activity> validator)
   {
     _mediator = mediator;
-    _validator = validator;
   }
 
   [HttpGet]
-  public async Task<ActionResult> GetActivities([FromQuery] PagingParams pagingParams)
+  public async Task<ActionResult> GetActivities([FromQuery] ActivityParams activityParams)
   {
-    return HandlePagedResult(await _mediator.Send(new List.Query() { PagingParams = pagingParams }));
+    return HandlePagedResult(await _mediator.Send(new List.Query() { ActivityParams = activityParams }));
   }
 
   [HttpGet("{id:guid}")]
