@@ -4,6 +4,7 @@ import React from 'react';
 import { useStore } from '../../../app/stores/store';
 import { observer } from 'mobx-react-lite';
 import ActivityListItem from './ActivityListItem';
+import ActivityListItemPlaceholder from './ActivityListItemPlaceholder';
 
 interface Props {}
 
@@ -14,7 +15,13 @@ const ActivityList: FC<Props> = () => {
     activityStore.fetchActivities();
   }, [activityStore]);
 
-  if (activityStore.activitiesByDate.length === 0) return null;
+  if (activityStore.activitiesByDate.length === 0)
+    return (
+      <>
+        <ActivityListItemPlaceholder />
+        <ActivityListItemPlaceholder />
+      </>
+    );
 
   return (
     <>
