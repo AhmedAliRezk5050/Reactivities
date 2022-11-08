@@ -28,4 +28,16 @@ public class ProfilesController : BaseApiController
         await _mediator.Send(
             new Update.Command { UpdateProfileDto = updateProfileDto }));
   }
+
+  [HttpGet("{username}/activities")]
+  public async Task<ActionResult> GetT(string username, [FromQuery] string predicate)
+  {
+    return HandleResult(
+        await _mediator.Send(
+            new ListActivities.Query
+            {
+              Predicate = predicate,
+              Username = username,
+            }));
+  }
 }

@@ -2,10 +2,11 @@
 using Application.Comments;
 using AutoMapper;
 using Domain;
+using Application.Profiles;
 
 namespace Application.Core;
 
-public class MappingProfiles : Profile
+public class MappingProfiles : AutoMapper.Profile
 {
   public MappingProfiles()
   {
@@ -32,32 +33,32 @@ public class MappingProfiles : Profile
         .ForMember(attendeeDto => attendeeDto.Image,
             o =>
                 o.MapFrom(activityAttendee =>
-                    GetPhoto(activityAttendee.AppUser)))
+                    activityAttendee.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url))
         .ForMember(attendeeDto => attendeeDto.IsFollowing,
             o => o.MapFrom(activityAttendee =>
                 activityAttendee
-                .AppUser
-                .Followers
-                .Any(userFollowing =>
-                userFollowing.Follower.UserName == currentUsername)
+                    .AppUser
+                    .Followers
+                    .Any(userFollowing =>
+                        userFollowing.Follower.UserName == currentUsername)
             ))
-            .ForMember(attendeeDto => attendeeDto.FollowersCount,
+        .ForMember(attendeeDto => attendeeDto.FollowersCount,
             o => o.MapFrom(activityAttendee =>
                 activityAttendee
-                .AppUser
-                .Followers.Count
+                    .AppUser
+                    .Followers.Count
             ))
-            .ForMember(attendeeDto => attendeeDto.FollowingCount,
+        .ForMember(attendeeDto => attendeeDto.FollowingCount,
             o => o.MapFrom(activityAttendee =>
                 activityAttendee
-                .AppUser
-                .Following.Count
+                    .AppUser
+                    .Following.Count
             ));
 
     CreateMap<AppUser, Profiles.Profile>()
         .ForMember(profile => profile.Image,
             c
-                => c.MapFrom(appUser => GetPhoto(appUser)))
+                => c.MapFrom(appUser => appUser.Photos.FirstOrDefault(p => p.IsMain).Url))
         .ForMember(profile => profile.FollowersCount,
             c
                 => c.MapFrom(a => a.Followers.Count)
@@ -80,13 +81,36 @@ public class MappingProfiles : Profile
                 => ce.MapFrom(c => c.Author.UserName))
         .ForMember(cd => cd.Image,
             ce
-                => ce.MapFrom(c => GetPhoto(c.Author)));
-  }
+                => ce.MapFrom(comment =>
+                    comment.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
 
-  // must be static to avoid memory leak
-  public static string? GetPhoto(AppUser appUser)
-  {
-    var photo = appUser.Photos.FirstOrDefault(p => p.IsMain);
-    return photo == null ? null : photo.Url;
+    CreateMap<ActivityAttendee, UserActivityDto>()
+        .ForMember(userActivityDto
+                => userActivityDto.Id,
+            c
+                => c.MapFrom(attendee => attendee.ActivityId)
+        )
+        .ForMember(userActivityDto
+                => userActivityDto.Title,
+            c
+                => c.MapFrom(attendee => attendee.Activity.Title)
+        ).ForMember(userActivityDto
+                => userActivityDto.Category,
+            c
+                => c.MapFrom(attendee => attendee.Activity.Category)
+        )
+        .ForMember(userActivityDto
+                => userActivityDto.Date,
+            c
+                => c.MapFrom(attendee => attendee.Activity.Date)
+        ).ForMember(userActivityDto
+                => userActivityDto.HostUsername,
+            c
+                => c.MapFrom(activityAttendee
+                    => activityAttendee
+                        .Activity
+                        .Attendees
+                        .FirstOrDefault(attendee => attendee.IsHost)!.AppUser.UserName)
+        );
   }
 }
