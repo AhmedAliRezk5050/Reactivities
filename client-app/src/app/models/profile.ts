@@ -1,4 +1,4 @@
-import { User } from './user';
+import { User } from "./user";
 
 export interface Profile {
   userName: string;
@@ -32,4 +32,15 @@ export interface Photo {
   id: string;
   url: string;
   isMain: boolean;
+}
+
+export interface FetchedUserActivity {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+}
+
+export interface AppUserActivity extends Omit<FetchedUserActivity, "date"> {
+  date: Date;
 }

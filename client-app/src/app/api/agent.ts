@@ -1,4 +1,4 @@
-import { Photo, Profile } from "../models/profile";
+import { Photo, Profile, FetchedUserActivity } from "../models/profile";
 import { ActivityFormValues } from "../models/activity";
 import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
@@ -126,6 +126,12 @@ export const profilesApi = {
   updateFollowStatus: (username: string) => axios.post(`/follow/${username}`),
   listFollowings: (username: string, predicate: string) =>
     axios.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+  listActivities: (username: string, predicate?: string) =>
+    axios.get<FetchedUserActivity[]>(`/profiles/${username}/activities`, {
+      params: {
+        predicate,
+      },
+    }),
 };
 
 interface ResponseData {

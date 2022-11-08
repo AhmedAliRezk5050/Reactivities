@@ -1,7 +1,13 @@
-import { store } from './store';
-import { profilesApi } from './../api/agent';
-import { Profile, Photo } from './../models/profile';
-import { makeAutoObservable, reaction } from 'mobx';
+import { store } from "./store";
+import { profilesApi } from "./../api/agent";
+import {
+  Profile,
+  Photo,
+  FetchedUserActivity,
+  AppUserActivity,
+} from "./../models/profile";
+import { makeAutoObservable, reaction } from "mobx";
+
 export default class ProfileStore {
   profile: Profile | null = null;
   profileLoading: boolean = true;
@@ -13,6 +19,9 @@ export default class ProfileStore {
   fetchFollowingsLoading = false;
   followings: Profile[] = [];
   activeTab = 0;
+  userActivities: AppUserActivity[] = [];
+  userActivitiesLoading = false;
+
   constructor() {
     makeAutoObservable(this);
 
@@ -20,13 +29,13 @@ export default class ProfileStore {
       () => this.activeTab,
       (tab) => {
         if (tab === 3) {
-          this.fetchFollowings('followers');
+          this.fetchFollowings("followers");
         } else if (tab === 4) {
-          this.fetchFollowings('following');
+          this.fetchFollowings("following");
         } else {
           this.setFollowings([]);
         }
-      },
+      }
     );
   }
 
@@ -110,11 +119,22 @@ export default class ProfileStore {
     try {
       const { data } = await profilesApi.listFollowings(
         this.profile!.userName,
-        predicate,
+        predicate
       );
       this.setFollowings(data);
     } catch (error) {}
     this.setFetchFollowingsLoading(false);
+  };
+
+  fetchUserActivities = async (username: string, predicate?: string) => {
+    this.setUserActivitiesLoading(true);
+    try {
+      const { data } = await profilesApi.listActivities(username, predicate);
+      this.setUserActivities(data);
+    } catch (err: any) {
+      console.log(err);
+    }
+    this.setUserActivitiesLoading(false);
   };
 
   get isAuthenticatedProfile() {
@@ -207,4 +227,16 @@ export default class ProfileStore {
   setActiveTab = (tab: number) => {
     this.activeTab = tab;
   };
+
+  setUserActivities = (fetchedUserActivities: FetchedUserActivity[]) => {
+    this.userActivities = fetchedUserActivities.map((a) => ({
+      ...a,
+      date: this.stringToDate(a.date),
+    }));
+  };
+
+  setUserActivitiesLoading = (status: boolean) =>
+    (this.userActivitiesLoading = status);
+
+  stringToDate = (date: string) => new Date(date + "Z");
 }

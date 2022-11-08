@@ -1,33 +1,34 @@
-import { observer } from 'mobx-react-lite';
-import { FC } from 'react';
-import { Tab } from 'semantic-ui-react';
-import { useStore } from '../../app/stores/store';
-import EditProfile from './EditProfile';
-import ProfileFollowings from './ProfileFollowings';
-import ProfilePhotos from './ProfilePhotos';
+import { observer } from "mobx-react-lite";
+import { FC } from "react";
+import { Tab } from "semantic-ui-react";
+import { useStore } from "../../app/stores/store";
+import EditProfile from "./EditProfile";
+import ProfileFollowings from "./ProfileFollowings";
+import ProfilePhotos from "./ProfilePhotos";
+import ProfileActivities from "./ProfileActivities";
 
 const ProfileContent = () => {
   const { profileStore } = useStore();
   const panes = [
-    { menuItem: 'About', render: () => <EditProfile /> },
+    { menuItem: "About", render: () => <EditProfile /> },
     {
-      menuItem: 'Photos',
+      menuItem: "Photos",
       render: () => <ProfilePhotos />,
     },
-    { menuItem: 'Events', render: () => <Tab.Pane>Events Content</Tab.Pane> },
+    { menuItem: "Events", render: () => <ProfileActivities /> },
     {
-      menuItem: 'Followers',
+      menuItem: "Followers",
       render: () => <ProfileFollowings />,
     },
     {
-      menuItem: 'Following',
+      menuItem: "Following",
       render: () => <ProfileFollowings />,
     },
   ];
   return (
     <Tab
       menu={{ fluid: true, vertical: true }}
-      menuPosition='right'
+      menuPosition="right"
       panes={panes}
       onTabChange={(x, y) => {
         profileStore.setActiveTab(y.activeIndex as number);
