@@ -1,6 +1,5 @@
-import { FilterParams } from './../models/filter';
 import { ActivityFormValues } from '../models/activity';
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, reaction } from 'mobx';
 import Activity from '../models/activity';
 import { activityApi, FetchedActivity } from '../api/agent';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,14 +24,18 @@ export default class ActivityStore {
   error: Error | null = null;
   pagination: Pagination | null = null;
   pagingParams = new PagingParams();
-  filterParams: FilterParams = {
-    all: true,
-    isGoing: false,
-    isHost: false,
-    startDate: new Date(),
-  };
+  predicate = new Map().set('all', true);
   constructor() {
     makeAutoObservable(this);
+
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.activities.clear();
+        this.setPagingParams(new PagingParams());
+        this.fetchActivities();
+      },
+    );
   }
 
   fetchActivities = async () => {
@@ -302,38 +305,42 @@ export default class ActivityStore {
     const params = new URLSearchParams();
     params.append('pageNumber', this.pagingParams.pageNumber.toString());
     params.append('pageSize', this.pagingParams.pageSize.toString());
-
-    for (const key in this.filterParams) {
-      const value = this.filterParams[key as keyof FilterParams];
-      if (typeof value === 'object') {
-        params.append('startDate', value.toISOString());
-      } else if (key !== 'all' && value) {
-        params.append(key, value.toString());
+    this.predicate.forEach((value, key) => {
+      if (key === 'startDate') {
+        params.append(key, (value as Date).toISOString());
+      } else if (key !== 'all') {
+        params.append(key, value);
       }
-    }
-    console.log(params.values());
-
+    });
     return params;
   }
 
-  setFilterParams = (key: keyof FilterParams, value?: Date) => {
-    if (typeof value === 'object') {
-      this.filterParams.startDate = value;
-    } else if (key === 'all') {
-      this.filterParams.all = true;
-      this.filterParams.isGoing = false;
-      this.filterParams.isHost = false;
-    } else if (key === 'isGoing') {
-      this.filterParams.all = false;
-      this.filterParams.isGoing = true;
-      this.filterParams.isHost = false;
-    } else if (key === 'isHost') {
-      this.filterParams.all = false;
-      this.filterParams.isHost = true;
-      this.filterParams.isGoing = false;
+  resetPredicate = () => {
+    this.predicate.forEach((value, key) => {
+      if (key !== 'startDate') {
+        this.predicate.delete(key);
+      }
+    });
+  };
+
+  setPredicate = (key: string, value?: Date) => {
+    switch (key) {
+      case 'all':
+        this.resetPredicate();
+        this.predicate.set('all', true);
+        break;
+      case 'isGoing':
+        this.resetPredicate();
+        this.predicate.set('isGoing', true);
+        break;
+      case 'isHost':
+        this.resetPredicate();
+        this.predicate.set('isHost', true);
+        break;
+      case 'startDate':
+        // delete to trigger change detection
+        this.predicate.delete('startDate');
+        this.predicate.set('startDate', value);
     }
-    this.activities.clear();
-    this.setPagingParams(new PagingParams(1));
-    this.fetchActivities();
   };
 }

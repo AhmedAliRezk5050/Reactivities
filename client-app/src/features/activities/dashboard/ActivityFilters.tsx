@@ -1,11 +1,11 @@
 import { Header, Menu } from 'semantic-ui-react';
 import Calendar from 'react-calendar';
-import { observer } from 'mobx-react-lite';
 import { useStore } from '../../../app/stores/store';
+import { observer } from 'mobx-react-lite';
 
 const ActivityFilters = () => {
   const { activityStore } = useStore();
-  const { setFilterParams } = activityStore;
+  const { setPredicate } = activityStore;
   return (
     <>
       <Menu
@@ -16,22 +16,25 @@ const ActivityFilters = () => {
         <Header icon='filter' attached content='Filters' />
         <Menu.Item
           content='All Activities'
-          onClick={() => setFilterParams('all')}
-          active={activityStore.filterParams.all}
+          active={activityStore.predicate.has('all')}
+          onClick={() => setPredicate('all')}
         />
         <Menu.Item
           content="I'm going"
-          onClick={() => setFilterParams('isGoing')}
-          active={activityStore.filterParams.isGoing}
+          active={activityStore.predicate.has('isGoing')}
+          onClick={() => setPredicate('isGoing')}
         />
         <Menu.Item
           content="I'm hosting"
-          onClick={() => setFilterParams('isHost')}
-          active={activityStore.filterParams.isHost}
+          active={activityStore.predicate.has('isHost')}
+          onClick={() => setPredicate('isHost')}
         />
       </Menu>
       <Header />
-      <Calendar onChange={(date: Date) => setFilterParams('startDate', date)} />
+      <Calendar
+        onChange={(date: Date) => setPredicate('startDate', date)}
+        value={activityStore.predicate.get('startDate') || new Date()}
+      />
     </>
   );
 };
