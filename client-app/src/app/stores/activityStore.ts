@@ -1,12 +1,13 @@
-import { ActivityFormValues } from "../models/activity";
-import { makeAutoObservable, runInAction } from "mobx";
-import Activity from "../models/activity";
-import { activityApi, FetchedActivity } from "../api/agent";
-import { v4 as uuidv4 } from "uuid";
-import { format } from "date-fns";
-import { store } from "./store";
-import { UserProfile } from "../models/profile";
-import { Pagination, PagingParams } from "../models/pagination";
+import { FilterParams } from './../models/filter';
+import { ActivityFormValues } from '../models/activity';
+import { makeAutoObservable, runInAction } from 'mobx';
+import Activity from '../models/activity';
+import { activityApi, FetchedActivity } from '../api/agent';
+import { v4 as uuidv4 } from 'uuid';
+import { format } from 'date-fns';
+import { store } from './store';
+import { UserProfile } from '../models/profile';
+import { Pagination, PagingParams } from '../models/pagination';
 
 interface Error {
   title: string;
@@ -24,7 +25,12 @@ export default class ActivityStore {
   error: Error | null = null;
   pagination: Pagination | null = null;
   pagingParams = new PagingParams();
-
+  filterParams: FilterParams = {
+    all: true,
+    isGoing: false,
+    isHost: false,
+    startDate: new Date(),
+  };
   constructor() {
     makeAutoObservable(this);
   }
@@ -37,13 +43,13 @@ export default class ActivityStore {
       this.setPagination(response.data.pagination);
 
       if (response.data.data.length === 0) {
-        this.setError({ title: "Activities", message: "No activities found" });
+        this.setError({ title: 'Activities', message: 'No activities found' });
       }
     } catch (e: any) {
       this.clearActivities();
       this.setError({
-        title: "Activities",
-        message: "Failed to load activities",
+        title: 'Activities',
+        message: 'Failed to load activities',
       });
     }
     this.setActivitiesLoading(false);
@@ -77,8 +83,8 @@ export default class ActivityStore {
       });
     } catch (e) {
       this.setError({
-        title: "Activities",
-        message: "Failed to create new activity",
+        title: 'Activities',
+        message: 'Failed to create new activity',
       });
       throw e;
     }
@@ -95,8 +101,8 @@ export default class ActivityStore {
       this.editActivity(updateActivity);
     } catch (e) {
       this.setError({
-        title: "Activities",
-        message: "Failed to edit activity",
+        title: 'Activities',
+        message: 'Failed to edit activity',
       });
       throw e;
     }
@@ -110,8 +116,8 @@ export default class ActivityStore {
       this.setError(null);
     } catch (e: any) {
       this.setError({
-        title: "Activities",
-        message: "Failed to delete activity",
+        title: 'Activities',
+        message: 'Failed to delete activity',
       });
     }
     this.setOperationsLoading(false);
@@ -127,13 +133,13 @@ export default class ActivityStore {
       return this.activity;
     } catch (e) {
       this.setActivityLoading(false);
-      this.setError({ title: "Activity", message: "Failed to fetch activity" });
+      this.setError({ title: 'Activity', message: 'Failed to fetch activity' });
     }
   };
 
   get activitiesByDate() {
     return Array.from(this.activities.values()).sort(
-      (a, b) => b.date.getTime() - a.date.getTime()
+      (a, b) => b.date.getTime() - a.date.getTime(),
     );
   }
 
@@ -173,7 +179,7 @@ export default class ActivityStore {
     return Object.entries(
       this.activitiesByDate.reduce(
         (prev: { [key: string]: Activity[] }, cur) => {
-          const dateAsString = format(cur.date, "dd MMM yyy");
+          const dateAsString = format(cur.date, 'dd MMM yyy');
           if (!prev[dateAsString]) {
             prev[dateAsString] = [];
           }
@@ -181,8 +187,8 @@ export default class ActivityStore {
           prev[dateAsString].push(cur);
           return prev;
         },
-        {}
-      )
+        {},
+      ),
     );
   }
 
@@ -232,16 +238,16 @@ export default class ActivityStore {
     const user = store.authStore.user;
     const activity: Activity = {
       ...fetchedActivity,
-      date: new Date(fetchedActivity.date + "Z"),
+      date: new Date(fetchedActivity.date + 'Z'),
     };
 
     if (user) {
       activity.isGoing = activity.attendees?.some(
-        (attendee) => attendee.userName === user.userName
+        (attendee) => attendee.userName === user.userName,
       );
       activity.isHost = activity.hostUserName === user.userName;
       activity.host = activity.attendees?.find(
-        (attendee) => attendee.userName === activity.hostUserName
+        (attendee) => attendee.userName === activity.hostUserName,
       );
     }
     return activity;
@@ -257,7 +263,7 @@ export default class ActivityStore {
 
   removeAttendee = (username: string) => {
     this.activity!.attendees = this.activity?.attendees?.filter(
-      (attendee) => attendee.userName !== username
+      (attendee) => attendee.userName !== username,
     );
   };
 
@@ -294,9 +300,40 @@ export default class ActivityStore {
 
   get axiosPagingParams() {
     const params = new URLSearchParams();
-    params.append("pageNumber", this.pagingParams.pageNumber.toString());
-    params.append("pageSize", this.pagingParams.pageSize.toString());
+    params.append('pageNumber', this.pagingParams.pageNumber.toString());
+    params.append('pageSize', this.pagingParams.pageSize.toString());
+
+    for (const key in this.filterParams) {
+      const value = this.filterParams[key as keyof FilterParams];
+      if (typeof value === 'object') {
+        params.append('startDate', value.toISOString());
+      } else if (key !== 'all' && value) {
+        params.append(key, value.toString());
+      }
+    }
+    console.log(params.values());
 
     return params;
   }
+
+  setFilterParams = (key: keyof FilterParams, value?: Date) => {
+    if (typeof value === 'object') {
+      this.filterParams.startDate = value;
+    } else if (key === 'all') {
+      this.filterParams.all = true;
+      this.filterParams.isGoing = false;
+      this.filterParams.isHost = false;
+    } else if (key === 'isGoing') {
+      this.filterParams.all = false;
+      this.filterParams.isGoing = true;
+      this.filterParams.isHost = false;
+    } else if (key === 'isHost') {
+      this.filterParams.all = false;
+      this.filterParams.isHost = true;
+      this.filterParams.isGoing = false;
+    }
+    this.activities.clear();
+    this.setPagingParams(new PagingParams(1));
+    this.fetchActivities();
+  };
 }
