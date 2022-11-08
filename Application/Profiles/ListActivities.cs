@@ -11,7 +11,7 @@ public class ListActivities
 {
   public class Query : IRequest<Result<List<UserActivityDto>>?>
   {
-    public string Predicate { get; set; } = null!;
+    public string? Predicate { get; set; }
 
     public string Username { get; set; } = null!;
   }
@@ -44,7 +44,7 @@ public class ListActivities
       };
 
       var activities = await query.ToListAsync();
-      
+
       return Result<List<UserActivityDto>>.Success(activities);
     }
   }

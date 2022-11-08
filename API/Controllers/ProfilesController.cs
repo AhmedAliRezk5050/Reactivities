@@ -30,7 +30,7 @@ public class ProfilesController : BaseApiController
   }
 
   [HttpGet("{username}/activities")]
-  public async Task<ActionResult> GetT(string username, [FromQuery] string predicate)
+  public async Task<ActionResult> GetT(string username, [FromQuery] string? predicate)
   {
     return HandleResult(
         await _mediator.Send(
