@@ -13,7 +13,7 @@ public class Delete
     public string Id { get; set; } = null!;
   }
 
-  public class Handler : IRequestHandler<Command, Result<Unit>>
+  public class Handler : IRequestHandler<Command, Result<Unit>?>
   {
     private readonly DataContext _dataContext;
     private readonly IPhotoAccessor _photoAccessor;
