@@ -16,8 +16,6 @@ using Persistence;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 builder.Services.AddControllers(o =>
 {
   var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
@@ -60,8 +58,8 @@ if (app.Environment.IsDevelopment())
 // we are not using https now
 // app.UseHttpsRedirection();
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
+// app.UseDefaultFiles();
+// app.UseStaticFiles();
 
 
 app.UseCors("CorsPolicy");
@@ -71,7 +69,7 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chat");
 app.MapControllers();
-app.MapFallbackToController("Index", "Fallback");
+// app.MapFallbackToController("Index", "Fallback");
 
 await Utility.MigrateAndSeed(app);
 

@@ -40,14 +40,16 @@ namespace Persistence
       builder.Entity<UserFollowing>(x =>
       {
         x.HasKey(uF => new { uF.FollowerId, uF.FollowingId });
-
+    
         x.HasOne(userFollowing => userFollowing.Follower)
          .WithMany(follower => follower.Following)
-         .HasForeignKey(following => following.FollowerId);
+         .HasForeignKey(following => following.FollowerId)
+         .OnDelete(DeleteBehavior.Restrict);
 
         x.HasOne(userFollowing => userFollowing.Following)
          .WithMany(following => following.Followers)
-         .HasForeignKey(following => following.FollowingId);
+         .HasForeignKey(following => following.FollowingId)
+         .OnDelete(DeleteBehavior.Restrict);
 
       });
     }
