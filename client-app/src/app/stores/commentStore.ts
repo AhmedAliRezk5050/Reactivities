@@ -1,7 +1,7 @@
-import { store } from './store';
-import { ChatComment } from './../models/comment';
-import { makeAutoObservable } from 'mobx';
-import * as signalR from '@microsoft/signalr';
+import { store } from "./store";
+import { ChatComment } from "./../models/comment";
+import { makeAutoObservable } from "mobx";
+import * as signalR from "@microsoft/signalr";
 
 export default class CommentStore {
   comments: ChatComment[] = [];
@@ -15,23 +15,23 @@ export default class CommentStore {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Information)
       .withAutomaticReconnect()
-      .withUrl(`http://localhost:5000/chat?activityId=${activityId}`, {
+      .withUrl(`${process.env.REACT_APP_CHAT_URL}?activityId=${activityId}`, {
         accessTokenFactory: () => store.authStore.user?.token!,
       })
       .build();
 
     this.hubConnection
       .start()
-      .then(() => console.log('--- Connection Started ---'))
+      .then(() => console.log("--- Connection Started ---"))
       .catch((err) => console.log(err));
 
-    this.hubConnection.on('ListComments', (comments) => {
+    this.hubConnection.on("ListComments", (comments) => {
       console.log(comments);
 
       this.setComments(comments);
     });
 
-    this.hubConnection.on('ReceiveComment', (comment) => {
+    this.hubConnection.on("ReceiveComment", (comment) => {
       console.log(comment);
       this.addComment(comment);
     });
@@ -40,13 +40,13 @@ export default class CommentStore {
   stopConnection = () => {
     this.hubConnection
       .stop()
-      .then(() => console.log('--- Connection Stopped ---'))
+      .then(() => console.log("--- Connection Stopped ---"))
       .catch((err) => console.log(err));
   };
 
   createComment = async (activityId: string, reply: string) => {
     try {
-      await this.hubConnection.invoke('CreateComment', {
+      await this.hubConnection.invoke("CreateComment", {
         activityId: activityId,
         body: reply,
       });
@@ -57,7 +57,7 @@ export default class CommentStore {
 
   setComments = (comments: any) => {
     this.comments = comments.map((comment: any) => {
-      comment.createdAt = new Date(comment.createdAt + 'Z');
+      comment.createdAt = new Date(comment.createdAt + "Z");
       return comment;
     });
   };

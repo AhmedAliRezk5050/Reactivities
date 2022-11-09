@@ -7,7 +7,7 @@ import Activity from "../models/activity";
 import { LoginData, RegisterData, User } from "../models/user";
 import { PaginatedResult } from "../models/pagination";
 
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 const sleep = (delay: number) => {
   return new Promise((resolve) => {
