@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useEffect } from "react";
+import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Tab, Grid, Header, Card, Image, TabProps } from "semantic-ui-react";
 import { Link } from "react-router-dom";

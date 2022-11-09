@@ -1,5 +1,4 @@
 import { observer } from "mobx-react-lite";
-import { FC } from "react";
 import { Tab } from "semantic-ui-react";
 import { useStore } from "../../app/stores/store";
 import EditProfile from "./EditProfile";

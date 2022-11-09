@@ -11,7 +11,6 @@ import AppModal from "./modals/AppModal";
 import { ToastContainer } from "react-toastify";
 import React from "react";
 import ScrollToTop from "./ScrollToTop";
-import { Dimmer, Loader } from "semantic-ui-react";
 
 const App = () => {
   return (
