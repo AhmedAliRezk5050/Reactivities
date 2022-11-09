@@ -17,8 +17,8 @@ var configuration = builder.Configuration;
 
 builder.Services.AddControllers(o =>
 {
-    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    o.Filters.Add(new AuthorizeFilter(policy));
+  var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+  o.Filters.Add(new AuthorizeFilter(policy));
 });
 
 builder.Services.ConfigureCors();
@@ -50,12 +50,16 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 // we are not using https now
 // app.UseHttpsRedirection();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 
 app.UseCors("CorsPolicy");
 
@@ -64,6 +68,7 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chat");
 app.MapControllers();
+app.MapFallbackToController("Index", "Fallback");
 
 await Utility.MigrateAndSeed(app);
 
