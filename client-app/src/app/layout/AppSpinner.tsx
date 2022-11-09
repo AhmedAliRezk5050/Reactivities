@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { Dimmer, Loader } from 'semantic-ui-react';
+import { FC } from "react";
+import { Dimmer, Loader } from "semantic-ui-react";
 
 interface Props {
   active?: boolean;
@@ -8,7 +8,7 @@ interface Props {
 
 const AppSpinner: FC<Props> = ({ active = true, text }) => {
   return (
-    <Dimmer active={active}>
+    <Dimmer active={active} page>
       <Loader content={text} />
     </Dimmer>
   );
