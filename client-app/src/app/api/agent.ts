@@ -110,6 +110,8 @@ export const authApi = {
     axios.post<User>(`${authBaseUrl}/login`, loginData),
   register: (registerData: RegisterData) =>
     axios.post<User>(`${authBaseUrl}/register`, registerData),
+  fbLogin: (accessToken: string) =>
+    axios.post(`/account/fbLogin?accessToken=${accessToken}`),
 };
 
 export const profilesApi = {

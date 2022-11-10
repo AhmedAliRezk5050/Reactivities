@@ -2,19 +2,19 @@
 
 public static class CorsExtensions
 {
-    public static void ConfigureCors(this IServiceCollection services)
+  public static void ConfigureCors(this IServiceCollection services)
+  {
+    services.AddCors(o =>
     {
-        services.AddCors(o =>
-        {
-            o.AddPolicy("CorsPolicy",
-                policyBuilder =>
-                    policyBuilder
-                        // .AllowAnyOrigin()
-                        .WithOrigins("http://localhost:3000")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials()
-            );
-        });
-    }
+      o.AddPolicy("CorsPolicy",
+              policyBuilder =>
+                  policyBuilder
+                      // .AllowAnyOrigin()
+                      .WithOrigins("https://localhost:3000")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials()
+          );
+    });
+  }
 }
