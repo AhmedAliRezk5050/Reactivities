@@ -6,94 +6,161 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace API.Controllers;
 
 public class AccountController : BaseApiController
 {
-    private readonly UserManager<AppUser> _userManager;
+  private readonly UserManager<AppUser> _userManager;
+  private readonly SignInManager<AppUser> _signInManager;
+  private readonly AuthService _authService;
+  private readonly IConfiguration _config;
+  private readonly HttpClient _client;
 
-    private readonly SignInManager<AppUser> _signInManager;
+  public AccountController(
+      UserManager<AppUser> userManager,
+      SignInManager<AppUser> signInManager,
+      AuthService authService,
+      IConfiguration config,
+      HttpClient client
+  )
+  {
+    _userManager = userManager;
+    _signInManager = signInManager;
+    _authService = authService;
+    _config = config;
+    _client = client;
+    _client.BaseAddress = new Uri("https://graph.facebook.com/");
+  }
 
-    private readonly AuthService _authService;
+  [AllowAnonymous]
+  [HttpPost("login")]
+  public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+  {
+    var user = await _userManager
+        .Users
+        .Include(u => u.Photos)
+        .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-    public AccountController(
-        UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager,
-        AuthService authService
-    )
+    if (user == null) return Unauthorized();
+
+    var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+
+    if (!result.Succeeded) return Unauthorized();
+
+    return CreateUserDto(user);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("register")]
+  public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+  {
+    if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _authService = authService;
+      ModelState.AddModelError("email", "Email is taken");
+      return ValidationProblem(ModelState);
     }
 
-    [AllowAnonymous]
-    [HttpPost("login")]
-    public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+    if (await _userManager.FindByNameAsync(registerDto.UserName) != null)
     {
-        var user = await _userManager
-            .Users
-            .Include(u => u.Photos)
-            .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-
-        if (user == null) return Unauthorized();
-
-        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-
-        if (!result.Succeeded) return Unauthorized();
-
-        return CreateUserDto(user);
+      ModelState.AddModelError("userName", "Username is taken");
+      return ValidationProblem(ModelState);
     }
 
-    [AllowAnonymous]
-    [HttpPost("register")]
-    public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+    var user = new AppUser()
     {
-        if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
-        {
-            ModelState.AddModelError("email", "Email is taken");
-            return ValidationProblem(ModelState);
+      DisplayName = registerDto.DisplayName,
+      Email = registerDto.Email,
+      UserName = registerDto.UserName,
+    };
+
+    var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+    if (!result.Succeeded) return BadRequest("Failed registering user");
+
+    return CreateUserDto(user);
+  }
+
+
+  [HttpGet]
+  public async Task<ActionResult<UserDto>> GetAuthenticatedUser()
+  {
+    var user = await _userManager.Users
+        .Include(u => u.Photos)
+        .FirstOrDefaultAsync(u => u.Email == User.FindFirstValue(ClaimTypes.Email));
+
+    return CreateUserDto(user!);
+  }
+
+  [AllowAnonymous]
+  [HttpPost("fbLogin")]
+  public async Task<ActionResult<UserDto>> FacebookLogin([FromQuery] string accessToken)
+  {
+    var appId = _config["Facebook:AppId"];
+    var appSecret = _config["Facebook:AppSecret"];
+    var validAccessToken = $"{appId}|{appSecret}";
+
+    var verifyToken =
+        await _client.GetAsync($"debug_token?input_token={accessToken}&access_token={validAccessToken}");
+
+    if (!verifyToken.IsSuccessStatusCode) return Unauthorized();
+
+    var fbUrl = $"me?access_token={accessToken}&fields=name,email,picture.width(100).height(100)";
+
+    var response = await _client.GetAsync(fbUrl);
+
+    if (!response.IsSuccessStatusCode) return Unauthorized();
+
+    var content = await response.Content.ReadAsStringAsync();
+
+    var facebookUserDataDto = JsonConvert.DeserializeObject<FacebookUserDataDto>(content);
+
+    if (facebookUserDataDto is null) return LoginFailureResponse();
+
+    var user = await _userManager.Users
+                                        .Include(u => u.Photos)
+                                        .FirstOrDefaultAsync(u => u.Email
+                                                == facebookUserDataDto.Email);
+
+    if (user != null) return CreateUserDto(user);
+
+    user = new AppUser
+    {
+      Email = facebookUserDataDto.Email,
+      DisplayName = facebookUserDataDto.Name,
+      UserName = facebookUserDataDto.Id,
+      Photos = new List<Photo> {
+        new Photo {
+            Id = "fb" + facebookUserDataDto.Id,
+            Url = facebookUserDataDto.Picture.Data.Url,
+            IsMain = true
         }
+      }
+    };
 
-        if (await _userManager.FindByNameAsync(registerDto.UserName) != null)
-        {
-            ModelState.AddModelError("userName", "Username is taken");
-            return ValidationProblem(ModelState);
-        }
+    var result = await _userManager.CreateAsync(user);
 
-        var user = new AppUser()
-        {
-            DisplayName = registerDto.DisplayName,
-            Email = registerDto.Email,
-            UserName = registerDto.UserName,
-        };
+    if (!result.Succeeded) return LoginFailureResponse();
 
-        var result = await _userManager.CreateAsync(user, registerDto.Password);
+    return CreateUserDto(user);
+  }
 
-        if (!result.Succeeded) return BadRequest("Failed registering user");
-
-        return CreateUserDto(user);
-    }
-
-    [HttpGet]
-    public async Task<ActionResult<UserDto>> GetAuthenticatedUser()
+  private UserDto CreateUserDto(AppUser user)
+  {
+    return new UserDto()
     {
-        var user = await _userManager.Users
-            .Include(u => u.Photos)
-            .FirstOrDefaultAsync(u => u.Email == User.FindFirstValue(ClaimTypes.Email));
+      Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url,
+      Token = _authService.CreateToken(user),
+      DisplayName = user.DisplayName!,
+      UserName = user.UserName
+    };
+  }
 
-        return CreateUserDto(user!);
-    }
-
-    private UserDto CreateUserDto(AppUser user)
-    {
-        return new UserDto()
-        {
-            Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url,
-            Token = _authService.CreateToken(user),
-            DisplayName = user.DisplayName!,
-            UserName = user.UserName
-        };
-    }
+  private ActionResult LoginFailureResponse()
+  {
+    ModelState.AddModelError("login_failure", "failed to login");
+    return BadRequest(ModelState);
+  }
 }
+

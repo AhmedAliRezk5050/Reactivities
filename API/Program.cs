@@ -11,17 +11,15 @@ using Infrastructure.Photos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-
+builder.Services.AddHttpClient();
 builder.Services.AddControllers(o =>
 {
   var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
   o.Filters.Add(new AuthorizeFilter(policy));
 });
-
 builder.Services.ConfigureCors();
 builder.Services.AddSignalR();
 

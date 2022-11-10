@@ -1,11 +1,11 @@
-import { Photo, Profile, FetchedUserActivity } from "../models/profile";
-import { ActivityFormValues } from "../models/activity";
-import axios, { AxiosError } from "axios";
-import { toast } from "react-toastify";
-import { appBrowserHistory } from "../../routing/AppRouter";
-import Activity from "../models/activity";
-import { LoginData, RegisterData, User } from "../models/user";
-import { PaginatedResult } from "../models/pagination";
+import { Photo, Profile, FetchedUserActivity } from '../models/profile';
+import { ActivityFormValues } from '../models/activity';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import { appBrowserHistory } from '../../routing/AppRouter';
+import Activity from '../models/activity';
+import { LoginData, RegisterData, User } from '../models/user';
+import { PaginatedResult } from '../models/pagination';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
@@ -16,22 +16,22 @@ const sleep = (delay: number) => {
 };
 
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   if (config.headers && token) {
-    config.headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
   }
   return config;
 });
 
 axios.interceptors.response.use(
   async (response) => {
-    if (process.env.NODE_ENV === "development") await sleep(1000);
-    const pagination = response.headers["pagination"];
+    if (process.env.NODE_ENV === 'development') await sleep(1000);
+    const pagination = response.headers['pagination'];
 
     if (pagination) {
       response.data = new PaginatedResult(
         response.data,
-        JSON.parse(pagination)
+        JSON.parse(pagination),
       );
       return response;
     }
@@ -41,7 +41,7 @@ axios.interceptors.response.use(
   (error: AxiosError<ResponseData>) => {
     const { response } = error;
     const status = response?.status;
-    let errorMessage = "Unkown Error occured";
+    let errorMessage = 'Unkown Error occured';
     if (response && status) {
       switch (status) {
         case 400:
@@ -67,26 +67,26 @@ axios.interceptors.response.use(
             }
             throw errsArray;
           }
-          errorMessage = "Bad request";
+          errorMessage = 'Bad request';
           break;
         case 401:
-          errorMessage = "Unauthorized";
-          appBrowserHistory.replace("/");
+          errorMessage = 'Unauthorized';
+          appBrowserHistory.replace('/');
           break;
         case 404:
-          errorMessage = "Not found";
-          appBrowserHistory.replace("/not-found");
+          errorMessage = 'Not found';
+          appBrowserHistory.replace('/not-found');
           break;
       }
     }
     toast.error(errorMessage);
     return Promise.reject(error);
-  }
+  },
 );
 
-const activitiesBaseUrl = "/activities";
+const activitiesBaseUrl = '/activities';
 
-const authBaseUrl = "/account";
+const authBaseUrl = '/account';
 
 const makeActivityUrl = (id: string) => `${activitiesBaseUrl}/${id}`;
 
@@ -111,15 +111,15 @@ export const authApi = {
   register: (registerData: RegisterData) =>
     axios.post<User>(`${authBaseUrl}/register`, registerData),
   fbLogin: (accessToken: string) =>
-    axios.post(`/account/fbLogin?accessToken=${accessToken}`),
+    axios.post<User>(`${authBaseUrl}/fbLogin?accessToken=${accessToken}`),
 };
 
 export const profilesApi = {
   get: (username: string) => axios.get<Profile>(`/profiles/${username}`),
   uploadPhoto: (file: Blob) => {
     let formData = new FormData();
-    formData.append("File", file);
-    return axios.post<Photo>("/photos", formData);
+    formData.append('File', file);
+    return axios.post<Photo>('/photos', formData);
   },
   setMainPhoto: (photoId: string) => axios.post(`/photos/${photoId}/setMain`),
   delete: (photoId: string) => axios.delete(`/photos/${photoId}`),
@@ -152,6 +152,6 @@ interface ValidationErrors {
 }
 
 export interface FetchedActivity
-  extends Omit<Activity, "date" | "isGoing" | "isHost" | "host"> {
+  extends Omit<Activity, 'date' | 'isGoing' | 'isHost' | 'host'> {
   date: string;
 }
