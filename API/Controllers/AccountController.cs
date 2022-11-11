@@ -79,6 +79,8 @@ public class AccountController : BaseApiController
 
     if (!result.Succeeded) return BadRequest("Failed registering user");
 
+    await SetRefereshToken(user);
+
     return CreateUserDto(user);
   }
 
@@ -143,7 +145,41 @@ public class AccountController : BaseApiController
 
     if (!result.Succeeded) return LoginFailureResponse();
 
+    await SetRefereshToken(user);
+
     return CreateUserDto(user);
+  }
+
+
+  [HttpPost("refreshToken")]
+  public async Task<ActionResult<UserDto>> RefreshToken()
+  {
+    var token = Request.Cookies["refreshToken"];
+
+    var user = await _userManager.Users
+    .Include(u => u.RefreshTokens)
+    .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
+
+    if (user is null) return Unauthorized();
+
+    var oldRefreshToken = user.RefreshTokens.FirstOrDefault(f => f.Token == token);
+
+    if (oldRefreshToken != null && !oldRefreshToken.IsActive) return Unauthorized();
+
+    return CreateUserDto(user);
+  }
+
+  private async Task SetRefereshToken(AppUser user)
+  {
+    var refreshToken = _authService.GenerateRefreshToken();
+    user.RefreshTokens.Add(refreshToken);
+    await _userManager.UpdateAsync(user);
+    var cookieOptions = new CookieOptions
+    {
+      HttpOnly = true,
+      Expires = DateTime.UtcNow.AddDays(7)
+    };
+    Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
   }
 
   private UserDto CreateUserDto(AppUser user)
