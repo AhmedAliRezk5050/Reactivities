@@ -49,6 +49,8 @@ public class AccountController : BaseApiController
 
     if (!result.Succeeded) return Unauthorized();
 
+    await SetRefereshToken(user);
+
     return CreateUserDto(user);
   }
 
@@ -144,8 +146,6 @@ public class AccountController : BaseApiController
     var result = await _userManager.CreateAsync(user);
 
     if (!result.Succeeded) return LoginFailureResponse();
-
-    await SetRefereshToken(user);
 
     return CreateUserDto(user);
   }
