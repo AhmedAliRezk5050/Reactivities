@@ -9,44 +9,45 @@ namespace API.Extensions;
 
 public static class AuthExtensions
 {
-    public static void ConfigureAuth(this IServiceCollection services, IConfiguration config)
-    {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+  public static void ConfigureAuth(this IServiceCollection services, IConfiguration config)
+  {
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(o =>
-            {
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    // validate token against our provided secret key("super secret key")
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-
-                o.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments("/chat")))
-                        {
-                            context.Token = accessToken;
-                        }
-
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-
-        services.AddAuthorization(options =>
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(o =>
         {
-            options.AddPolicy("IsActivityHost", policy => { policy.Requirements.Add(new HostRequirement()); });
+          o.TokenValidationParameters = new TokenValidationParameters
+          {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+          };
+
+          o.Events = new JwtBearerEvents
+          {
+            OnMessageReceived = context =>
+                {
+                  var accessToken = context.Request.Query["access_token"];
+                  var path = context.HttpContext.Request.Path;
+                  if (!string.IsNullOrEmpty(accessToken) &&
+                          (path.StartsWithSegments("/chat")))
+                  {
+                    context.Token = accessToken;
+                  }
+
+                  return Task.CompletedTask;
+                }
+          };
         });
-        services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
-        services.AddScoped<AuthService>();
-    }
+
+    services.AddAuthorization(options =>
+    {
+      options.AddPolicy("IsActivityHost", policy => { policy.Requirements.Add(new HostRequirement()); });
+    });
+    services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
+    services.AddScoped<AuthService>();
+  }
 }
