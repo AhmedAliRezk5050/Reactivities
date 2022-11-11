@@ -158,6 +158,7 @@ public class AccountController : BaseApiController
 
     var user = await _userManager.Users
     .Include(u => u.RefreshTokens)
+    .Include(u => u.Photos)
     .FirstOrDefaultAsync(u => u.UserName == User.FindFirstValue(ClaimTypes.Name));
 
     if (user is null) return Unauthorized();
