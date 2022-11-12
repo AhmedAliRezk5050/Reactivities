@@ -6,7 +6,7 @@ import { appBrowserHistory } from '../../routing/AppRouter';
 import Activity from '../models/activity';
 import { LoginData, RegisterData, User } from '../models/user';
 import { PaginatedResult } from '../models/pagination';
-
+import { store } from '../stores/store';
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 const sleep = (delay: number) => {
@@ -70,8 +70,14 @@ axios.interceptors.response.use(
           errorMessage = 'Bad request';
           break;
         case 401:
-          errorMessage = 'Unauthorized';
-          appBrowserHistory.replace('/');
+          if (response.headers['www-authenticate'].includes('invalid_token')) {
+            store.authStore.logout();
+            errorMessage = 'Session expired - please login again';
+          } else {
+            errorMessage = 'Unauthorized';
+            appBrowserHistory.replace('/');
+          }
+
           break;
         case 404:
           errorMessage = 'Not found';
@@ -112,6 +118,7 @@ export const authApi = {
     axios.post<User>(`${authBaseUrl}/register`, registerData),
   fbLogin: (accessToken: string) =>
     axios.post<User>(`${authBaseUrl}/fbLogin?accessToken=${accessToken}`),
+  refreshToken: () => axios.post<User>(`${authBaseUrl}/refreshToken`),
 };
 
 export const profilesApi = {

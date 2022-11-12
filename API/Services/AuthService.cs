@@ -25,14 +25,14 @@ public class AuthService
             new(ClaimTypes.Email, user.Email),
         };
 
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"] ?? string.Empty));
 
     var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
     var tokenDescriptor = new SecurityTokenDescriptor()
     {
       Subject = new ClaimsIdentity(claims),
-      Expires = DateTime.UtcNow.AddMinutes(1),
+      Expires = DateTime.UtcNow.AddMinutes(10),
       SigningCredentials = signingCredentials
     };
 

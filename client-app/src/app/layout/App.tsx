@@ -10,8 +10,15 @@ import ProfilePage from '../../features/profiles/ProfilePage';
 import AppModal from './modals/AppModal';
 import { ToastContainer } from 'react-toastify';
 import ScrollToTop from './ScrollToTop';
+import { useEffect } from 'react';
+import { useStore } from '../stores/store';
 
 const App = () => {
+  const { authStore } = useStore();
+  useEffect(() => {
+    authStore.authInit();
+  }, [authStore]);
+
   return (
     <>
       <AppModal />

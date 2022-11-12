@@ -13,6 +13,7 @@ public static class CorsExtensions
                       .WithOrigins("https://localhost:3000")
                       .AllowAnyMethod()
                       .AllowAnyHeader()
+                      .WithExposedHeaders("WWW-Authenticate", "pagination")
                       .AllowCredentials()
           );
     });

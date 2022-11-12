@@ -8,12 +8,10 @@ import { store } from './store';
 export default class AuthStore {
   user: User | null = null;
   authLoading = false;
+  refreshTokenTimer: any;
+
   constructor() {
     makeAutoObservable(this);
-    const userFromLocalStorage = localStorage.getItem('user');
-    if (userFromLocalStorage) {
-      this.setUser(JSON.parse(userFromLocalStorage));
-    }
 
     reaction(
       () => this.user,
@@ -21,11 +19,15 @@ export default class AuthStore {
         if (user) {
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('token', user.token);
+          this.startRefreshTokenTimer();
           appBrowserHistory.replace('/activities');
         } else {
           localStorage.removeItem('user');
           localStorage.removeItem('token');
           appBrowserHistory.replace('/');
+          if (this.refreshTokenTimer) {
+            this.clearRefreshTokenTimer();
+          }
         }
         store.modalStore.closeModal();
       },
@@ -56,14 +58,15 @@ export default class AuthStore {
   };
 
   logout = () => {
-    this.setUser(null);
+    if (this.user !== null) {
+      this.setUser(null);
+    }
   };
 
   facebookLogin = () => {
     this.authLoading = true;
     FB.login(
       (response) => {
-        debugger;
         if (response.status === 'connected') {
           authApi
             .fbLogin(response.authResponse.accessToken)
@@ -80,6 +83,15 @@ export default class AuthStore {
       },
       { scope: 'public_profile,email' },
     );
+  };
+
+  refreshToken = async () => {
+    try {
+      const { data } = await authApi.refreshToken();
+      this.setUser(data);
+    } catch (error) {
+      this.setUser(null);
+    }
   };
 
   get authenticated() {
@@ -102,5 +114,28 @@ export default class AuthStore {
 
   setAuthLoading = (status: boolean) => {
     this.authLoading = status;
+  };
+
+  startRefreshTokenTimer = () => {
+    if (!this.user) return;
+    const token = this.user.token;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expiry = payload.exp as number;
+
+    const interval = expiry * 1000 - Date.now() - 60000;
+
+    console.log('startRefreshTokenTimer', interval);
+
+    this.refreshTokenTimer = setTimeout(this.refreshToken, interval);
+  };
+  clearRefreshTokenTimer = () => {
+    clearTimeout(this.refreshTokenTimer);
+  };
+
+  authInit = () => {
+    const userFromLocalStorage = localStorage.getItem('user');
+    if (userFromLocalStorage) {
+      this.setUser(JSON.parse(userFromLocalStorage));
+    }
   };
 }
