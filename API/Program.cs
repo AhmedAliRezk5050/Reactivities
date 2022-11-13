@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Interfaces;
 using FluentValidation;
 using Infrastructure;
+using Infrastructure.Email;
 using Infrastructure.Photos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +29,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddMediatR(typeof(List.Handler).Assembly);
 
 builder.Services.AddScoped<IUserNameAccessor, UserNameAccessor>();
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
 
 builder.Services.ConfigureDbContext(configuration);
 builder.Services.ConfigureIdentity(configuration);
