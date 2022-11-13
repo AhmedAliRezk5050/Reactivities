@@ -1,10 +1,13 @@
 using System.Security.Claims;
+using System.Text;
 using API.DTOs;
 using API.Services;
 using Domain;
+using Infrastructure.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -16,14 +19,17 @@ public class AccountController : BaseApiController
   private readonly SignInManager<AppUser> _signInManager;
   private readonly AuthService _authService;
   private readonly IConfiguration _config;
+
   private readonly HttpClient _client;
+  private readonly IEmailSender _emailSender;
 
   public AccountController(
       UserManager<AppUser> userManager,
       SignInManager<AppUser> signInManager,
       AuthService authService,
       IConfiguration config,
-      HttpClient client
+      HttpClient client,
+      IEmailSender emailSender
   )
   {
     _userManager = userManager;
@@ -32,6 +38,7 @@ public class AccountController : BaseApiController
     _config = config;
     _client = client;
     _client.BaseAddress = new Uri("https://graph.facebook.com/");
+    _emailSender = emailSender;
   }
 
   [AllowAnonymous]
@@ -60,7 +67,7 @@ public class AccountController : BaseApiController
 
   [AllowAnonymous]
   [HttpPost("register")]
-  public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+  public async Task<ActionResult> Register(RegisterDto registerDto)
   {
     if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
     {
@@ -85,9 +92,18 @@ public class AccountController : BaseApiController
 
     if (!result.Succeeded) return BadRequest("Failed registering user");
 
-    await SetRefereshToken(user);
+    var origin = Request.Headers["origin"];
 
-    return CreateUserDto(user);
+    var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+    confirmationToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationToken));
+
+    var verifyUrl = $"${origin}/account/verifyEmail?confirmationToken=${confirmationToken}&email=${user.Email}";
+
+    var message = $"<p>Please click the below link to verify your email: </p>"
+    + $"<p><a href='{verifyUrl}'>Click to verify email</a></p>";
+    await _emailSender.SendEmailAsync(user.Email, "Confirm your email to complete the registration", message);
+
+    return Ok("Please confirm your email to complete registering");
   }
 
 
