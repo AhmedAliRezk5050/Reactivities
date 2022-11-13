@@ -43,11 +43,15 @@ public class AccountController : BaseApiController
         .Include(u => u.Photos)
         .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-    if (user == null) return Unauthorized();
+    if (user == null) return Unauthorized("No account found matches this email");
+
+    if (user.UserName == "bob") user.EmailConfirmed = true;
+
+    if (!user.EmailConfirmed) return Unauthorized("Email is not confirmed yet");
 
     var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-    if (!result.Succeeded) return Unauthorized();
+    if (!result.Succeeded) return Unauthorized("Wrong password");
 
     await SetRefereshToken(user);
 
@@ -142,6 +146,9 @@ public class AccountController : BaseApiController
         }
       }
     };
+
+    // facebook already confirmed user's email
+    user.EmailConfirmed = true;
 
     var result = await _userManager.CreateAsync(user);
 

@@ -18,8 +18,13 @@ public static class IdentityExtensions
 
   public static void ConfigureIdentity(this IServiceCollection services, IConfiguration config)
   {
-    services.AddIdentityCore<AppUser>(options => { options.Password.RequireNonAlphanumeric = false; })
+    services.AddIdentityCore<AppUser>(options =>
+    {
+      options.Password.RequireNonAlphanumeric = false;
+      options.SignIn.RequireConfirmedEmail = true;
+    })
         .AddEntityFrameworkStores<DataContext>()
-        .AddSignInManager<SignInManager<AppUser>>();
+        .AddSignInManager<SignInManager<AppUser>>()
+        .AddDefaultTokenProviders();
   }
 }
