@@ -92,18 +92,7 @@ public class AccountController : BaseApiController
 
     if (!result.Succeeded) return BadRequest("Failed registering user");
 
-    var origin = Request.Headers["origin"];
-
-    var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-    confirmationToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationToken));
-
-    var verifyUrl = $"${origin}/account/verifyEmail?confirmationToken=${confirmationToken}&email=${user.Email}";
-
-    var message = $"<p>Please click the below link to verify your email: </p>"
-    + $"<p><a href='{verifyUrl}'>Click to verify email</a></p>";
-    await _emailSender.SendEmailAsync(user.Email, "Confirm your email to complete the registration", message);
-
-    return Ok("Please confirm your email to complete registering");
+    return await SendConfirmationEmail(user, "Please confirm your email to complete registering");
   }
 
 
@@ -193,6 +182,34 @@ public class AccountController : BaseApiController
     return CreateUserDto(user);
   }
 
+  [AllowAnonymous]
+  [HttpPost("verifyEmail")]
+  public async Task<ActionResult> VerifyEmail([FromQuery] string confirmationToken, [FromQuery] string email)
+  {
+    var user = await _userManager.FindByEmailAsync(email);
+
+    if (user is null) return Unauthorized();
+
+    var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(confirmationToken));
+
+    var confirmResult = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+    if (!confirmResult.Succeeded) BadRequest("Could not verify email");
+
+    return Ok("Email confirmed, you can log in");
+  }
+
+  [AllowAnonymous]
+  [HttpGet("resendEmailConfirmationLink")]
+  public async Task<ActionResult> ResendEmailConfirmationLink([FromQuery] string email)
+  {
+    var user = await _userManager.FindByEmailAsync(email);
+
+    if (user is null) return Unauthorized();
+
+    return await SendConfirmationEmail(user, "Email verificaton link sent");
+  }
+
   private async Task SetRefereshToken(AppUser user)
   {
     var refreshToken = _authService.GenerateRefreshToken();
@@ -221,6 +238,22 @@ public class AccountController : BaseApiController
   {
     ModelState.AddModelError("login_failure", "failed to login");
     return BadRequest(ModelState);
+  }
+
+  public async Task<ActionResult> SendConfirmationEmail(AppUser user, string successMessage)
+  {
+    var origin = Request.Headers["origin"];
+
+    var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+    confirmationToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(confirmationToken));
+
+    var verifyUrl = $"{origin}/account/verifyEmail?confirmationToken={confirmationToken}&email={user.Email}";
+
+    var message = $"<p>Please click the below link to verify your email: </p>"
+    + $"<p><a href='{verifyUrl}'>Click to verify email</a></p>";
+    await _emailSender.SendEmailAsync(user.Email, "Confirm your email to complete the registration", message);
+
+    return Ok(successMessage);
   }
 }
 
